@@ -849,7 +849,7 @@ onAuthStateChanged(auth, async (user) => {
 
 
 async function updatePage(articleData) {
-  const scriptTag = `<script id="dynamic-js" src="https://rw-501.github.io/contentManagement/site/${articleData.pageName}/setup/main.js"><\/script>`;
+  const scriptTag = `<script id="dynamic-js" src="https://rw-501.github.io/contentManagement/site/${articleData.domain}/setup/main.js"><\/script>`;
 
   // 🔹 Schema switch
   let schemaJSON;
@@ -887,8 +887,8 @@ async function updatePage(articleData) {
         "image": articleData.image || "",
         "datePublished": articleData.article?.datePublished || new Date().toISOString(),
         "dateModified": articleData.article?.dateModified || new Date().toISOString(),
-        "author": articleData.article?.author || { "@type":"Organization", "name":  articleData.article , "url":  `https://rw-501.github.io/contentManagement/site/${articleData.pageName}` },
-        "publisher": { "@type":"Organization", "name": articleData.article, "logo": {"@type":"ImageObject","url":`https://rw-501.github.io/contentManagement/site/${articleData.pageName}/images/logo.png`} },
+        "author": articleData.article?.author || { "@type":"Organization", "name":  articleData.article , "url":  `https://rw-501.github.io/contentManagement/site/${articleData.domain}` },
+        "publisher": { "@type":"Organization", "name": articleData.article, "logo": {"@type":"ImageObject","url":`https://rw-501.github.io/contentManagement/site/${articleData.domain}/images/logo.png`} },
         "description": articleData.description,
         "articleBody": articleData.body || ""
       };
@@ -909,7 +909,7 @@ async function updatePage(articleData) {
 <title>${articleData.title} | Untitled</title>
 <meta name="description" content="${articleData.description || ""}">
 <meta name="keywords" content="${(articleData.keywords || []).join(', ')}">
-<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.pageName}">
+<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.domain}">
 <script type="application/ld+json" id="pageSchema">${JSON.stringify(schemaJSON)}<\/script>
 <script type="application/ld+json" id="pageMetadata">${JSON.stringify(metadataJSON)}<\/script>
 ${scriptTag}
@@ -949,7 +949,7 @@ const part_4 = "G9MnTu0fIjKj";
 const token = part_1 + part_2 + part_3 + part_4;
 
   // 🔹 GitHub upload
-  const owner = "RW-501", repo="contentManagement", filePath=`site/${articleData.pageName}.html`, branch="main";
+  const owner = "RW-501", repo="contentManagement", filePath=`site/${articleData.domain}.html`, branch="main";
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
   const encodedContent = btoa(unescape(encodeURIComponent(Content)));
 

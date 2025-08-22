@@ -191,7 +191,7 @@ function renderSites(){
       <p>Pages: ${data.pageCount || 0} | Published: ${data.publishedCount || 0}</p>
       <div class="tags">${(data.tags||[]).map(tag=>`<span class="tag">${tag}</span>`).join('')}</div>
     `;
-    card.addEventListener("click",()=>{window.location.href=`/admin/editor?id=${data.id}`});
+    card.addEventListener("click",()=>{window.location.href=`https://rw-501.github.io/contentManagement/${data.domain}`});
     sitesList.appendChild(card);
   });
 
