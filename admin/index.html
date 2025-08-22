@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+    th { background: #f4f4f4; }
+    img { max-width: 80px; border-radius: 6px; }
+  </style>
+</head>
+<body>
+
+  <!-- 🔐 Login Section -->
+  <div id="auth-section">
+    <h2>Admin Login</h2>
+    <button id="googleLogin">Login with Google</button>
+
+    <div style="margin-top:20px;">
+      <input id="phoneInput" placeholder="Enter phone" />
+      <button id="sendCode">Send Code</button>
+    </div>
+
+    <div id="codeSection" class="hidden">
+      <input id="verifyCode" placeholder="Enter code" />
+      <button id="verifyBtn">Verify</button>
+    </div>
+
+    <div id="recaptcha-container"></div>
+  </div>
+
+  <!-- 🛠 Dashboard -->
+  <div id="admin-panel" class="hidden">
+    <h2>Dashboard</h2>
+    <button id="logoutBtn" class="hidden">Logout</button>
+    <div id="dashboardContent"></div>
+  </div>
+
+  <script type="module" src="./admin.js">
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup,
+  RecaptchaVerifier, signInWithPhoneNumber,
+  signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import {
+  getFirestore, collection, getDoc, doc
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
+
+// 🔧 Firebase Config
+const firebaseConfig = {
+  apiKey: "AIzaSyBXZcSYdspfi2jBipwUFeNmKZgU02ksg8c",
+  authDomain: "contentmanagement-8af61.firebaseapp.com",
+  projectId: "contentmanagement-8af61",
+  storageBucket: "contentmanagement-8af61.firebasestorage.app",
+  messagingSenderId: "579537581112",
+  appId: "1:579537581112:web:736c7faafaf1391ce1e2cd",
+  measurementId: "G-ZPWGF7YMPE"
+};
+
+// 🧩 Initialize
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+// ✅ Admin Whitelist
+const allowedEmails = ["1988lrp@gmail.com"];
+const allowedPhones = ["+19725977878", "+12145527280", "9725977878", "2145527280"];
+
+// 🔐 Auth State
+onAuthStateChanged(auth, async (user) => {
+  if (user && (allowedEmails.includes(user.email) || allowedPhones.includes(user.phoneNumber))) {
+    await showAdminPanel(user);
+  } else {
+    logoutUser();
+  }
+});
+
+// 🛠 Load Dashboard
+async function showAdminPanel(user) {
+  document.getElementById("auth-section").classList.add("hidden");
+  document.getElementById("admin-panel").classList.remove("hidden");
+  document.getElementById("logoutBtn").classList.remove("hidden");
+
+  // 🔍 Fetch user record from Firestore
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    document.getElementById("dashboardContent").innerHTML = "<p>No user record found.</p>";
+    return;
+  }
+
+  const userData = userSnap.data();
+
+  // ✅ Check loginTypes includes "login"
+  if (!userData.loginTypes || !userData.loginTypes.includes("login")) {
+    document.getElementById("dashboardContent").innerHTML = "<p>You are not authorized for dashboard access.</p>";
+    return;
+  }
+
+  // ✅ Render createdPages
+  renderDashboard(userData.createdPages || []);
+}
+
+function renderDashboard(pages) {
+  if (pages.length === 0) {
+    document.getElementById("dashboardContent").innerHTML = "<p>No pages created yet.</p>";
+    return;
+  }
+
+  let html = `
+    <table>
+      <thead>
+        <tr>
+          <th>Preview</th>
+          <th>URL</th>
+          <th>Views</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+  `;
+pages.forEach(page => {
+  const pageId = page.id || ""; // 👈 make sure your page objects include `id`
+
+  html += `
+    <tr>
+      <td><img src="${page.image || ''}" alt="preview" style="max-width: 100px;"></td>
+      <td><a href="${page.url}" target="_blank">${page.url}</a></td>
+      <td>${page.views || 0}</td>
+      <td>
+        <button onclick="window.location.href = '/admin/editor?id=${pageId}'">
+          Open
+        </button>
+      </td>
+    </tr>
+  `;
+});
+
+html += `</tbody></table>`;
+
+document.getElementById("dashboardContent").innerHTML = html;
+
+}
+
+
+// 🚪 Logout
+function logoutUser() {
+  signOut(auth);
+  document.getElementById("auth-section").classList.remove("hidden");
+  document.getElementById("admin-panel").classList.add("hidden");
+  document.getElementById("logoutBtn").classList.add("hidden");
+}
+
+// 📲 Google Login
+document.getElementById("googleLogin").addEventListener("click", async () => {
+  const provider = new GoogleAuthProvider();
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    if (!allowedEmails.includes(user.email)) {
+      alert("Unauthorized email.");
+      logoutUser();
+    }
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+// 📞 Phone Login
+let recaptchaVerifier;
+document.addEventListener("DOMContentLoaded", () => {
+  recaptchaVerifier = new RecaptchaVerifier(
+    "recaptcha-container",
+    { size: "invisible" }, auth
+  );
+  recaptchaVerifier.render();
+});
+
+document.getElementById("sendCode").addEventListener("click", async () => {
+  let phone = document.getElementById("phoneInput").value.trim();
+  if (!phone.startsWith("+")) phone = "+1" + phone;
+
+  if (!allowedPhones.includes(phone)) return alert("Unauthorized phone number.");
+
+  try {
+    const confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
+    window.confirmationResult = confirmationResult;
+    document.getElementById("codeSection").classList.remove("hidden");
+  } catch (error) {
+    alert("Error sending code: " + error.message);
+  }
+});
+
+document.getElementById("verifyBtn").addEventListener("click", async () => {
+  const code = document.getElementById("verifyCode").value.trim();
+  try {
+    const result = await window.confirmationResult.confirm(code);
+    const user = result.user;
+    if (!allowedPhones.includes(user.phoneNumber)) {
+      alert("Unauthorized phone number.");
+      logoutUser();
+    } else {
+      showAdminPanel(user);
+    }
+  } catch (error) {
+    alert("Invalid code or expired session.");
+  }
+});
+
+document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+
+  </script>
+</body>
+</html>

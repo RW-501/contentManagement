@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Page Editor</title>
+</head>
+<body>
+  <div id="auth-section">Login first…</div>
+
+  <div id="editor" class="hidden">
+    <h1 id="editorTitle">Create Page</h1>
+
+    <!-- Create Section -->
+    <section id="createPageSection">
+      <input id="title" placeholder="Title" />
+      <textarea id="description" placeholder="Description"></textarea>
+      <input id="keywords" placeholder="Comma separated keywords" />
+      <button id="createBtn">Create</button>
+    </section>
+
+    <!-- Edit Section -->
+    <section id="editPageSection" class="hidden">
+      <h2>Edit Page</h2>
+      <textarea id="blocks" placeholder="Blocks JSON"></textarea>
+      <button id="saveBtn">Save Changes</button>
+    </section>
+
+    <!-- Design Section -->
+    <section id="designPageSection" class="hidden">
+      <h2>Design Blocks</h2>
+      <p>Later: drag & drop block editor here (heading, paragraph, FAQ, etc)</p>
+    </section>
+
+    <!-- SEO Section -->
+    <section id="seoPageSection" class="hidden">
+      <h2>SEO</h2>
+      <input id="ogTitle" placeholder="OG Title" />
+      <input id="ogDesc" placeholder="OG Description" />
+      <input id="ogImage" placeholder="OG Image URL" />
+    </section>
+
+    <button id="publishBtn">Publish</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+    import { 
+      getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBXZcSYdspfi2jBipwUFeNmKZgU02ksg8c",
+  authDomain: "contentmanagement-8af61.firebaseapp.com",
+  projectId: "contentmanagement-8af61",
+  storageBucket: "contentmanagement-8af61.firebasestorage.app",
+  messagingSenderId: "579537581112",
+  appId: "1:579537581112:web:736c7faafaf1391ce1e2cd",
+  measurementId: "G-ZPWGF7YMPE"
+};
+
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Utility
+    const getParam = (key) => new URLSearchParams(window.location.search).get(key);
+
+    let currentUser, pageId = getParam("id");
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) return alert("Login required");
+      currentUser = user;
+
+      document.getElementById("auth-section").classList.add("hidden");
+      document.getElementById("editor").classList.remove("hidden");
+
+      if (pageId) {
+        // Editing existing page
+        const ref = doc(db, "content", pageId);
+        const snap = await getDoc(ref);
+
+        if (!snap.exists()) return alert("Page not found");
+        const data = snap.data();
+
+        if (data.createdBy !== user.uid) {
+          alert("Not your page");
+          return;
+        }
+
+        document.getElementById("editorTitle").innerText = "Edit Page";
+        document.getElementById("editPageSection").classList.remove("hidden");
+        document.getElementById("designPageSection").classList.remove("hidden");
+        document.getElementById("seoPageSection").classList.remove("hidden");
+
+        // Fill fields
+        document.getElementById("title").value = data.title;
+        document.getElementById("description").value = data.description;
+        document.getElementById("keywords").value = (data.keywords || []).join(",");
+        document.getElementById("blocks").value = JSON.stringify(data.blocks || [], null, 2);
+      } 
+    });
+
+    // Create new page
+    document.getElementById("createBtn").addEventListener("click", async () => {
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("description").value.trim();
+      const keywords = document.getElementById("keywords").value.split(",").map(s=>s.trim());
+
+      const docRef = await addDoc(collection(db,"content"), {
+        siteId: "fitness", // or AI/finance, from selector
+        type: "page",
+        title,
+        description,
+        keywords,
+        blocks: [],
+        createdBy: currentUser.uid,
+        updatedBy: currentUser.uid,
+        status: "draft",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+
+      window.location.href = `?id=${docRef.id}`;
+    });
+
+    // Save edits
+    document.getElementById("saveBtn").addEventListener("click", async () => {
+      const ref = doc(db,"content", pageId);
+      await setDoc(ref, {
+        title: document.getElementById("title").value.trim(),
+        description: document.getElementById("description").value.trim(),
+        keywords: document.getElementById("keywords").value.split(","),
+        blocks: JSON.parse(document.getElementById("blocks").value || "[]"),
+        updatedBy: currentUser.uid,
+        updatedAt: serverTimestamp()
+      }, { merge:true });
+
+      alert("Saved!");
+    });
+
+    // Publish
+    document.getElementById("publishBtn").addEventListener("click", async () => {
+      const ref = doc(db,"content", pageId);
+      await setDoc(ref, {
+        status: "published",
+        publishedAt: serverTimestamp()
+      }, { merge:true });
+
+      alert("Published. Site will sync soon.");
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    /*
+
+    content/{docId}:
+  siteId: fitness|ai|finance
+  type: page|post
+  slug: string
+  title: string
+  description: string
+  keywords: []
+  status: draft|published
+  blocks: []
+  og: {title, description, image}
+  schemaTypes: []
+  faq: []
+  howto: []
+  createdBy: userId
+  updatedBy: userId
+  createdAt, updatedAt, publishedAt
+  analytics: {views, uniqueViews}
+  monetization: {ads: [], affiliates: []}
+
+
+  */
+  </script>
+</body>
+</html>
+
+
+

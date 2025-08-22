@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>CMS Home</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background:#f9f9f9; }
+    header, footer { background: #222; color: white; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+    header h1 { margin:0; font-size:1.8rem; }
+    main { padding: 2rem; max-width:1200px; margin:0 auto; }
+    .sites-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(250px,1fr)); gap:1rem; }
+    .site-card { background:white; border:1px solid #ccc; padding:1rem; border-radius:8px; transition:0.3s; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    .site-card:hover { background:#f0f0f0; cursor:pointer; transform: translateY(-2px); }
+    .login-btn { background: #4CAF50; color: white; border: none; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; font-weight:bold; }
+    .login-btn:hover { background: #45a049; }
+    .loading { text-align:center; padding:2rem; font-size:1.2rem; color:#666; }
+    footer div { font-size:0.9rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>CMS Dashboard</h1>
+  <button id="loginBtn" class="login-btn">Login</button>
+</header>
+
+<main>
+  <h2>Websites</h2>
+  <div id="sitesList" class="sites-grid">
+    <div class="loading">Loading sites...</div>
+  </div>
+</main>
+
+<footer>
+  <div>&copy; <span id="currentYear"></span> CMS</div>
+  <div>Last updated: <span id="lastUpdated">-</span></div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getFirestore, collection, getDocs, query, orderBy, where } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+// Firebase config
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_BUCKET",
+  appId: "YOUR_APP_ID"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// Update footer year
+document.getElementById("currentYear").textContent = new Date().getFullYear();
+
+// Login button
+const loginBtn = document.getElementById("loginBtn");
+loginBtn.addEventListener("click", async () => {
+  const provider = new GoogleAuthProvider();
+  try { await signInWithPopup(auth, provider); }
+  catch (err) { alert("Login failed: " + err.message); }
+});
+
+// Auth state
+onAuthStateChanged(auth, user => {
+  if (user) loginBtn.textContent = "Logged in as " + user.displayName;
+});
+
+// Load sites
+async function loadSites() {
+  const sitesDiv = document.getElementById("sitesList");
+  sitesDiv.innerHTML = '<div class="loading">Loading sites...</div>';
+  try {
+    const q = query(collection(db, "pages"), orderBy("createdAt","desc"));
+    const snap = await getDocs(q);
+    if (snap.empty) {
+      sitesDiv.innerHTML = "<p class='loading'>No websites yet. Create one after login.</p>";
+      return;
+    }
+
+    let latestDate = null;
+    sitesDiv.innerHTML = ""; // clear
+    snap.forEach(doc => {
+      const data = doc.data();
+      const card = document.createElement("div");
+      card.className = "site-card";
+      card.innerHTML = `
+        <h3>${data.name || data.title || "Untitled Site"}</h3>
+        <p>Domain: ${data.domain || "N/A"}</p>
+        <p>Pages: ${data.pageCount || 0} | Published: ${data.publishedCount || 0}</p>
+      `;
+      card.addEventListener("click", () => {
+        // Navigate to editor/dashboard for that site
+        window.location.href = `/admin/editor?id=${doc.id}`;
+      });
+      sitesDiv.appendChild(card);
+
+      if (!latestDate || data.createdAt?.toDate() > latestDate) latestDate = data.createdAt?.toDate();
+    });
+
+    if (latestDate) document.getElementById("lastUpdated").textContent = latestDate.toLocaleString();
+  } catch (err) {
+    sitesDiv.innerHTML = `<p class="loading">Error loading sites: ${err.message}</p>`;
+  }
+}
+
+loadSites();
+</script>
+
+</body>
+</html>
