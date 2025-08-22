@@ -430,7 +430,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
   }
 
   const pageName = Date.now().toString();
-  const createdAt = Date.now();
+  const createdAt =  serverTimestamp();
 
   // Build page object
   const newPage = {
