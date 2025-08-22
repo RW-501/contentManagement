@@ -311,11 +311,17 @@ function safeParse(str, fallback) {
 const toJSON = (obj) => JSON.stringify(obj ?? null, null, 2);
 
 /* ping */
-async function pingSite(url) {
-  try { const r = await fetch(url, { method:"HEAD", cache:"no-store" }); return r.ok ? "✅ Online" : "❌ Offline"; }
+
+async function pingSite(domain) {
+  try {
+    const url = domain.startsWith("http") 
+      ? domain 
+      : `https://rw-501.github.io/contentManagement/site/${domain}.html`;
+
+    const resp = await fetch(url, { method: "GET", cache: "no-store" });
+ return r.ok ? "✅ Online" : "❌ Offline"; }
   catch { return "❌ Offline"; }
 }
-
 function getPageIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
