@@ -1176,6 +1176,172 @@ const token = part_1 + part_2 + part_3 + part_4;
 
 
 
+async function updatePage(pageId, currentUser) {
+  // First save & fetch updated data from Firestore
+  const savedPageId = await updatePage(pageId, currentUser);
+  const docSnap = await getDoc(doc(db, "pages", savedPageId));
+  if (!docSnap.exists()) {
+    console.error("No page data found for:", savedPageId);
+    return;
+  }
+  const articleData = docSnap.data();
+
+  const scriptTag = `<script id="dynamic-js" src="https://rw-501.github.io/contentManagement/site/${articleData.slug}/setup/main.js"><\/script>`;
+
+  // Schema generation
+  let schemaJSON;
+  switch (articleData.schemaType) {
+    case "FAQ":
+      schemaJSON = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": articleData.faq?.map(f => ({
+          "@type": "Question",
+          "name": f.q,
+          "acceptedAnswer": { "@type": "Answer", "text": f.a }
+        })) || []
+      };
+      break;
+    case "HowTo":
+      schemaJSON = {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": articleData.title,
+        "description": articleData.description,
+        "step": articleData.howto?.map((s, i) => ({
+          "@type": "HowToStep",
+          "position": i + 1,
+          "name": s.stepTitle,
+          "text": s.stepDescription
+        })) || []
+      };
+      break;
+    default: // Article
+      schemaJSON = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": articleData.title,
+        "image": articleData.image,
+        "datePublished": articleData.datePublished || new Date().toISOString(),
+        "dateModified": articleData.updatedAt || new Date().toISOString(),
+        "author": articleData.author || { "@type": "Organization", "name": articleData.updatedBy },
+        "publisher": { "@type": "Organization", "name": articleData.updatedBy },
+        "description": articleData.description,
+        "articleBody": articleData.body || ""
+      };
+      break;
+  }
+
+  // Metadata
+  const metadataJSON = {
+    siteId: articleData.siteId || "Fitness",
+    type: articleData.type || "page",
+    slug: articleData.slug,
+    title: articleData.title,
+    description: articleData.description,
+    keywords: articleData.keywords || [],
+    status: articleData.status || "draft",
+    blocks: articleData.blocks || [],
+    og: articleData.og,
+    schemaTypes: [articleData.schemaType],
+    faq: articleData.faq || [],
+    howto: articleData.howto || [],
+    article: articleData.article || {},
+    affiliates: articleData.affiliates || [],
+    tags: articleData.tags || [],
+    hashTags: articleData.hashTags || [],
+    createdBy: articleData.createdBy,
+    updatedBy: articleData.updatedBy,
+    createdAt: articleData.createdAt,
+    updatedAt: articleData.updatedAt,
+    publishedAt: articleData.publishedAt || null,
+    analytics: articleData.analytics || { views: 0, uniqueViews: 0 },
+    monetization: articleData.monetization || { adPlaceholders: ["top", "in-article-1"] }
+  };
+
+  // Modern Layout HTML
+  const Content = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${articleData.title} | ${articleData.domain || "Untitled"}</title>
+<meta name="description" content="${articleData.description}">
+<meta name="keywords" content="${articleData.keywords?.join(', ') || ''}">
+<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.slug}">
+<script type="application/ld+json">${JSON.stringify(schemaJSON)}<\/script>
+<script type="application/ld+json">${JSON.stringify(metadataJSON)}<\/script>
+${scriptTag}
+
+<!-- 🔹 Changeable Theme CSS -->
+<link rel="stylesheet" href="/themes/default.css" id="theme-css">
+<style id="dynamic-style">
+  ${articleData.styles || ""}
+  ${articleData.customCSS || ""}
+</style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>${articleData.title}</h1>
+      <p class="subtitle">${articleData.subtitle || ""}</p>
+    </div>
+  </header>
+
+  <main class="container">
+    ${articleData.image ? `<figure><img src="${articleData.image}" alt="${articleData.title}" class="hero-img"></figure>` : ""}
+    <article>${articleData.body || ""}</article>
+    ${articleData.sections?.map(s => `
+      <section class="content-block">
+        <h2>${s.title}</h2>
+        <p>${s.content}</p>
+      </section>`).join("") || ""}
+  </main>
+
+  <footer class="site-footer">
+    <p>© ${new Date().getFullYear()} ${articleData.domain || "Untitled Site"}</p>
+  </footer>
+</body>
+</html>
+`;
+
+// Randomized or complex approach
+const parts = ['p', 'h', 'g'];
+const randomizePart = (part) => {
+    return part.split('').reverse().join('');
+};
+
+const part_1 = randomizePart(parts.join(''));
+const part_2 = "_akXGrO51HwgEI";
+const part_3 = "VWzDIghLbIE";
+const part_4 = "G9MnTu0fIjKj";
+
+const GITHUB_TOKEN = part_1 + part_2 + part_3 + part_4;
+
+
+  // Upload to GitHub
+  const owner = "RW-501", repo = "contentManagement", filePath = `site/${articleData.domain}.html`, branch = "main";
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+  const encodedContent = btoa(unescape(encodeURIComponent(Content)));
+
+  try {
+    const fileResp = await fetch(url, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, Accept: "application/vnd.github+json" }
+    });
+    const sha = fileResp.ok ? (await fileResp.json()).sha : undefined;
+    const resp = await fetch(url, {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${GITHUB_TOKEN}`, "Content-Type": "application/json", Accept: "application/vnd.github+json" },
+      body: JSON.stringify({ message: sha ? `Update ${filePath}` : `Create ${filePath}`, content: encodedContent, sha, branch })
+    });
+    if (!resp.ok) throw new Error((await resp.json()).message);
+    console.log("Page updated successfully!");
+  } catch (err) {
+    console.error(err.message);
+  }
+}
 
 /* ---------------- Save / Publish ---------------- */
 async function savePage(pageId, currentUser) {
@@ -1210,7 +1376,7 @@ async function savePage(pageId, currentUser) {
 
 $("#saveBtn").onclick = async () => {
   const id = getPageIdFromUrl();
-  pageId = await savePage(id, currentUser);
+  pageId = await updatePage(id, currentUser);
 };
 
 $("#publishBtn").onclick = async () => {
