@@ -347,7 +347,9 @@ function getPageIdFromUrl() {
 
 
 let currentUser, pageData = null;
+  const pageId = getPageIdFromUrl();
 
+  
 /* show/hide toggles */
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-toggle]");
@@ -361,7 +363,6 @@ document.addEventListener("click", (e) => {
 
 
 async function loadPageData(currentUser) {
-  const pageId = getPageIdFromUrl();
   if (!pageId) {
     console.warn("No pageId found in URL");
     return null;
