@@ -1230,7 +1230,7 @@ $("#schemaType").addEventListener("change", e => {
   if(e.target.value==="HowTo") $("#howtoSection").classList.remove("hidden");
 });
 
-/* ---------------- Button Handlers ---------------- */
+/* ---------------- Button Handlers ---------------- 
 $("#saveBtn").onclick = async () => {
   const result = await savePage(pageId, currentUser);
   if (result.created) {
@@ -1248,7 +1248,7 @@ $("#publishBtn").onclick = async () => {
   $("#pageStatus").textContent = "published";
   alert("Published!");
 };
-
+*/
 
 
 </script>
