@@ -2,45 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Login</title>
+  <title>Admin Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; }
-    .hidden { display: none; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-    th { background: #f4f4f4; }
-    img { max-width: 80px; border-radius: 6px; }
+    body { font-family: Arial, sans-serif; padding: 20px; background:#f9f9f9; }
+    .hidden { display:none; }
+    table { width:100%; border-collapse: collapse; margin-top:20px; }
+    th, td { border:1px solid #ddd; padding:10px; text-align:left; }
+    th { background:#f4f4f4; }
+    img { max-width:80px; border-radius:6px; }
+    input, textarea { width:100%; margin-bottom:0.5rem; padding:0.5rem; border:1px solid #ccc; border-radius:4px; }
+    button { padding:0.5rem 1rem; margin-top:0.5rem; border:none; border-radius:4px; cursor:pointer; }
+    #createPageSection { background:white; padding:1rem; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-bottom:2rem; }
+    #createPageSection h3 { margin-top:0; }
   </style>
 </head>
 <body>
 
-  <!-- 🔐 Login Section -->
-  <div id="auth-section">
-    <h2>Admin Login</h2>
-    <button id="googleLogin">Login with Google</button>
-
-    <div style="margin-top:20px;">
-      <input id="phoneInput" placeholder="Enter phone" />
-      <button id="sendCode">Send Code</button>
-    </div>
-
-    <div id="codeSection" class="hidden">
-      <input id="verifyCode" placeholder="Enter code" />
-      <button id="verifyBtn">Verify</button>
-    </div>
-
-    <div id="recaptcha-container"></div>
+<div id="auth-section">
+  <h2>Admin Login</h2>
+  <button id="googleLogin">Login with Google</button>
+  <div style="margin-top:20px;">
+    <input id="phoneInput" placeholder="Enter phone" />
+    <button id="sendCode">Send Code</button>
   </div>
-
-  <!-- 🛠 Dashboard -->
-  <div id="admin-panel" class="hidden">
-    <h2>Dashboard</h2>
-    <button id="logoutBtn" class="hidden">Logout</button>
-    <div id="dashboardContent"></div>
+  <div id="codeSection" class="hidden">
+    <input id="verifyCode" placeholder="Enter code" />
+    <button id="verifyBtn">Verify</button>
   </div>
+  <div id="recaptcha-container"></div>
+</div>
 
-  <script type="module" src="./admin.js">
+<div id="admin-panel" class="hidden">
+  <h2>Dashboard</h2>
+  <button id="logoutBtn" class="hidden">Logout</button>
 
+  <!-- Create Page Section -->
+  <section id="createPageSection">
+    <h3>Create New Page</h3>
+    <input id="title" placeholder="Page Title" />
+    <textarea id="description" placeholder="Page Description"></textarea>
+    <input id="keywords" placeholder="Comma separated keywords" />
+    <input id="imageUrl" placeholder="Page Image URL" />
+    <input id="domain" placeholder="Page Domain (example.com)" />
+    <button id="createBtn">Create Page</button>
+  </section>
+
+  <!-- Dashboard Pages List -->
+  <div id="dashboardContent"></div>
+</div>
+
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import {
   getAuth, GoogleAuthProvider, signInWithPopup,
@@ -48,7 +59,7 @@ import {
   signOut, onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import {
-  getFirestore, collection, getDoc, doc
+  getFirestore, collection, getDoc, doc, updateDoc, arrayUnion  
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
@@ -69,18 +80,12 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-// ✅ Admin Whitelist
-const allowedEmails = ["1988lrp@gmail.com"];
-const allowedPhones = ["+19725977878", "+12145527280", "9725977878", "2145527280"];
 
-// 🔐 Auth State
-onAuthStateChanged(auth, async (user) => {
-  if (user && (allowedEmails.includes(user.email) || allowedPhones.includes(user.phoneNumber))) {
-    await showAdminPanel(user);
-  } else {
-    logoutUser();
-  }
-});
+let currentUser;
+
+
+
+
 
 // 🛠 Load Dashboard
 async function showAdminPanel(user) {
@@ -108,47 +113,121 @@ async function showAdminPanel(user) {
   // ✅ Render createdPages
   renderDashboard(userData.createdPages || []);
 }
+// Ping function
+async function pingSite(url) {
+  try {
+    const resp = await fetch("https://" + url, { method:"HEAD", cache:"no-store" });
+    return resp.ok;
+  } catch {
+    return false;
+  }
+}
+window.pingSite = pingSite;
 
-function renderDashboard(pages) {
+
+
+// Logout
+document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
+
+
+
+
+await updateDoc(doc(db, "users", currentUser.uid), {
+  createdPages: arrayUnion({
+    id: docRef.id,
+    title,
+    image,
+    domain,
+    status: "draft",
+    analytics: { views:0 }
+  })
+});
+
+// Create Page
+document.getElementById("createBtn").addEventListener("click", async () => {
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const keywords = document.getElementById("keywords").value.split(",").map(k => k.trim());
+  const image = document.getElementById("imageUrl").value.trim();
+  const domain = document.getElementById("domain").value.trim();
+
+
+  if (!title || !domain) return alert("Title and domain required.");
+if (!/^([a-z0-9]+\.)+[a-z]{2,}$/.test(domain)) return alert("Invalid domain format.");
+if (image && !/^https?:\/\//.test(image)) return alert("Image URL must start with http/https.");
+
+
+  const docRef = await addDoc(collection(db,"content"), {
+    siteId: "", // will be updated with doc id
+    type: "page",
+    title, description, keywords, image, domain,
+    createdBy: currentUser.uid,
+    updatedBy: currentUser.uid,
+    status: "draft",
+    analytics: { views:0, uniqueViews:0 },
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
+
+  // Update siteId to document ID
+await updateDoc(doc(db,"content",docRef.id), { siteId: docRef.id });
+
+  // Ping site every 5 seconds
+  const interval = setInterval(async () => {
+    const online = await pingSite(domain);
+    if (online) {
+      clearInterval(interval);
+      alert(`${title} is now live!`);
+      loadDashboard(); // refresh list
+    }
+  }, 5000);
+});
+
+// Load Dashboard
+async function loadDashboard() {
+  const contentDiv = document.getElementById("dashboardContent");
+  const snapshot = await getDoc(doc(db,"users",currentUser.uid));
+  const pages = snapshot.exists() ? snapshot.data().createdPages || [] : [];
+
   if (pages.length === 0) {
-    document.getElementById("dashboardContent").innerHTML = "<p>No pages created yet.</p>";
+    contentDiv.innerHTML = "<p>No pages yet.</p>";
     return;
   }
 
-  let html = `
-    <table>
-      <thead>
-        <tr>
-          <th>Preview</th>
-          <th>URL</th>
-          <th>Views</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-  `;
-pages.forEach(page => {
-  const pageId = page.id || ""; // 👈 make sure your page objects include `id`
+  let html = `<table>
+    <thead>
+      <tr><th>Preview</th><th>Domain</th><th>Status</th><th>Views</th><th>Actions</th></tr>
+    </thead><tbody>`;
+  
+  pages.forEach(p => {
+    html += `<tr>
+      <td><img src="${p.image||''}" alt="preview"></td>
+      <td>${p.domain}</td>
+      <td id="status-${p.id}">❌ Offline</td>
+      <td>${p.analytics?.views||0}</td>
+      <td><button onclick="window.location.href='/admin/editor?id=${p.id}'">Edit</button></td>
+    </tr>`;
+  });
 
-  html += `
-    <tr>
-      <td><img src="${page.image || ''}" alt="preview" style="max-width: 100px;"></td>
-      <td><a href="${page.url}" target="_blank">${page.url}</a></td>
-      <td>${page.views || 0}</td>
-      <td>
-        <button onclick="window.location.href = '/admin/editor?id=${pageId}'">
-          Open
-        </button>
-      </td>
-    </tr>
-  `;
+  html += "</tbody></table>";
+  contentDiv.innerHTML = html;
+}
+
+
+// ✅ Admin Whitelist
+const allowedEmails = ["1988lrp@gmail.com"];
+const allowedPhones = ["+19725977878", "+12145527280", "9725977878", "2145527280"];
+
+// 🔐 Auth State
+onAuthStateChanged(auth, async (user) => {
+  if (user && (allowedEmails.includes(user.email) || allowedPhones.includes(user.phoneNumber))) {
+    await showAdminPanel(user);
+  } else {
+    alert("Unauthorized");
+    logoutUser();
+  }
 });
 
-html += `</tbody></table>`;
-
-document.getElementById("dashboardContent").innerHTML = html;
-
-}
 
 
 // 🚪 Logout
@@ -217,6 +296,7 @@ document.getElementById("verifyBtn").addEventListener("click", async () => {
 
 document.getElementById("logoutBtn").addEventListener("click", logoutUser);
 
-  </script>
+</script>
+
 </body>
 </html>

@@ -3,52 +3,73 @@
 <head>
   <meta charset="utf-8" />
   <title>Page Editor</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; }
+    #toolbar { display:flex; gap:1rem; background:#333; color:white; padding:1rem; align-items:center; flex-wrap:wrap; }
+    #toolbar div { margin-right:1rem; }
+    section { background:white; padding:1rem; margin:1rem 2rem; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
+    .hidden { display:none; }
+    input, textarea { width:100%; margin-bottom:0.5rem; padding:0.5rem; border:1px solid #ccc; border-radius:4px; }
+    button { padding:0.5rem 1rem; border:none; border-radius:4px; cursor:pointer; margin-top:0.5rem; }
+    #publishBtn { background:#4CAF50; color:white; }
+    #publishBtn:hover { background:#45a049; }
+  </style>
 </head>
 <body>
-  <div id="auth-section">Login first…</div>
 
-  <div id="editor" class="hidden">
-    <h1 id="editorTitle">Create Page</h1>
+<div id="auth-section">Login first…</div>
 
-    <!-- Create Section -->
-    <section id="createPageSection">
-      <input id="title" placeholder="Title" />
-      <textarea id="description" placeholder="Description"></textarea>
-      <input id="keywords" placeholder="Comma separated keywords" />
-      <button id="createBtn">Create</button>
-    </section>
-
-    <!-- Edit Section -->
-    <section id="editPageSection" class="hidden">
-      <h2>Edit Page</h2>
-      <textarea id="blocks" placeholder="Blocks JSON"></textarea>
-      <button id="saveBtn">Save Changes</button>
-    </section>
-
-    <!-- Design Section -->
-    <section id="designPageSection" class="hidden">
-      <h2>Design Blocks</h2>
-      <p>Later: drag & drop block editor here (heading, paragraph, FAQ, etc)</p>
-    </section>
-
-    <!-- SEO Section -->
-    <section id="seoPageSection" class="hidden">
-      <h2>SEO</h2>
-      <input id="ogTitle" placeholder="OG Title" />
-      <input id="ogDesc" placeholder="OG Description" />
-      <input id="ogImage" placeholder="OG Image URL" />
-    </section>
-
-    <button id="publishBtn">Publish</button>
+<div id="editor" class="hidden">
+  <div id="toolbar">
+    <div>Status: <span id="pageStatus">-</span></div>
+    <div>Views: <span id="viewsCount">0</span></div>
+    <div>Unique: <span id="uniqueViews">0</span></div>
+    <div>Last Updated: <span id="lastUpdated">-</span></div>
+    <div>Site Live: <span id="sitePing">-</span></div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-    import { 
-      getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp 
-    } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+  <h1 id="editorTitle">Create Page</h1>
 
+  <!-- Create Section -->
+  <section id="createPageSection">
+    <input id="title" placeholder="Title" />
+    <textarea id="description" placeholder="Description"></textarea>
+    <input id="keywords" placeholder="Comma separated keywords" />
+    <button id="createBtn">Create</button>
+  </section>
+
+  <!-- Edit Section -->
+  <section id="editPageSection" class="hidden">
+    <h2>Edit Page</h2>
+    <textarea id="blocks" placeholder="Blocks JSON"></textarea>
+    <button id="saveBtn">Save Changes</button>
+  </section>
+
+  <!-- Design Section -->
+  <section id="designPageSection" class="hidden">
+    <h2>Design Blocks</h2>
+    <p>Later: drag & drop block editor here (heading, paragraph, FAQ, etc)</p>
+  </section>
+
+  <!-- SEO Section -->
+  <section id="seoPageSection" class="hidden">
+    <h2>SEO</h2>
+    <input id="ogTitle" placeholder="OG Title" />
+    <input id="ogDesc" placeholder="OG Description" />
+    <input id="ogImage" placeholder="OG Image URL" />
+  </section>
+
+  <button id="publishBtn">Publish</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { 
+  getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp 
+} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+
+// Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBXZcSYdspfi2jBipwUFeNmKZgU02ksg8c",
   authDomain: "contentmanagement-8af61.firebaseapp.com",
@@ -60,97 +81,109 @@ const firebaseConfig = {
 };
 
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-    // Utility
-    const getParam = (key) => new URLSearchParams(window.location.search).get(key);
+const getParam = (key) => new URLSearchParams(window.location.search).get(key);
+let currentUser, pageId = getParam("id");
 
-    let currentUser, pageId = getParam("id");
+// Ping site to check live
+async function pingSite(url) {
+  try {
+    const resp = await fetch(url, { method:"HEAD", cache:"no-store" });
+    return resp.ok ? "✅ Online" : "❌ Offline";
+  } catch { return "❌ Offline"; }
+}
 
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) return alert("Login required");
-      currentUser = user;
+onAuthStateChanged(auth, async (user) => {
+  if (!user) return alert("Login required");
+  currentUser = user;
+  document.getElementById("auth-section").classList.add("hidden");
+  document.getElementById("editor").classList.remove("hidden");
 
-      document.getElementById("auth-section").classList.add("hidden");
-      document.getElementById("editor").classList.remove("hidden");
+  if (pageId) {
+    const ref = doc(db, "content", pageId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return alert("Page not found");
 
-      if (pageId) {
-        // Editing existing page
-        const ref = doc(db, "content", pageId);
-        const snap = await getDoc(ref);
+    const data = snap.data();
+    if (data.createdBy !== user.uid) return alert("Not your page");
 
-        if (!snap.exists()) return alert("Page not found");
-        const data = snap.data();
+    document.getElementById("editorTitle").innerText = "Edit Page";
+    ["editPageSection","designPageSection","seoPageSection"].forEach(id => 
+      document.getElementById(id).classList.remove("hidden")
+    );
 
-        if (data.createdBy !== user.uid) {
-          alert("Not your page");
-          return;
-        }
+    // Fill fields
+    document.getElementById("title").value = data.title;
+    document.getElementById("description").value = data.description;
+    document.getElementById("keywords").value = (data.keywords||[]).join(",");
+    document.getElementById("blocks").value = JSON.stringify(data.blocks||[], null, 2);
 
-        document.getElementById("editorTitle").innerText = "Edit Page";
-        document.getElementById("editPageSection").classList.remove("hidden");
-        document.getElementById("designPageSection").classList.remove("hidden");
-        document.getElementById("seoPageSection").classList.remove("hidden");
+    // Toolbar info
+    document.getElementById("pageStatus").textContent = data.status || "draft";
+    document.getElementById("viewsCount").textContent = data.analytics?.views || 0;
+    document.getElementById("uniqueViews").textContent = data.analytics?.uniqueViews || 0;
+    document.getElementById("lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
 
-        // Fill fields
-        document.getElementById("title").value = data.title;
-        document.getElementById("description").value = data.description;
-        document.getElementById("keywords").value = (data.keywords || []).join(",");
-        document.getElementById("blocks").value = JSON.stringify(data.blocks || [], null, 2);
-      } 
-    });
+    // Ping site if domain/url exists
+    if (data.domain) {
+      document.getElementById("sitePing").textContent = "Checking...";
+      document.getElementById("sitePing").textContent = await pingSite(`https://${data.domain}`);
+    }
+  }
+});
 
-    // Create new page
-    document.getElementById("createBtn").addEventListener("click", async () => {
-      const title = document.getElementById("title").value.trim();
-      const description = document.getElementById("description").value.trim();
-      const keywords = document.getElementById("keywords").value.split(",").map(s=>s.trim());
+// Create new page
+document.getElementById("createBtn").addEventListener("click", async () => {
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const keywords = document.getElementById("keywords").value.split(",").map(s=>s.trim());
 
-      const docRef = await addDoc(collection(db,"content"), {
-        siteId: "fitness", // or AI/finance, from selector
-        type: "page",
-        title,
-        description,
-        keywords,
-        blocks: [],
-        createdBy: currentUser.uid,
-        updatedBy: currentUser.uid,
-        status: "draft",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+  const docRef = await addDoc(collection(db,"content"), {
+    siteId: "fitness",
+    type: "page",
+    title,
+    description,
+    keywords,
+    blocks: [],
+    createdBy: currentUser.uid,
+    updatedBy: currentUser.uid,
+    status: "draft",
+    analytics: { views:0, uniqueViews:0 },
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  });
 
-      window.location.href = `?id=${docRef.id}`;
-    });
+  window.location.href = `?id=${docRef.id}`;
+});
 
-    // Save edits
-    document.getElementById("saveBtn").addEventListener("click", async () => {
-      const ref = doc(db,"content", pageId);
-      await setDoc(ref, {
-        title: document.getElementById("title").value.trim(),
-        description: document.getElementById("description").value.trim(),
-        keywords: document.getElementById("keywords").value.split(","),
-        blocks: JSON.parse(document.getElementById("blocks").value || "[]"),
-        updatedBy: currentUser.uid,
-        updatedAt: serverTimestamp()
-      }, { merge:true });
+// Save edits
+document.getElementById("saveBtn").addEventListener("click", async () => {
+  const ref = doc(db,"content", pageId);
+  await setDoc(ref, {
+    title: document.getElementById("title").value.trim(),
+    description: document.getElementById("description").value.trim(),
+    keywords: document.getElementById("keywords").value.split(","),
+    blocks: JSON.parse(document.getElementById("blocks").value || "[]"),
+    updatedBy: currentUser.uid,
+    updatedAt: serverTimestamp()
+  }, { merge:true });
+  alert("Saved!");
+});
 
-      alert("Saved!");
-    });
+// Publish
+document.getElementById("publishBtn").addEventListener("click", async () => {
+  const ref = doc(db,"content", pageId);
+  await setDoc(ref, { status:"published", publishedAt: serverTimestamp() }, { merge:true });
+  document.getElementById("pageStatus").textContent = "published";
+  alert("Published. Site will sync soon.");
+});
+</script>
 
-    // Publish
-    document.getElementById("publishBtn").addEventListener("click", async () => {
-      const ref = doc(db,"content", pageId);
-      await setDoc(ref, {
-        status: "published",
-        publishedAt: serverTimestamp()
-      }, { merge:true });
-
-      alert("Published. Site will sync soon.");
-    });
-
+</body>
+</html>
 
 
 
