@@ -1034,13 +1034,80 @@ onAuthStateChanged(auth, async (user) => {
   });
 
   // Load existing image when editing
-  async function loadPageImage(pageData) {
-    if (pageData.image) {
-      previewImg.src = pageData.image;
-      previewImg.style.display = "block";
-      imageUrl.value = pageData.image;
-    }
+function renderBlockHTML(b) {
+  switch (b.type) {
+    case "heading":
+      return `<h${b.level || 2} class="content-heading heading-${b.level || 2}">
+                ${b.text || ""}
+              </h${b.level || 2}>`;
+
+    case "paragraph":
+      return `<div class="content-paragraph prose max-w-none">
+                ${b.html || ""}
+              </div>`;
+
+    case "image":
+      return `<figure class="content-image">
+                <img src="${b.mediaId}" 
+                     alt="${b.alt || ""}" 
+                     class="rounded-lg shadow-md" 
+                     ${b.width ? `style="width:${b.width}px;"` : "style='max-width:100%;height:auto;'"} />
+                ${b.caption ? `<figcaption class="caption text-sm text-gray-500 mt-2">${b.caption}</figcaption>` : ""}
+              </figure>`;
+
+    case "video":
+      return `<div class="content-video aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md">
+                <iframe src="${b.url}" 
+                        frameborder="0" 
+                        allowfullscreen 
+                        class="w-full h-full"></iframe>
+              </div>
+              ${b.caption ? `<p class="caption text-center text-sm text-gray-500 mt-2">${b.caption}</p>` : ""}`;
+
+    case "faq":
+      return `<dl class="content-faq divide-y divide-gray-200">
+        ${b.items?.map(qa => `
+          <div class="faq-item py-3">
+            <dt class="faq-question font-semibold text-lg">${qa.q}</dt>
+            <dd class="faq-answer text-gray-700 mt-1">${qa.a}</dd>
+          </div>`).join("")}
+      </dl>`;
+
+    case "comparisonTable":
+      return `<div class="overflow-x-auto">
+        <table class="comparison-table w-full border border-gray-300 text-sm text-left">
+          <thead class="bg-gray-100">
+            <tr>${b.columns.map(c => `<th class="px-4 py-2 border">${c}</th>`).join("")}</tr>
+          </thead>
+          <tbody>
+            ${b.rows.map(r => `<tr>${r.map(c => `<td class="px-4 py-2 border">${c}</td>`).join("")}</tr>`).join("")}
+          </tbody>
+        </table>
+      </div>`;
+
+    case "cta":
+    case "button":
+      return `<div class="content-cta my-6 text-center">
+                <a href="${b.href}" 
+                   class="inline-block px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg shadow-md transition">
+                   ${b.text}
+                </a>
+              </div>`;
+
+    case "rawHtml":
+      return `<div class="content-raw">${b.html || ""}</div>`;
+
+    case "ad":
+      return `<div class="ad-slot my-6 border border-dashed border-gray-400 text-center text-gray-500 py-4" data-slot="${b.slot}">
+                [Ad Placeholder: ${b.slot}]
+              </div>`;
+
+    default:
+      return "";
   }
+}
+
+
 
 
 async function updatePage(pageId, currentUser) {
@@ -1053,7 +1120,7 @@ async function updatePage(pageId, currentUser) {
   }
   const articleData = docSnap.data();
 
-  const scriptTag = `<script id="dynamic-js" src="https://rw-501.github.io/contentManagement/site/${articleData.slug}/setup/main.js"><\/script>`;
+  const scriptTag = `<script id="dynamic-js" src="https://rw-501.github.io/contentManagement/site/${articleData.domain}/setup/main.js"><\/script>`;
 
   // Schema generation
   let schemaJSON;
@@ -1136,7 +1203,7 @@ async function updatePage(pageId, currentUser) {
 <title>${articleData.title} | ${articleData.domain || "Untitled"}</title>
 <meta name="description" content="${articleData.description}">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}">
-<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.slug}">
+<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.domain}">
 <script type="application/ld+json">${JSON.stringify(schemaJSON)}<\/script>
 <script type="application/ld+json">${JSON.stringify(metadataJSON)}<\/script>
 ${scriptTag}
@@ -1159,17 +1226,24 @@ ${scriptTag}
   <main class="container">
     ${articleData.image ? `<figure><img src="${articleData.image}" alt="${articleData.title}" class="hero-img"></figure>` : ""}
     <article>${articleData.body || ""}</article>
-    ${articleData.sections?.map(s => `
-      <section class="content-block">
-        <h2>${s.title}</h2>
-        <p>${s.content}</p>
-      </section>`).join("") || ""}
+
+${articleData.blocks?.map((b, i) => `
+  <section id="block-${i}" class="block block-${b.type}">
+    ${renderBlockHTML(b)}
+  </section>
+`).join("") || ""}
+
   </main>
 
   <footer class="site-footer">
     <p>© ${new Date().getFullYear()} ${articleData.domain || "Untitled Site"}</p>
   </footer>
 </body>
+<div hidden>
+<div id="pageID">${pageID}</div>
+<div id="pageOwnerUserID">${articleData.userID}</div>
+<div id="pageDomain">${articleData.domain}</div>
+</div>
 </html>
 `;
 
@@ -1211,7 +1285,10 @@ const GITHUB_TOKEN = part_1 + part_2 + part_3 + part_4;
 }
 
 /* ---------------- Save / Publish ---------------- */
-async function savePage(pageId, currentUser) {
+async function savePage(pageId, currentUser) { 
+  // Serialize blocks from builder
+  const blocks = serializeBlocks();
+
   const data = {
     title: $("#title").value.trim(),
     slug: $("#slug").value.trim(),
@@ -1220,7 +1297,12 @@ async function savePage(pageId, currentUser) {
     domain: $("#domain").value.trim(),
     body: $("#bodyEditor")?._te?.getHTML?.() || "",
     styles: collectPageStyles(),
-    og: { title: $("#ogTitle").value, description: $("#ogDesc").value, image: $("#ogImage").value },
+    blocks,  // ✅ store structured blocks instead of "sections"
+    og: { 
+      title: $("#ogTitle").value, 
+      description: $("#ogDesc").value, 
+      image: $("#ogImage").value 
+    },
     affiliates: safeParse($("#affiliates").value || "[]", []),
     monetization: { adPlaceholders: safeParse($("#ads").value || "[]", ["top"]) },
     updatedBy: currentUser.uid,
@@ -1240,6 +1322,7 @@ async function savePage(pageId, currentUser) {
     return ref.id;
   }
 }
+
 
 $("#saveBtn").onclick = async () => {
   const id = getPageIdFromUrl();
@@ -1262,26 +1345,6 @@ $("#schemaType").addEventListener("change", e => {
   if(e.target.value==="FAQ") $("#faqSection").classList.remove("hidden");
   if(e.target.value==="HowTo") $("#howtoSection").classList.remove("hidden");
 });
-
-/* ---------------- Button Handlers ---------------- 
-$("#saveBtn").onclick = async () => {
-  const result = await savePage(pageId, currentUser);
-  if (result.created) {
-    pageId = result.id; // assign so later edits update the same doc
-    alert("Page created!");
-  } else {
-    alert("Page updated!");
-  }
-};
-
-$("#publishBtn").onclick = async () => {
-  if (!pageId) return alert("Save the page before publishing.");
-  const ref = doc(db, "pages", pageId);
-  await updateDoc(ref, { status: "published", publishedAt: serverTimestamp() });
-  $("#pageStatus").textContent = "published";
-  alert("Published!");
-};
-*/
 
 
 </script>

@@ -309,7 +309,7 @@ async function createPage(articleData, pageID) {
 <title id="pageTitledata">${articleData.title} | Untitled</title>
 <meta name="description" content="${articleData.description}"  id="pageDescriptiondata">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}"  id="pageKeywordsdata">
-<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.pageName}">
+<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.domain}">
 <script type="application/ld+json" id="pageSchema">${JSON.stringify(schemaJSON)}<\/script>
 <script type="application/ld+json" id="pageMetadata">${JSON.stringify(metadataJSON)}<\/script>
 ${scriptTag}
@@ -327,11 +327,17 @@ ${articleData.customCSS || ""}   /* 🔹 custom CSS injection */
 <main>
   <img  id="dynamic-pageImage" src="${articleData.image}" alt="${articleData.title}" />
   <article>${articleData.body || ''}</article>
-  ${articleData.sections?.map(s=>`<section><h3>${s.title}</h3><p>${s.content}</p></section>`).join('')||''}
+
+  <section id="block-section" class="block">
+  </section>
+
+
 </main>
+<div hidden>
 <div id="pageID">${pageID}</div>
 <div id="pageOwnerUserID">${articleData.userID}</div>
-<div id="pageName">${articleData.pageName}</div>
+<div id="pageDomain">${articleData.domain}</div>
+</div>
 </body>
 </html>
 `;
