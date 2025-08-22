@@ -201,7 +201,7 @@ async function pingSite(domain) {
   try {
     const url = domain.startsWith("http") 
       ? domain 
-      : `https://rw-501.github.io/contentManagement/site/${domain}`;
+      : `https://rw-501.github.io/contentManagement/site/${domain}.html`;
 
     const resp = await fetch(url, { method: "GET", cache: "no-store" });
     return resp.ok;
