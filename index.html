@@ -137,7 +137,7 @@ loginBtn.addEventListener("click", async () => {
   catch (err) { alert("Login failed: " + err.message); }
 });
 
-adminBtn.addEventListener("click", () => { window.location.href = "/admin/index.html"; });
+adminBtn.addEventListener("click", () => { window.location.href = "/contentManagement/admin/index.html"; });
 
 onAuthStateChanged(auth, user => {
   if(user){
