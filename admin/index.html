@@ -595,6 +595,8 @@ const token = part_1 + part_2 + part_3 + part_4;
   }
 }
 
+window.removePage = removePage;
+
 // Update Live Status for a Page
 async function updateLiveStatus(pageId, domain) {
   const statusEl = document.getElementById(`status-${pageId}`);
