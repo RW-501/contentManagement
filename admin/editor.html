@@ -98,6 +98,42 @@
     </div>
     </section>
 
+
+    <!-- Main Image Section -->
+<section id="mainImageSection">
+  <header>
+    <h2>Main Image</h2>
+    <div class="section-actions">
+      <button class="toggle-btn" data-toggle="#imageWrap">Show/Hide</button>
+    </div>
+  </header>
+  <div id="imageWrap">
+    <div id="imageDropZone" class="image-drop-zone">
+      <p>Click or drag an image here</p>
+      <img id="previewImg" src="" alt="Preview" style="display:none; max-width:100%; margin-top:10px; border-radius:8px;"/>
+    </div>
+    <input type="file" id="imageInput" accept="image/*" class="hidden">
+    <input type="hidden" id="imageUrl">
+  </div>
+</section>
+
+<style>
+  .image-drop-zone {
+    border: 2px dashed #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .image-drop-zone.dragover {
+    border-color: #357ABD;
+    background: #f0f4fa;
+  }
+  .hidden { display: none; }
+</style>
+
+
 <!-- Page Styles -->
 <section id="stylesSection">
   <header>
@@ -282,7 +318,7 @@ async function pingSite(url) {
 
 function getPageIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
-  return params.get("pageId");
+  return params.get("id");
 }
 
 
@@ -872,6 +908,8 @@ onAuthStateChanged(auth, async (user) => {
     if (!snap.exists()) return alert("Page not found");
     const data = snap.data();
     pageData = data;
+
+    console.log("Data   ",data);
     if (data.createdBy !== user.uid) return alert("Not your page");
 
     $("#editorTitle").innerText = "Edit Page";
@@ -884,6 +922,8 @@ onAuthStateChanged(auth, async (user) => {
     $("#domain").value = data.domain || "";
     $("#schemaType").value = data.schemaTypes?.[0] || "Article";
     toggleSchemaSections($("#schemaType").value);
+
+     loadPageImage(data);
 
     // Body
     bodyTE.setHTML(data.body || "");
@@ -916,8 +956,66 @@ onAuthStateChanged(auth, async (user) => {
 });
 
 
+  // Toggle section
+  document.querySelectorAll(".toggle-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const wrap = document.querySelector(btn.dataset.toggle);
+      wrap.style.display = wrap.style.display === "none" ? "block" : "none";
+    });
+  });
 
+  const imageInput = document.getElementById("imageInput");
+  const imageDropZone = document.getElementById("imageDropZone");
+  const previewImg = document.getElementById("previewImg");
+  const imageUrl = document.getElementById("imageUrl");
 
+  // Open file selector on drop zone click
+  imageDropZone.addEventListener("click", () => imageInput.click());
+
+  // Handle file selection
+  imageInput.addEventListener("change", (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      previewImg.src = evt.target.result;
+      previewImg.style.display = "block";
+      imageUrl.value = evt.target.result; // store for Firestore
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Drag & drop
+  imageDropZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    imageDropZone.classList.add("dragover");
+  });
+  imageDropZone.addEventListener("dragleave", (e) => {
+    e.preventDefault();
+    imageDropZone.classList.remove("dragover");
+  });
+  imageDropZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    imageDropZone.classList.remove("dragover");
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      previewImg.src = evt.target.result;
+      previewImg.style.display = "block";
+      imageUrl.value = evt.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Load existing image when editing
+  async function loadPageImage(pageData) {
+    if (pageData.image) {
+      previewImg.src = pageData.image;
+      previewImg.style.display = "block";
+      imageUrl.value = pageData.image;
+    }
+  }
 
 async function updatePage(articleData) {
   const scriptTag = `<script id="dynamic-js" src="https://rw-501.github.io/contentManagement/site/${articleData.domain}/setup/main.js"><\/script>`;
