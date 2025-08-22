@@ -90,7 +90,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { getFirestore, collection, getDoc, doc, updateDoc, arrayUnion, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, collection, getDoc,  setDoc, doc, updateDoc, arrayUnion, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 import { showToast } from "https://rw-501.github.io/contentManagement/admin/src/components/showToast.js";
 
@@ -377,12 +377,10 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     // Save to Firestore
     const docRef = await addDoc(collection(db, "pages"), newPage);
     await updateDoc(doc(db, "pages", docRef.id), { siteId: docRef.id });
-    await updateDoc(doc(db, "users", currentUser.uid), {
-      createdPages: arrayUnion({
-        id: docRef.id,
-        ...newPage
-      })
-    });
+
+    await setDoc(doc(db, "users", currentUser.uid), {
+  createdPages: arrayUnion({ id: docRef.id, ...newPage })
+}, { merge: true });
 
     // Create static HTML page
     await createPage(newPage, docRef.id);
@@ -403,7 +401,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
 
   } catch (err) {
     console.error(err);
-    showToast("Error creating page: " + err.message);
+    showToast("error", "Error creating page: " + err.message);
   }
 });
 
