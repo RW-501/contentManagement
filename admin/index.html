@@ -3,58 +3,89 @@
 <head>
 <meta charset="UTF-8">
 <title>Admin Dashboard</title>
+<meta name="description" content="Manage your pages, add tags, keywords, and monitor page performance.">
+<meta name="keywords" content="CMS, Admin, Dashboard, Keywords, Tags, SEO, Pages">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; background:#f9f9f9; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background:#f4f6f8; color:#333; }
+  h2,h3 { color:#357ABD; }
   .hidden { display:none; }
-  table { width:100%; border-collapse: collapse; margin-top:20px; }
-  th, td { border:1px solid #ddd; padding:10px; text-align:left; }
+  header, footer { background:#357ABD; color:white; padding:1rem 2rem; display:flex; justify-content:space-between; align-items:center; }
+  footer a { color:white; text-decoration:underline; }
+  main { max-width:1200px; margin:2rem auto; padding:0 1rem; }
+  button { cursor:pointer; border:none; border-radius:6px; padding:0.5rem 1rem; background:#4a90e2; color:white; font-weight:600; transition:0.3s; }
+  button:hover { background:#357ABD; }
+  input, textarea, select { width:100%; padding:0.5rem; margin:0.3rem 0; border-radius:6px; border:1px solid #ccc; }
+  #createPageSection { background:white; padding:1.5rem; border-radius:12px; box-shadow:0 6px 18px rgba(0,0,0,0.08); margin-bottom:2rem; }
+  .dashboard-tools { display:flex; flex-wrap:wrap; gap:1rem; margin-bottom:1rem; align-items:center; }
+  .dashboard-tools input, .dashboard-tools select { flex:1; min-width:150px; }
+  table { width:100%; border-collapse: collapse; margin-top:1rem; background:white; border-radius:12px; overflow:hidden; box-shadow:0 4px 10px rgba(0,0,0,0.05); }
+  th, td { padding:0.8rem 1rem; text-align:left; }
   th { background:#f4f4f4; }
-  img { max-width:80px; border-radius:6px; }
-  input, textarea, select { width:100%; margin-bottom:0.5rem; padding:0.5rem; border:1px solid #ccc; border-radius:4px; }
-  button { padding:0.5rem 1rem; margin-top:0.5rem; border:none; border-radius:4px; cursor:pointer; }
-  #createPageSection { background:white; padding:1rem; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-bottom:2rem; }
-  #createPageSection h3 { margin-top:0; }
-  .status-online { color: green; font-weight: bold; }
-  .status-offline { color: red; font-weight: bold; }
+  tr:nth-child(even) { background:#f9f9f9; }
+  img { max-width:60px; border-radius:6px; }
+  .status-online { color:green; font-weight:bold; }
+  .status-offline { color:red; font-weight:bold; }
+  .tag { display:inline-block; background:#357ABD; color:white; padding:0.2rem 0.5rem; margin:0.2rem; border-radius:4px; font-size:0.8rem; }
+ 
 </style>
 </head>
 <body>
 
-<div id="auth-section">
-  <h2>Admin Login</h2>
-  <button id="googleLogin">Login with Google</button>
-  <div style="margin-top:20px;">
-    <input id="phoneInput" placeholder="Enter phone" />
-    <button id="sendCode">Send Code</button>
-  </div>
-  <div id="codeSection" class="hidden">
-    <input id="verifyCode" placeholder="Enter code" />
-    <button id="verifyBtn">Verify</button>
-  </div>
-  <div id="recaptcha-container"></div>
-</div>
-
-<div id="admin-panel" class="hidden">
-  <h2>Dashboard</h2>
+<header>
+  <h2>Admin Dashboard</h2>
   <button id="logoutBtn" class="hidden">Logout</button>
+</header>
 
-  <section id="createPageSection">
-    <h3>Create New Page</h3>
-    <input id="title" placeholder="Page Title" />
-    <textarea id="description" placeholder="Page Description"></textarea>
-    <input id="keywords" placeholder="Comma separated keywords" />
-    <input id="imageUrl" placeholder="Page Image URL" />
-    <input id="domain" placeholder="Page Domain (example.com)" />
-    <select id="schemaType">
-      <option value="Article">Article</option>
-      <option value="FAQ">FAQ</option>
-      <option value="HowTo">How-To</option>
-    </select>
-    <button id="createBtn">Create Page</button>
-  </section>
+<main>
+  <div id="auth-section">
+    <h3>Login</h3>
+    <button id="googleLogin">Login with Google</button>
+    <div style="margin-top:10px;">
+      <input id="phoneInput" placeholder="Enter phone" />
+      <button id="sendCode">Send Code</button>
+    </div>
+    <div id="codeSection" class="hidden">
+      <input id="verifyCode" placeholder="Enter code" />
+      <button id="verifyBtn">Verify</button>
+    </div>
+    <div id="recaptcha-container"></div>
+  </div>
 
-  <div id="dashboardContent"></div>
-</div>
+  <div id="admin-panel" class="hidden">
+    <section id="createPageSection">
+      <h3>Create New Page</h3>
+      <input id="title" placeholder="Page Title" />
+      <textarea id="description" placeholder="Page Description"></textarea>
+      <input id="keywords" placeholder="Comma separated keywords" />
+      <input id="imageUrl" placeholder="Page Image URL" />
+      <input id="domain" placeholder="Page Domain (example.com)" />
+      <select id="schemaType">
+        <option value="Article">Article</option>
+        <option value="FAQ">FAQ</option>
+        <option value="HowTo">How-To</option>
+      </select>
+      <div id="keywordTags" style="margin-top:0.5rem;"></div>
+      <button id="createBtn">Create Page</button>
+    </section>
+
+    <div class="dashboard-tools">
+      <input id="searchInput" placeholder="Search by title, domain, keyword..." />
+      <select id="sortSelect">
+        <option value="createdDesc">Newest</option>
+        <option value="createdAsc">Oldest</option>
+        <option value="viewsDesc">Most Viewed</option>
+      </select>
+    </div>
+
+    <div id="dashboardContent"></div>
+  </div>
+</main>
+
+<footer>
+  <div>&copy; <span id="year"></span> Admin CMS</div>
+  <div><a href="#">Help & Documentation</a></div>
+</footer>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -81,6 +112,7 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 let currentUser;
+document.getElementById("year").textContent = new Date().getFullYear();
 
 // Allowed emails/phones
 const allowedEmails = ["1988lrp@gmail.com"];
@@ -303,26 +335,78 @@ const token = part_1 + part_2 + part_3 + part_4;
 
 // Create Page button
 document.getElementById("createBtn").addEventListener("click", async () => {
-  const articleData = {
-    title: document.getElementById("title").value.trim(),
-    description: document.getElementById("description").value.trim(),
-    keywords: document.getElementById("keywords").value.split(",").map(k=>k.trim()),
-    image: document.getElementById("imageUrl").value.trim(),
-    domain: document.getElementById("domain").value.trim(),
-    schemaType: document.getElementById("schemaType").value,
-    pageName: Date.now().toString(),
+  // Gather input values
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const domain = document.getElementById("domain").value.trim();
+  const image = document.getElementById("imageUrl").value.trim();
+  const schemaType = document.getElementById("schemaType").value;
+  const keywords = document.getElementById("keywords").value
+    .split(",")
+    .map(k => k.trim())
+    .filter(k => k);
+
+  if (!title || !domain) return showToast("Title and domain are required.");
+
+  const pageName = Date.now().toString();
+  const createdAt = Date.now();
+
+  // Build page object with all needed fields
+  const newPage = {
+    title,
+    description,
+    domain,
+    image,
+    schemaType,
+    keywords,
+    tags: keywords,       // tags mirror keywords
+    pageName,
     userID: currentUser.uid,
-    body: "", sections:[]
+    body: "",
+    sections: [],
+    type: "page",
+    status: "draft",
+    analytics: { views: 0, uniqueViews: 0 },
+    createdAt,
+    updatedAt: createdAt,
+    publishedCount: 0,
+    pageCount: 0
   };
 
-  if (!articleData.title || !articleData.domain) return alert("Title and domain required.");
-  const docRef = await addDoc(collection(db,"pages"), {...articleData, type:"page", status:"draft", analytics:{views:0, uniqueViews:0}, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-  await updateDoc(doc(db,"pages",docRef.id), { siteId: docRef.id });
-  await updateDoc(doc(db,"users",currentUser.uid), { createdPages: arrayUnion({id:docRef.id, title:articleData.title, image:articleData.image, domain:articleData.domain, status:"draft", analytics:{views:0}}) });
-  
-  await createPage(articleData, docRef.id);
-  await loadDashboard(true);
+  try {
+    // Save to Firestore
+    const docRef = await addDoc(collection(db, "pages"), newPage);
+    await updateDoc(doc(db, "pages", docRef.id), { siteId: docRef.id });
+    await updateDoc(doc(db, "users", currentUser.uid), {
+      createdPages: arrayUnion({
+        id: docRef.id,
+        ...newPage
+      })
+    });
+
+    // Create static HTML page
+    await createPage(newPage, docRef.id);
+
+    showToast("Page created successfully!");
+
+    // Reload dashboard and update sites data for home page
+    await loadDashboard(true);
+
+    // Update home page sitesData for renderSites
+    if (window.sitesData) {
+      window.sitesData.push({
+        id: docRef.id,
+        ...newPage
+      });
+      if (typeof renderSites === "function") renderSites();
+    }
+
+  } catch (err) {
+    console.error(err);
+    showToast("Error creating page: " + err.message);
+  }
 });
+
 
 
 // Load Dashboard with Live Status
