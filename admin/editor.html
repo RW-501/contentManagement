@@ -951,7 +951,7 @@ onAuthStateChanged(auth, async (user) => {
     $("#viewsCount").textContent = data.analytics?.views || 0;
     $("#uniqueViews").textContent = data.analytics?.uniqueViews || 0;
     $("#lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
-    if (data.domain) $("#sitePing").textContent = await pingSite(`https://${data.domain}`);
+    if (data.domain) $("#sitePing").textContent = await pingSite(`https://rw-501.github.io/contentManagement/site/${data.domain}.html`);
   }
 });
 
