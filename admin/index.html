@@ -430,8 +430,8 @@ document.getElementById("createBtn").addEventListener("click", async () => {
   }
 
   const pageName = Date.now().toString();
-  const createdAt =  serverTimestamp();
 
+  
   // Build page object
   const newPage = {
     title,
@@ -450,8 +450,8 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     type: "page",
     status: "draft",
     analytics: { views: 0, uniqueViews: 0 },
-    createdAt,
-    updatedAt: createdAt,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
     publishedCount: 0,
     pageCount: 0
   };
