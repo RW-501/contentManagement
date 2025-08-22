@@ -779,7 +779,7 @@ function toggleSchemaSections(schemaType) {
 
 /* ---------------- Auth & Load ---------------- */
 onAuthStateChanged(auth, async (user) => {
-    const pageID = getPageIdFromUrl();
+    const pageId  = getPageIdFromUrl();
 
   if (!user) return alert("Login required");
   currentUser = user;
