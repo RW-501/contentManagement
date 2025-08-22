@@ -222,7 +222,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-import { showToast } from "https://rw-501.github.io/contentManagement/showToast.js";
+import { showToast } from "https://rw-501.github.io/contentManagement/admin/src/components/showToast.js";
 
 // fallback toast if import fails
 window.showToast = window.showToast || function(type,msg,dur){alert(`${type}: ${msg}`)};
@@ -256,8 +256,12 @@ document.addEventListener("click", (e) => {
   el.classList.toggle("hidden");
 });
 
-/* safe JSON helpers */
-const safeParse = (txt, fallback) => { try { return JSON.parse(txt); } catch { return fallback; } };
+
+/* ---------------- Helpers ---------------- */
+function $(sel) { return document.querySelector(sel); }
+function safeParse(str, fallback) {
+  try { return JSON.parse(str); } catch { return fallback; }
+}
 const toJSON = (obj) => JSON.stringify(obj ?? null, null, 2);
 
 /* ping */
@@ -840,11 +844,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-/* ---------------- Helpers ---------------- */
-function $(sel) { return document.querySelector(sel); }
-function safeParse(str, fallback) {
-  try { return JSON.parse(str); } catch { return fallback; }
-}
 
 
 
