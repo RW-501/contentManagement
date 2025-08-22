@@ -387,7 +387,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     // Create static HTML page
     await createPage(newPage, docRef.id);
 
-    showToast("Page created successfully!");
+    showToast("info", "Page created successfully!");
 
     // Reload dashboard and update sites data for home page
     await loadDashboard(true);
