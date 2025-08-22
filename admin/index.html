@@ -58,8 +58,23 @@
       <input id="title" placeholder="Page Title" />
       <textarea id="description" placeholder="Page Description"></textarea>
       <input id="keywords" placeholder="Comma separated keywords" />
-      <input id="imageUrl" placeholder="Page Image URL" />
-      <input id="domain" placeholder="Page Domain (example.com)" />
+
+
+<!-- Image Upload Section -->
+<div id="imageUploadSection" style="margin-top:0.5rem;">
+  <label for="imageInput" style="display:block; font-weight:600; margin-bottom:0.3rem;">Page Image</label>
+  <div id="imageDropZone" 
+       style="border: 2px dashed #ccc; border-radius: 8px; padding: 1rem; text-align:center; cursor:pointer; background:#fafafa;">
+    <p>Drag & Drop an image here or click to select</p>
+    <input type="file" id="imageInput" accept="image/*" style="display:none;" />
+  </div>
+  <div id="imagePreview" style="margin-top:0.5rem;">
+    <img id="previewImg" src="" alt="Image Preview" style="max-width:200px; border-radius:6px; display:none;" />
+  </div>
+  <input id="imageUrl" placeholder="Page Image URL"  hidden/>
+</div>
+
+<input id="domain" placeholder="Page Domain (example.com)" />
       <select id="schemaType">
         <option value="Article">Article</option>
         <option value="FAQ">FAQ</option>
@@ -337,6 +352,54 @@ const token = part_1 + part_2 + part_3 + part_4;
   } catch (err) { console.error(err.message); }
 }
 
+const imageInput = document.getElementById("imageInput");
+const imageDropZone = document.getElementById("imageDropZone");
+const previewImg = document.getElementById("previewImg");
+
+// Open file selector on drop zone click
+imageDropZone.addEventListener("click", () => imageInput.click());
+
+// Handle file selection
+imageInput.addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    previewImg.src = evt.target.result;
+    previewImg.style.display = "block";
+    // Optionally store the base64 or file object for Firestore upload
+    document.getElementById("imageUrl").value = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Drag & Drop functionality
+imageDropZone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  imageDropZone.style.borderColor = "#357ABD";
+  imageDropZone.style.background = "#f0f4fa";
+});
+
+imageDropZone.addEventListener("dragleave", (e) => {
+  e.preventDefault();
+  imageDropZone.style.borderColor = "#ccc";
+  imageDropZone.style.background = "#fafafa";
+});
+
+imageDropZone.addEventListener("drop", (e) => {
+  e.preventDefault();
+  imageDropZone.style.borderColor = "#ccc";
+  imageDropZone.style.background = "#fafafa";
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    previewImg.src = evt.target.result;
+    previewImg.style.display = "block";
+    document.getElementById("imageUrl").value = evt.target.result;
+  };
+  reader.readAsDataURL(file);
+});
 
 
 // Create Page button
