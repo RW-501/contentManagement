@@ -242,23 +242,8 @@ const auth = getAuth(app);
 
 /* ---------------- Utilities ---------------- */
 const $ = sel => document.querySelector(sel);
-const getParam = (k) => new URLSearchParams(window.location.search).get(k);
-
-let currentUser, pageData = null;
-
-/* show/hide toggles */
-document.addEventListener("click", (e) => {
-  const btn = e.target.closest("[data-toggle]");
-  if (!btn) return;
-  const target = btn.getAttribute("data-toggle");
-  const el = document.querySelector(target);
-  if (!el) return;
-  el.classList.toggle("hidden");
-});
-
 
 /* ---------------- Helpers ---------------- */
-function $(sel) { return document.querySelector(sel); }
 function safeParse(str, fallback) {
   try { return JSON.parse(str); } catch { return fallback; }
 }
@@ -274,6 +259,20 @@ function getPageIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return params.get("pageId");
 }
+
+
+let currentUser, pageData = null;
+
+/* show/hide toggles */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-toggle]");
+  if (!btn) return;
+  const target = btn.getAttribute("data-toggle");
+  const el = document.querySelector(target);
+  if (!el) return;
+  el.classList.toggle("hidden");
+});
+
 
 
 async function loadPageData(currentUser) {
