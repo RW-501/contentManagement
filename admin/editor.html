@@ -1033,6 +1033,18 @@ onAuthStateChanged(auth, async (user) => {
     reader.readAsDataURL(file);
   });
 
+
+    // Load existing image when editing
+  async function loadPageImage(pageData) {
+    if (pageData.image) {
+      previewImg.src = pageData.image;
+      previewImg.style.display = "block";
+      imageUrl.value = pageData.image;
+    }
+  }
+
+
+  
   // Load existing image when editing
 function renderBlockHTML(b) {
   switch (b.type) {
