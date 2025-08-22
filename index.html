@@ -187,6 +187,7 @@ function renderSites(){
     card.innerHTML=`
       <div class="views">${data.views || 0} views</div>
       <h3>${data.title}</h3>
+      <p><img src="${data.image||''}" alt="preview"></9>
       <p>Domain: ${data.domain}</p>
       <p>Pages: ${data.pageCount || 0} | Published: ${data.publishedCount || 0}</p>
       <div class="tags">${(data.tags||[]).map(tag=>`<span class="tag">${tag}</span>`).join('')}</div>
