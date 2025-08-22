@@ -14,6 +14,8 @@
     button { padding:0.5rem 1rem; margin-top:0.5rem; border:none; border-radius:4px; cursor:pointer; }
     #createPageSection { background:white; padding:1rem; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); margin-bottom:2rem; }
     #createPageSection h3 { margin-top:0; }
+    .status-online { color: green; font-weight: bold; }
+    .status-offline { color: red; font-weight: bold; }
   </style>
 </head>
 <body>
@@ -36,7 +38,6 @@
   <h2>Dashboard</h2>
   <button id="logoutBtn" class="hidden">Logout</button>
 
-  <!-- Create Page Section -->
   <section id="createPageSection">
     <h3>Create New Page</h3>
     <input id="title" placeholder="Page Title" />
@@ -47,23 +48,21 @@
     <button id="createBtn">Create Page</button>
   </section>
 
-  <!-- Dashboard Pages List -->
   <div id="dashboardContent"></div>
 </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup,
-  RecaptchaVerifier, signInWithPhoneNumber,
-  signOut, onAuthStateChanged
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { 
+  getAuth, GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, 
+  signInWithPhoneNumber, signOut, onAuthStateChanged 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import {
-  getFirestore, collection, getDoc, doc, updateDoc, arrayUnion  
+import { 
+  getFirestore, collection, getDoc, doc, updateDoc, arrayUnion, addDoc, serverTimestamp 
 } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
 
-// 🔧 Firebase Config
+// Firebase Config
 const firebaseConfig = {
   apiKey: "AIzaSyBXZcSYdspfi2jBipwUFeNmKZgU02ksg8c",
   authDomain: "contentmanagement-8af61.firebaseapp.com",
@@ -74,171 +73,40 @@ const firebaseConfig = {
   measurementId: "G-ZPWGF7YMPE"
 };
 
-// 🧩 Initialize
+// Initialize
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 
-
 let currentUser;
 
-
-
-
-
-// 🛠 Load Dashboard
-async function showAdminPanel(user) {
-  document.getElementById("auth-section").classList.add("hidden");
-  document.getElementById("admin-panel").classList.remove("hidden");
-  document.getElementById("logoutBtn").classList.remove("hidden");
-
-  // 🔍 Fetch user record from Firestore
-  const userRef = doc(db, "users", user.uid);
-  const userSnap = await getDoc(userRef);
-
-  if (!userSnap.exists()) {
-    document.getElementById("dashboardContent").innerHTML = "<p>No user record found.</p>";
-    return;
-  }
-
-  const userData = userSnap.data();
-
-  // ✅ Check loginTypes includes "login"
-  if (!userData.loginTypes || !userData.loginTypes.includes("login")) {
-    document.getElementById("dashboardContent").innerHTML = "<p>You are not authorized for dashboard access.</p>";
-    return;
-  }
-
-  // ✅ Render createdPages
-  renderDashboard(userData.createdPages || []);
-}
-// Ping function
-async function pingSite(url) {
-  try {
-    const resp = await fetch("https://" + url, { method:"HEAD", cache:"no-store" });
-    return resp.ok;
-  } catch {
-    return false;
-  }
-}
-window.pingSite = pingSite;
-
-
-
-// Logout
-document.getElementById("logoutBtn").addEventListener("click", () => signOut(auth));
-
-
-
-
-await updateDoc(doc(db, "users", currentUser.uid), {
-  createdPages: arrayUnion({
-    id: docRef.id,
-    title,
-    image,
-    domain,
-    status: "draft",
-    analytics: { views:0 }
-  })
-});
-
-// Create Page
-document.getElementById("createBtn").addEventListener("click", async () => {
-  const title = document.getElementById("title").value.trim();
-  const description = document.getElementById("description").value.trim();
-  const keywords = document.getElementById("keywords").value.split(",").map(k => k.trim());
-  const image = document.getElementById("imageUrl").value.trim();
-  const domain = document.getElementById("domain").value.trim();
-
-
-  if (!title || !domain) return alert("Title and domain required.");
-if (!/^([a-z0-9]+\.)+[a-z]{2,}$/.test(domain)) return alert("Invalid domain format.");
-if (image && !/^https?:\/\//.test(image)) return alert("Image URL must start with http/https.");
-
-
-  const docRef = await addDoc(collection(db,"content"), {
-    siteId: "", // will be updated with doc id
-    type: "page",
-    title, description, keywords, image, domain,
-    createdBy: currentUser.uid,
-    updatedBy: currentUser.uid,
-    status: "draft",
-    analytics: { views:0, uniqueViews:0 },
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp()
-  });
-
-  // Update siteId to document ID
-await updateDoc(doc(db,"content",docRef.id), { siteId: docRef.id });
-
-  // Ping site every 5 seconds
-  const interval = setInterval(async () => {
-    const online = await pingSite(domain);
-    if (online) {
-      clearInterval(interval);
-      alert(`${title} is now live!`);
-      loadDashboard(); // refresh list
-    }
-  }, 5000);
-});
-
-// Load Dashboard
-async function loadDashboard() {
-  const contentDiv = document.getElementById("dashboardContent");
-  const snapshot = await getDoc(doc(db,"users",currentUser.uid));
-  const pages = snapshot.exists() ? snapshot.data().createdPages || [] : [];
-
-  if (pages.length === 0) {
-    contentDiv.innerHTML = "<p>No pages yet.</p>";
-    return;
-  }
-
-  let html = `<table>
-    <thead>
-      <tr><th>Preview</th><th>Domain</th><th>Status</th><th>Views</th><th>Actions</th></tr>
-    </thead><tbody>`;
-  
-  pages.forEach(p => {
-    html += `<tr>
-      <td><img src="${p.image||''}" alt="preview"></td>
-      <td>${p.domain}</td>
-      <td id="status-${p.id}">❌ Offline</td>
-      <td>${p.analytics?.views||0}</td>
-      <td><button onclick="window.location.href='/admin/editor?id=${p.id}'">Edit</button></td>
-    </tr>`;
-  });
-
-  html += "</tbody></table>";
-  contentDiv.innerHTML = html;
-}
-
-
-// ✅ Admin Whitelist
+// Whitelists
 const allowedEmails = ["1988lrp@gmail.com"];
-const allowedPhones = ["+19725977878", "+12145527280", "9725977878", "2145527280"];
+const allowedPhones = ["+19725977878", "+12145527280", "+19725977878", "+12145527280"];
 
-// 🔐 Auth State
+// Auth State
 onAuthStateChanged(auth, async (user) => {
   if (user && (allowedEmails.includes(user.email) || allowedPhones.includes(user.phoneNumber))) {
+    currentUser = user;
     await showAdminPanel(user);
-  } else {
+  } else if (user) {
     alert("Unauthorized");
     logoutUser();
   }
 });
 
-
-
-// 🚪 Logout
+// Logout
 function logoutUser() {
   signOut(auth);
+  currentUser = null;
   document.getElementById("auth-section").classList.remove("hidden");
   document.getElementById("admin-panel").classList.add("hidden");
   document.getElementById("logoutBtn").classList.add("hidden");
 }
+document.getElementById("logoutBtn").addEventListener("click", logoutUser);
 
-// 📲 Google Login
+// Google Login
 document.getElementById("googleLogin").addEventListener("click", async () => {
   const provider = new GoogleAuthProvider();
   try {
@@ -247,35 +115,30 @@ document.getElementById("googleLogin").addEventListener("click", async () => {
     if (!allowedEmails.includes(user.email)) {
       alert("Unauthorized email.");
       logoutUser();
+    } else {
+      currentUser = user;
+      await showAdminPanel(user);
     }
-  } catch (error) {
-    alert(error.message);
-  }
+  } catch (error) { alert(error.message); }
 });
 
-// 📞 Phone Login
+// Phone Login
 let recaptchaVerifier;
 document.addEventListener("DOMContentLoaded", () => {
-  recaptchaVerifier = new RecaptchaVerifier(
-    "recaptcha-container",
-    { size: "invisible" }, auth
-  );
+  recaptchaVerifier = new RecaptchaVerifier("recaptcha-container", { size: "invisible" }, auth);
   recaptchaVerifier.render();
 });
 
 document.getElementById("sendCode").addEventListener("click", async () => {
   let phone = document.getElementById("phoneInput").value.trim();
   if (!phone.startsWith("+")) phone = "+1" + phone;
-
   if (!allowedPhones.includes(phone)) return alert("Unauthorized phone number.");
 
   try {
     const confirmationResult = await signInWithPhoneNumber(auth, phone, recaptchaVerifier);
     window.confirmationResult = confirmationResult;
     document.getElementById("codeSection").classList.remove("hidden");
-  } catch (error) {
-    alert("Error sending code: " + error.message);
-  }
+  } catch (error) { alert("Error sending code: " + error.message); }
 });
 
 document.getElementById("verifyBtn").addEventListener("click", async () => {
@@ -287,16 +150,114 @@ document.getElementById("verifyBtn").addEventListener("click", async () => {
       alert("Unauthorized phone number.");
       logoutUser();
     } else {
-      showAdminPanel(user);
+      currentUser = user;
+      await showAdminPanel(user);
     }
-  } catch (error) {
-    alert("Invalid code or expired session.");
-  }
+  } catch (error) { alert("Invalid code or expired session."); }
 });
 
-document.getElementById("logoutBtn").addEventListener("click", logoutUser);
+// Show Dashboard
+async function showAdminPanel(user) {
+  document.getElementById("auth-section").classList.add("hidden");
+  document.getElementById("admin-panel").classList.remove("hidden");
+  document.getElementById("logoutBtn").classList.remove("hidden");
+
+  const userRef = doc(db, "users", user.uid);
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    document.getElementById("dashboardContent").innerHTML = "<p>No user record found.</p>";
+    return;
+  }
+
+  const userData = userSnap.data();
+  if (!userData.loginTypes || !userData.loginTypes.includes("login")) {
+    document.getElementById("dashboardContent").innerHTML = "<p>You are not authorized for dashboard access.</p>";
+    return;
+  }
+
+  await loadDashboard(true);
+}
+
+// Ping function
+async function pingSite(domain) {
+  let url = domain.startsWith("http") ? domain : "https://" + domain;
+  try {
+    const resp = await fetch(url, { method: "HEAD", cache: "no-store" });
+    return resp.ok;
+  } catch { return false; }
+}
+
+// Create Page
+document.getElementById("createBtn").addEventListener("click", async () => {
+  const title = document.getElementById("title").value.trim();
+  const description = document.getElementById("description").value.trim();
+  const keywords = document.getElementById("keywords").value.split(",").map(k => k.trim());
+  const image = document.getElementById("imageUrl").value.trim();
+  const domain = document.getElementById("domain").value.trim();
+
+  if (!title || !domain) return alert("Title and domain required.");
+  if (!/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(domain)) return alert("Invalid domain format.");
+  if (image && !/^https?:\/\//.test(image)) return alert("Image URL must start with http/https.");
+
+  const docRef = await addDoc(collection(db,"content"), {
+    siteId: "", type: "page", title, description, keywords, image, domain,
+    createdBy: currentUser.uid, updatedBy: currentUser.uid,
+    status: "draft", analytics: { views:0, uniqueViews:0 },
+    createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+  });
+
+  await updateDoc(doc(db,"content",docRef.id), { siteId: docRef.id });
+  await updateDoc(doc(db, "users", currentUser.uid), {
+    createdPages: arrayUnion({ id: docRef.id, title, image, domain, status:"draft", analytics:{views:0} })
+  });
+
+  await loadDashboard(true);
+});
+
+// Load Dashboard with Live Status
+async function loadDashboard(autoPing=false) {
+  const contentDiv = document.getElementById("dashboardContent");
+  const snapshot = await getDoc(doc(db,"users",currentUser.uid));
+  const pages = snapshot.exists() ? snapshot.data().createdPages || [] : [];
+
+  if (pages.length === 0) { contentDiv.innerHTML = "<p>No pages yet.</p>"; return; }
+
+  let html = `<table>
+    <thead>
+      <tr><th>Preview</th><th>Domain</th><th>Status</th><th>Views</th><th>Actions</th></tr>
+    </thead><tbody>`;
+
+  pages.forEach(p => {
+    html += `<tr>
+      <td><img src="${p.image||''}" alt="preview"></td>
+      <td>${p.domain}</td>
+      <td id="status-${p.id}" class="status-offline">❌ Offline</td>
+      <td>${p.analytics?.views||0}</td>
+      <td><button onclick="window.location.href='/admin/editor?id=${p.id}'">Edit</button></td>
+    </tr>`;
+  });
+
+  html += "</tbody></table>";
+  contentDiv.innerHTML = html;
+
+  // Start pinging for live status if enabled
+  if (autoPing) {
+    pages.forEach(p => updateLiveStatus(p.id, p.domain));
+  }
+}
+
+// Update Live Status for a Page
+async function updateLiveStatus(pageId, domain) {
+  const statusEl = document.getElementById(`status-${pageId}`);
+  if (!statusEl) return;
+  const online = await pingSite(domain);
+  statusEl.textContent = online ? "✅ Online" : "❌ Offline";
+  statusEl.className = online ? "status-online" : "status-offline";
+
+  // Repeat every 10 seconds
+  setTimeout(() => updateLiveStatus(pageId, domain), 10000);
+}
 
 </script>
-
 </body>
 </html>
