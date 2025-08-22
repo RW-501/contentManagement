@@ -417,10 +417,22 @@ document.getElementById("createBtn").addEventListener("click", async () => {
 
   if (!title || !domain) return showToast("Title and domain are required.");
 
+  // Check if domain already exists in Firestore
+  const pagesSnapshot = await getDoc(doc(db, "pages", domain));
+  if (pagesSnapshot.exists()) {
+    return showToast("error", "Domain already exists. Choose a different one.");
+  }
+
+  // Ping the domain to check if live
+  const isLive = await pingSite(domain);
+  if (!isLive) {
+    showToast("warning", "Domain seems offline or unreachable. You can still create it.");
+  }
+
   const pageName = Date.now().toString();
   const createdAt = Date.now();
 
-  // Build page object with all needed fields
+  // Build page object
   const newPage = {
     title,
     description,
@@ -428,7 +440,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     image,
     schemaType,
     keywords,
-    tags: keywords,       // tags mirror keywords
+    tags: keywords,
     pageName,
     userID: currentUser.uid,
     body: "",
@@ -448,33 +460,38 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     await updateDoc(doc(db, "pages", docRef.id), { siteId: docRef.id });
 
     await setDoc(doc(db, "users", currentUser.uid), {
-  createdPages: arrayUnion({ id: docRef.id, ...newPage })
-}, { merge: true });
+      createdPages: arrayUnion({ id: docRef.id, ...newPage })
+    }, { merge: true });
 
     // Create static HTML page
     await createPage(newPage, docRef.id);
 
     showToast("info", "Page created successfully!");
 
-    // Reload dashboard and update sites data for home page
+    // Reload dashboard
     await loadDashboard(true);
 
-    // Update home page sitesData for renderSites
+    // Update home page sitesData if available
     if (window.sitesData) {
-      window.sitesData.push({
-        id: docRef.id,
-        ...newPage
-      });
+      window.sitesData.push({ id: docRef.id, ...newPage });
       if (typeof renderSites === "function") renderSites();
     }
+
+    // ✅ Clear inputs after creating
+    document.getElementById("title").value = "";
+    document.getElementById("description").value = "";
+    document.getElementById("domain").value = "";
+    document.getElementById("imageUrl").value = "";
+    document.getElementById("keywords").value = "";
+    document.getElementById("schemaType").selectedIndex = 0;
+    const previewImg = document.getElementById("previewImg");
+    if (previewImg) { previewImg.src = ""; previewImg.style.display = "none"; }
 
   } catch (err) {
     console.error(err);
     showToast("error", "Error creating page: " + err.message);
   }
 });
-
-
 
 // Load Dashboard with Live Status
 async function loadDashboard(autoPing=false) {
