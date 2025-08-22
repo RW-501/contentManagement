@@ -779,6 +779,8 @@ function toggleSchemaSections(schemaType) {
 
 /* ---------------- Auth & Load ---------------- */
 onAuthStateChanged(auth, async (user) => {
+    const pageID = getPageIdFromUrl();
+
   if (!user) return alert("Login required");
   currentUser = user;
   $("#auth-section").classList.add("hidden");
@@ -795,7 +797,7 @@ onAuthStateChanged(auth, async (user) => {
   $("#bodyEditor")._te = bodyTE;
 
   if (pageId) {
-    const ref = doc(db, "content", pageId);
+    const ref = doc(db, "pages", pageId);
     const snap = await getDoc(ref);
     if (!snap.exists()) return alert("Page not found");
     const data = snap.data();
