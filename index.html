@@ -24,7 +24,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
   }
   header h1 {
     margin: 0;
@@ -35,14 +35,16 @@
     color: #357ABD;
     font-weight: 600;
     border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
     cursor: pointer;
     transition: 0.3s;
     margin-left: 0.5rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
   .login-btn:hover, .admin-btn:hover {
     background: #e1eaff;
+    transform: translateY(-2px);
   }
 
   /* Main content */
@@ -52,8 +54,8 @@
     padding: 0 1rem;
   }
   main h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
     text-align: center;
     color: #4a4a4a;
   }
@@ -61,27 +63,44 @@
   .sites-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
-    gap: 1.5rem;
+    gap: 1.8rem;
   }
   .site-card {
-    background: #fff;
-    border-radius: 12px;
-    padding: 1.5rem;
-    box-shadow: 0 6px 12px rgba(0,0,0,0.05);
-    transition: 0.3s;
+    background: linear-gradient(135deg, #ffffff, #f0f4f8);
+    border-radius: 16px;
+    padding: 1.8rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+    transition: 0.4s;
     cursor: pointer;
     border: 1px solid #e0e0e0;
+    position: relative;
+    overflow: hidden;
+  }
+  .site-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: rgba(255,255,255,0.1);
+    transform: rotate(45deg);
+    transition: 0.6s;
+  }
+  .site-card:hover::after {
+    top: -30%;
+    left: -30%;
   }
   .site-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.12);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.12);
   }
   .site-card h3 {
     margin-top: 0;
     color: #357ABD;
   }
   .site-card p {
-    margin: 0.3rem 0;
+    margin: 0.4rem 0;
     color: #555;
     font-size: 0.95rem;
   }
@@ -97,17 +116,27 @@
   footer {
     background: #222;
     color: white;
-    padding: 1rem 2rem;
+    padding: 1.2rem 2rem;
     display: flex;
     justify-content: space-between;
     flex-wrap: wrap;
     font-size: 0.9rem;
+    align-items: center;
+  }
+  footer a {
+    color: #4a90e2;
+    font-weight: 500;
+    transition: 0.3s;
+  }
+  footer a:hover {
+    text-decoration: underline;
   }
 
   /* Responsive tweaks */
   @media(max-width: 600px){
     header, footer { flex-direction: column; align-items: flex-start; }
     .login-btn, .admin-btn { margin: 0.5rem 0 0 0; }
+    footer { justify-content: center; gap: 0.5rem; }
   }
 </style>
 </head>
@@ -130,7 +159,7 @@
 
 <footer>
   <div>&copy; <span id="currentYear"></span> CMS</div>
-  <div>Last updated: <span id="lastUpdated">-</span></div>
+  <div>Last updated: <span id="lastUpdated">-</span> | <a href="https://rw-501.github.io/Portfolio" target="_blank">Created by Ron W.</a></div>
 </footer>
 
 <script type="module">
@@ -159,10 +188,16 @@ adminBtn.addEventListener("click", () => {
   window.location.href = "contentManagement/admin/index.html";
 });
 
+// Allowed emails/phones
+const allowedEmails = ["1988lrp@gmail.com"];
+const allowedPhones = ["+19725977878"];
+
 onAuthStateChanged(auth, user => {
   if (user) {
     loginBtn.textContent = "Logged in as " + user.displayName;
-    adminBtn.style.display = "inline-block"; // show admin button
+    if (allowedEmails.includes(user.email) || allowedPhones.includes(user.phoneNumber)) {
+      adminBtn.style.display = "inline-block";
+    }
   } else {
     loginBtn.textContent = "Login";
     adminBtn.style.display = "none";
