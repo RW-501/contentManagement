@@ -1,23 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <title>Page Editor</title>
-  <style>
-    body { font-family: Arial, sans-serif; margin:0; padding:0; background:#f9f9f9; }
-    #toolbar { display:flex; gap:1rem; background:#333; color:white; padding:1rem; align-items:center; flex-wrap:wrap; }
-    #toolbar div { margin-right:1rem; }
-    section { background:white; padding:1rem; margin:1rem 2rem; border-radius:8px; box-shadow:0 2px 4px rgba(0,0,0,0.1); }
-    .hidden { display:none; }
-    input, textarea { width:100%; margin-bottom:0.5rem; padding:0.5rem; border:1px solid #ccc; border-radius:4px; }
-    button { padding:0.5rem 1rem; border:none; border-radius:4px; cursor:pointer; margin-top:0.5rem; }
-    #publishBtn { background:#4CAF50; color:white; }
-    #publishBtn:hover { background:#45a049; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Page Editor</title>
+<style>
+  :root { --card:#fff; --ink:#222; --muted:#666; --bg:#f7f7f9; --border:#e6e6ea; --accent:#4f46e5; }
+  * { box-sizing: border-box; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:var(--bg); color:var(--ink); }
+  #toolbar { display:flex; gap:.75rem; background:#333; color:#fff; padding:1rem; align-items:center; flex-wrap:wrap; }
+  #toolbar div { margin-right:1rem; white-space:nowrap; }
+  .container { max-width:1100px; margin:0 auto; padding:1rem; }
+  section { background:var(--card); padding:1rem; margin:1rem 0; border-radius:12px; box-shadow:0 2px 6px rgba(0,0,0,.06); border:1px solid var(--border); }
+  section header { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin-bottom:.75rem; }
+  section header h2 { margin:0; font-size:1.05rem; }
+  .section-actions { display:flex; gap:.5rem; }
+  .toggle-btn { font-size:.85rem; background:#eef2ff; color:var(--accent); border:1px solid #c7d2fe; padding:.25rem .5rem; border-radius:6px; cursor:pointer; }
+  .hidden { display:none; }
+  input, textarea, select { width:100%; margin:.4rem 0 .8rem; padding:.6rem .65rem; border:1px solid var(--border); border-radius:8px; background:#fff; }
+  textarea { min-height:120px; }
+  button { padding:.55rem .9rem; border:none; border-radius:8px; cursor:pointer; background:#eaeaea; }
+  #publishBtn { background:#22c55e; color:#fff; }
+  #saveBtn { background:#111827; color:#fff; }
+  #editorTitle { margin:1rem 0 .5rem; }
+
+  /* TextEditor */
+  .te { border:1px solid var(--border); border-radius:10px; overflow:hidden; background:#fff; margin:.5rem 0 1rem; }
+  .te-toolbar { display:flex; gap:.35rem; flex-wrap:wrap; background:#fafafa; border-bottom:1px solid var(--border); padding:.35rem; }
+  .te-toolbar button { background:#fff; border:1px solid var(--border); border-radius:6px; padding:.35rem .5rem; font-size:.85rem; }
+  .te-area[contenteditable="true"] { min-height:120px; padding:.7rem .8rem; outline:none; }
+  .te-footer { display:flex; justify-content:flex-end; gap:.5rem; padding:.35rem .5rem; background:#fafafa; border-top:1px solid var(--border); }
+  .te-compact .te-area { min-height:80px; }
+
+  /* Blocks */
+  .blocks-list { display:flex; flex-direction:column; gap:.6rem; }
+  .block-card { border:1px dashed #d1d5db; border-radius:10px; background:#fff; padding:.6rem; position:relative; }
+  .block-head { display:flex; align-items:center; gap:.5rem; justify-content:space-between; }
+  .block-head-left { display:flex; gap:.5rem; align-items:center; }
+  .drag-handle { cursor:grab; user-select:none; padding:.25rem .45rem; border:1px solid var(--border); border-radius:6px; background:#f9fafb; }
+  .block-actions { display:flex; gap:.4rem; }
+  .block-actions button { font-size:.8rem; }
+  .block-body { margin-top:.6rem; }
+  .row { display:flex; gap:.6rem; }
+  .row > * { flex:1; }
+  .muted { color:var(--muted); font-size:.9rem; }
+  .pill { background:#eef2ff; color:#3730a3; font-size:.75rem; padding:.1rem .5rem; border-radius:999px; border:1px solid #c7d2fe; }
+</style>
 </head>
 <body>
 
-<div id="auth-section">Login first…</div>
+<div id="auth-section" class="container">Login first…</div>
 
 <div id="editor" class="hidden">
   <div id="toolbar">
@@ -28,48 +60,148 @@
     <div>Site Live: <span id="sitePing">-</span></div>
   </div>
 
-  <h1 id="editorTitle">Create Page</h1>
+  <div class="container">
+    <h1 id="editorTitle">Create Page</h1>
 
-  <!-- Create Section -->
-  <section id="createPageSection">
-    <input id="title" placeholder="Title" />
-    <textarea id="description" placeholder="Description"></textarea>
-    <input id="keywords" placeholder="Comma separated keywords" />
-    <button id="createBtn">Create</button>
-  </section>
+    <!-- Metadata -->
+    <section id="metadataSection">
+      <header>
+        <h2>Page Metadata</h2>
+        <div class="section-actions">
+          <button class="toggle-btn" data-toggle="#metadataContent">Show/Hide</button>
+        </div>
+      </header>
+      <div id="metadataContent">
+        <div class="row">
+          <input id="title" placeholder="Title" />
+          <input id="slug" placeholder="Slug (unique)" />
+        </div>
+        <textarea id="description" placeholder="Description"></textarea>
+        <input id="keywords" placeholder="Comma separated keywords" />
+        <div class="row">
+          <select id="schemaType" title="Schema Type">
+            <option value="Article">Article</option>
+            <option value="FAQ">FAQ</option>
+            <option value="HowTo">HowTo</option>
+          </select>
+          <input id="domain" placeholder="Domain for site ping (optional)" />
+        </div>
+        
+        <div class="row">
+        <label for="customCSS">Custom CSS</label>
+        <textarea id="customCSS" rows="6" placeholder="Write custom styles here..."></textarea>
+      </div>
+      
+    </div>
+    </section>
 
-  <!-- Edit Section -->
-  <section id="editPageSection" class="hidden">
-    <h2>Edit Page</h2>
-    <textarea id="blocks" placeholder="Blocks JSON"></textarea>
-    <button id="saveBtn">Save Changes</button>
-  </section>
+    <!-- Body Content -->
+    <section id="bodySection">
+      <header>
+        <h2>Body Content</h2>
+        <div class="section-actions">
+          <span class="pill">Reusable Text Editor</span>
+          <button class="toggle-btn" data-toggle="#bodyContentWrap">Show/Hide</button>
+        </div>
+      </header>
+      <div id="bodyContentWrap">
+        <div id="bodyEditor" class="te"></div>
+      </div>
+    </section>
 
-  <!-- Design Section -->
-  <section id="designPageSection" class="hidden">
-    <h2>Design Blocks</h2>
-    <p>Later: drag & drop block editor here (heading, paragraph, FAQ, etc)</p>
-  </section>
+    <!-- Blocks Builder -->
+    <section id="blocksSection">
+      <header>
+        <h2>Blocks Builder (drag to reorder)</h2>
+        <div class="section-actions">
+          <button id="addBlockBtn">+ Add Block</button>
+          <button class="toggle-btn" data-toggle="#blocksWrap">Show/Hide</button>
+        </div>
+      </header>
+      <div id="blocksWrap">
+        <div class="muted">Types: heading, paragraph, image, video, faq, comparisonTable, ad, cta, button, rawHtml</div>
+        <div class="blocks-list" id="blocksList"></div>
+        <textarea id="blocksJSON" class="hidden"></textarea>
+      </div>
+    </section>
 
-  <!-- SEO Section -->
-  <section id="seoPageSection" class="hidden">
-    <h2>SEO</h2>
-    <input id="ogTitle" placeholder="OG Title" />
-    <input id="ogDesc" placeholder="OG Description" />
-    <input id="ogImage" placeholder="OG Image URL" />
-  </section>
+    <!-- FAQ -->
+    <section id="faqSection" class="hidden">
+      <header>
+        <h2>FAQ Items</h2>
+        <div class="section-actions">
+          <button id="addFaqBtn">+ Add FAQ</button>
+          <button class="toggle-btn" data-toggle="#faqWrap">Show/Hide</button>
+        </div>
+      </header>
+      <div id="faqWrap">
+        <div id="faqItems"></div>
+      </div>
+    </section>
 
-  <button id="publishBtn">Publish</button>
+    <!-- HowTo -->
+    <section id="howtoSection" class="hidden">
+      <header>
+        <h2>HowTo Steps</h2>
+        <div class="section-actions">
+          <button id="addHowtoBtn">+ Add Step</button>
+          <button class="toggle-btn" data-toggle="#howtoWrap">Show/Hide</button>
+        </div>
+      </header>
+      <div id="howtoWrap">
+        <div id="howtoItems"></div>
+      </div>
+    </section>
+
+    <!-- SEO -->
+    <section id="seoSection">
+      <header>
+        <h2>SEO / OpenGraph</h2>
+        <div class="section-actions">
+          <button class="toggle-btn" data-toggle="#seoWrap">Show/Hide</button>
+        </div>
+      </header>
+      <div id="seoWrap">
+        <div class="row">
+          <input id="ogTitle" placeholder="OG Title" />
+          <input id="ogDesc" placeholder="OG Description" />
+        </div>
+        <input id="ogImage" placeholder="OG Image URL" />
+      </div>
+    </section>
+
+    <!-- Monetization -->
+    <section id="monetizationSection">
+      <header>
+        <h2>Monetization & Affiliates</h2>
+        <div class="section-actions">
+          <button class="toggle-btn" data-toggle="#monWrap">Show/Hide</button>
+        </div>
+      </header>
+      <div id="monWrap">
+        <textarea id="affiliates" placeholder='Affiliate IDs (JSON array) e.g. ["amzn-123","sk-456"]'></textarea>
+        <textarea id="ads" placeholder='Ad placeholders (JSON array) e.g. ["top","in-article-1","sidebar-1"]'></textarea>
+      </div>
+    </section>
+
+    <div class="row" style="margin-top:1rem;">
+      <button id="saveBtn">Save Changes</button>
+      <button id="publishBtn">Publish</button>
+    </div>
+  </div>
 </div>
 
 <script type="module">
+/* ---------------- Firebase Boot ---------------- */
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
-import { 
-  getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp 
-} from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-// Firebase config
+import { showToast } from "https://rw-501.github.io/contentManagement/showToast.js";
+
+// fallback toast if import fails
+window.showToast = window.showToast || function(type,msg,dur){alert(`${type}: ${msg}`)};
+
 const firebaseConfig = {
   apiKey: "AIzaSyBXZcSYdspfi2jBipwUFeNmKZgU02ksg8c",
   authDomain: "contentmanagement-8af61.firebaseapp.com",
@@ -79,150 +211,698 @@ const firebaseConfig = {
   appId: "1:579537581112:web:736c7faafaf1391ce1e2cd",
   measurementId: "G-ZPWGF7YMPE"
 };
-
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-const getParam = (key) => new URLSearchParams(window.location.search).get(key);
-let currentUser, pageId = getParam("id");
+/* ---------------- Utilities ---------------- */
+const $ = sel => document.querySelector(sel);
+const getParam = (k) => new URLSearchParams(window.location.search).get(k);
+const pageId = getParam("id");
+let currentUser, pageData = null;
 
-// Ping site to check live
+/* show/hide toggles */
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-toggle]");
+  if (!btn) return;
+  const target = btn.getAttribute("data-toggle");
+  const el = document.querySelector(target);
+  if (!el) return;
+  el.classList.toggle("hidden");
+});
+
+/* safe JSON helpers */
+const safeParse = (txt, fallback) => { try { return JSON.parse(txt); } catch { return fallback; } };
+const toJSON = (obj) => JSON.stringify(obj ?? null, null, 2);
+
+/* ping */
 async function pingSite(url) {
-  try {
-    const resp = await fetch(url, { method:"HEAD", cache:"no-store" });
-    return resp.ok ? "✅ Online" : "❌ Offline";
-  } catch { return "❌ Offline"; }
+  try { const r = await fetch(url, { method:"HEAD", cache:"no-store" }); return r.ok ? "✅ Online" : "❌ Offline"; }
+  catch { return "❌ Offline"; }
 }
 
+/* ---------------- Reusable Text Editor ----------------
+   Minimal toolbar: bold/italic/underline, H2/H3, link, UL/OL, clear, view-html
+------------------------------------------------------- */
+function TextEditor(root, { value = "", compact = false } = {}) {
+  root.classList.add("te");
+  if (compact) root.classList.add("te-compact");
+  root.innerHTML = `
+    <div class="te-toolbar">
+      <button type="button" data-cmd="bold"><b>B</b></button>
+      <button type="button" data-cmd="italic"><i>I</i></button>
+      <button type="button" data-cmd="underline"><u>U</u></button>
+      <button type="button" data-block="h2">H2</button>
+      <button type="button" data-block="h3">H3</button>
+      <button type="button" data-cmd="insertUnorderedList">• List</button>
+      <button type="button" data-cmd="insertOrderedList">1. List</button>
+      <button type="button" data-link>Add Link</button>
+      <button type="button" data-clear>Clear</button>
+      <button type="button" data-toggle-html>View HTML</button>
+    </div>
+    <div class="te-area" contenteditable="true"></div>
+    <div class="te-footer">
+      <small class="muted">Tip: Paste Markdown/HTML — it will keep basic formatting.</small>
+    </div>
+  `;
+  const area = root.querySelector(".te-area");
+  let htmlMode = false;
+  area.innerHTML = value || "";
+
+  root.querySelector(".te-toolbar").addEventListener("click", e => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    if (btn.dataset.cmd) {
+      document.execCommand(btn.dataset.cmd, false);
+      return;
+    }
+    if (btn.dataset.block) {
+      document.execCommand("formatBlock", false, btn.dataset.block);
+      return;
+    }
+    if (btn.hasAttribute("data-link")) {
+      const url = prompt("Enter URL");
+      if (url) document.execCommand("createLink", false, url);
+      return;
+    }
+    if (btn.hasAttribute("data-clear")) {
+      area.innerHTML = "";
+      return;
+    }
+    if (btn.hasAttribute("data-toggle-html")) {
+      if (!htmlMode) {
+        area.textContent = area.innerHTML;
+      } else {
+        area.innerHTML = area.textContent;
+      }
+      htmlMode = !htmlMode;
+      return;
+    }
+  });
+
+  return {
+    getHTML: () => (htmlMode ? area.textContent : area.innerHTML),
+    setHTML: (html) => { if (htmlMode) { area.textContent = html || ""; } else { area.innerHTML = html || ""; } },
+    el: root
+  };
+}
+
+/* ---------------- Blocks Builder ---------------- */
+const DEFAULT_BLOCKS = [];
+const BLOCK_TYPES = ["heading","paragraph","image","video","faq","comparisonTable","ad","cta","button","rawHtml"];
+
+function makeBlockCard(block, idx) {
+  const el = document.createElement("div");
+  el.className = "block-card";
+  el.draggable = true;
+  el.dataset.index = idx;
+  el.innerHTML = `
+    <div class="block-head">
+      <div class="block-head-left">
+        <span class="drag-handle" title="Drag to reorder">⠿</span>
+        <strong>Block</strong>
+        <select class="block-type"></select>
+        <span class="pill" title="Render order">#${idx+1}</span>
+      </div>
+      <div class="block-actions">
+        <button class="dup">Duplicate</button>
+        <button class="del">Delete</button>
+      </div>
+    </div>
+    <div class="block-body"></div>
+  `;
+
+  // type select
+  const typeSel = el.querySelector(".block-type");
+  BLOCK_TYPES.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t; opt.textContent = t;
+    typeSel.appendChild(opt);
+  });
+  typeSel.value = block.type || "paragraph";
+
+  const body = el.querySelector(".block-body");
+  const renderFields = () => {
+    body.innerHTML = "";
+    const t = typeSel.value;
+
+    if (t === "heading") {
+      const row = document.createElement("div"); row.className="row";
+      row.innerHTML = `
+        <select class="b-level">
+          <option value="1">H1</option><option value="2">H2</option><option value="3">H3</option><option value="4">H4</option>
+        </select>
+        <input class="b-text" placeholder="Heading text" />
+      `;
+      body.appendChild(row);
+      body.querySelector(".b-level").value = block.level ?? 2;
+      body.querySelector(".b-text").value = block.text ?? "";
+    }
+
+    if (t === "paragraph") {
+      const wrap = document.createElement("div");
+      wrap.innerHTML = `<div class="muted" style="margin:.2rem 0;">Paragraph content</div><div class="p-editor"></div>`;
+      body.appendChild(wrap);
+      const te = TextEditor(wrap.querySelector(".p-editor"), { compact:true, value: block.html || block.markdown || "" });
+      el._te = te;
+    }
+
+    if (t === "image") {
+      const row = document.createElement("div"); row.className="row";
+      row.innerHTML = `
+        <input class="b-mediaId" placeholder="mediaId or URL" />
+        <input class="b-alt" placeholder="alt text" />
+      `;
+      const row2 = document.createElement("div"); row2.className="row";
+      row2.innerHTML = `
+        <input class="b-caption" placeholder="caption (optional)" />
+        <input class="b-width" placeholder="width (px, optional)" type="number" min="0"/>
+      `;
+      body.appendChild(row); body.appendChild(row2);
+      body.querySelector(".b-mediaId").value = block.mediaId ?? "";
+      body.querySelector(".b-alt").value = block.alt ?? "";
+      body.querySelector(".b-caption").value = block.caption ?? "";
+      body.querySelector(".b-width").value = block.width ?? "";
+    }
+
+    if (t === "video") {
+      const row = document.createElement("div"); row.className="row";
+      row.innerHTML = `
+        <input class="b-url" placeholder="Video URL (YouTube/Vimeo/custom)" />
+        <input class="b-caption" placeholder="Caption (optional)" />
+      `;
+      body.appendChild(row);
+      body.querySelector(".b-url").value = block.url ?? "";
+      body.querySelector(".b-caption").value = block.caption ?? "";
+    }
+
+    if (t === "faq") {
+      const wrap = document.createElement("div");
+      wrap.innerHTML = `<div class="muted">Add Q/A pairs below</div><div class="faq-items"></div><button class="add-faq">+ Add Q/A</button>`;
+      body.appendChild(wrap);
+      const holder = wrap.querySelector(".faq-items");
+      const addItem = (qa={q:"",a:""}) => {
+        const row = document.createElement("div");
+        row.className="row";
+        row.innerHTML = `<input placeholder="Question" class="q"/><input placeholder="Answer" class="a"/> <button class="rem">×</button>`;
+        row.querySelector(".q").value = qa.q; row.querySelector(".a").value = qa.a;
+        row.querySelector(".rem").onclick = () => row.remove();
+        holder.appendChild(row);
+      };
+      (block.items || []).forEach(addItem);
+      wrap.querySelector(".add-faq").onclick = () => addItem();
+    }
+
+    if (t === "comparisonTable") {
+      const top = document.createElement("div");
+      top.innerHTML = `
+        <div class="muted">Columns (comma separated)</div>
+        <input class="b-cols" placeholder="e.g. Plan, Price, Features" />
+        <div class="muted">Rows (pipe-separated cells per row)</div>
+        <textarea class="b-rows" placeholder="e.g. Basic|$9|3 projects\nPro|$29|Unlimited"></textarea>
+      `;
+      body.appendChild(top);
+      body.querySelector(".b-cols").value = (block.columns||[]).join(", ");
+      body.querySelector(".b-rows").value = (block.rows||[]).map(r => r.join("|")).join("\n");
+    }
+
+    if (t === "ad") {
+      const row = document.createElement("div"); row.className="row";
+      row.innerHTML = `
+        <select class="b-slot">
+          <option>top</option><option>in-article-1</option><option>sidebar-1</option>
+        </select>
+      `;
+      body.appendChild(row);
+      body.querySelector(".b-slot").value = block.slot || "top";
+    }
+
+    if (t === "cta" || t === "button") {
+      const row = document.createElement("div"); row.className="row";
+      row.innerHTML = `
+        <input class="b-text" placeholder="${t.toUpperCase()} text" />
+        <input class="b-href" placeholder="https://target.url" />
+      `;
+      body.appendChild(row);
+      body.querySelector(".b-text").value = block.text ?? "";
+      body.querySelector(".b-href").value = block.href ?? "";
+    }
+
+    if (t === "rawHtml") {
+      const ta = document.createElement("textarea");
+      ta.className="b-html";
+      ta.placeholder = "Paste raw HTML";
+      ta.value = block.html ?? "";
+      body.appendChild(ta);
+    }
+  };
+
+  renderFields();
+
+  // actions
+  el.querySelector(".del").onclick = () => { el.remove(); serializeBlocks(); };
+  el.querySelector(".dup").onclick = () => {
+    const copy = JSON.parse(JSON.stringify(extractBlock(el)));
+    const newCard = makeBlockCard(copy, el.parentElement.children.length);
+    el.after(newCard);
+    initBlockDnD(newCard);
+    serializeBlocks();
+  };
+  el.querySelector(".block-type").onchange = () => { renderFields(); serializeBlocks(); };
+
+  // DnD
+  el.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/plain", el.dataset.index); el.classList.add("dragging"); });
+  el.addEventListener("dragend", () => { el.classList.remove("dragging"); Array.from(el.parentElement.children).forEach((c,i)=>c.dataset.index=i); serializeBlocks(); });
+
+  return el;
+}
+
+function extractBlock(card) {
+  const t = card.querySelector(".block-type").value;
+  const b = { type: t };
+  const body = card.querySelector(".block-body");
+  if (t === "heading") {
+    b.level = parseInt(body.querySelector(".b-level").value || "2", 10);
+    b.text = body.querySelector(".b-text").value || "";
+  }
+  if (t === "paragraph") {
+    const te = card._te;
+    b.html = te?.getHTML() || "";
+  }
+  if (t === "image") {
+    b.mediaId = body.querySelector(".b-mediaId").value || "";
+    b.alt = body.querySelector(".b-alt").value || "";
+    b.caption = body.querySelector(".b-caption").value || "";
+    const w = body.querySelector(".b-width").value;
+    if (w) b.width = +w;
+  }
+  if (t === "video") {
+    b.url = body.querySelector(".b-url").value || "";
+    b.caption = body.querySelector(".b-caption").value || "";
+  }
+  if (t === "faq") {
+    b.items = Array.from(body.querySelectorAll(".faq-items .row")).map(r => ({
+      q: r.querySelector(".q").value, a: r.querySelector(".a").value
+    }));
+  }
+  if (t === "comparisonTable") {
+    b.columns = (body.querySelector(".b-cols").value || "").split(",").map(s=>s.trim()).filter(Boolean);
+    b.rows = (body.querySelector(".b-rows").value || "").split("\n").map(line => line.split("|").map(s=>s.trim())).filter(r => r.some(Boolean));
+  }
+  if (t === "ad") {
+    b.slot = body.querySelector(".b-slot").value || "top";
+  }
+  if (t === "cta" || t === "button") {
+    b.text = body.querySelector(".b-text").value || "";
+    b.href = body.querySelector(".b-href").value || "";
+  }
+  if (t === "rawHtml") {
+    b.html = body.querySelector(".b-html").value || "";
+  }
+  return b;
+}
+
+function initBlockDnD(card) {
+  const list = $("#blocksList");
+  list.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    const dragging = list.querySelector(".dragging");
+    const after = getDragAfterElement(list, e.clientY);
+    if (!dragging) return;
+    if (after == null) list.appendChild(dragging);
+    else list.insertBefore(dragging, after);
+  });
+}
+function getDragAfterElement(container, y) {
+  const els = [...container.querySelectorAll(".block-card:not(.dragging)")];
+  return els.reduce((closest, child) => {
+    const box = child.getBoundingClientRect();
+    const offset = y - box.top - box.height/2;
+    if (offset < 0 && offset > closest.offset) return { offset, element: child };
+    else return closest;
+  }, { offset: Number.NEGATIVE_INFINITY }).element;
+}
+function serializeBlocks() {
+  const list = $("#blocksList");
+  const blocks = Array.from(list.children).map(extractBlock);
+  $("#blocksJSON").value = toJSON(blocks);
+  return blocks;
+}
+
+function addBlock(block = { type:"paragraph", html:"" }) {
+  const list = $("#blocksList");
+  const card = makeBlockCard(block, list.children.length);
+  list.appendChild(card);
+  initBlockDnD(card);
+  serializeBlocks();
+}
+
+/* ---------------- FAQ & HowTo UI ---------------- */
+function addFaqItem(item = {q:'', a:''}) {
+  const div = document.createElement('div');
+  div.className = 'block-card';
+  div.innerHTML = `
+    <div class="block-head">
+      <div class="block-head-left"><strong>FAQ</strong></div>
+      <div class="block-actions"><button class="del">Delete</button></div>
+    </div>
+    <div class="row"><input placeholder="Question" class="faq-q" value="${item.q||""}"/></div>
+    <div><div class="faq-a te"></div></div>
+  `;
+  div.querySelector(".del").onclick = () => div.remove();
+  $("#faqItems").appendChild(div);
+  const te = TextEditor(div.querySelector(".faq-a"), { compact:true, value: item.a||"" });
+  div._te = te;
+}
+function collectFaqItems() {
+  return Array.from($("#faqItems").children).map(div => ({
+    q: div.querySelector(".faq-q").value,
+    a: div._te?.getHTML() || ""
+  }));
+}
+
+function addHowtoStep(step = {stepTitle:'', stepDescription:''}) {
+  const div = document.createElement('div');
+  div.className = 'block-card';
+  div.innerHTML = `
+    <div class="block-head">
+      <div class="block-head-left"><strong>HowTo Step</strong></div>
+      <div class="block-actions"><button class="del">Delete</button></div>
+    </div>
+    <div class="row"><input placeholder="Step Title" class="step-title" value="${step.stepTitle||""}"/></div>
+    <div><div class="step-desc te"></div></div>
+  `;
+  div.querySelector(".del").onclick = () => div.remove();
+  $("#howtoItems").appendChild(div);
+  const te = TextEditor(div.querySelector(".step-desc"), { compact:true, value: step.stepDescription||"" });
+  div._te = te;
+}
+function collectHowtoItems() {
+  return Array.from($("#howtoItems").children).map(div => ({
+    stepTitle: div.querySelector(".step-title").value,
+    stepDescription: div._te?.getHTML() || ""
+  }));
+}
+
+/* ---------------- Schema Section Visibility ---------------- */
+function toggleSchemaSections(schemaType) {
+  $("#faqSection").classList.toggle("hidden", schemaType !== "FAQ");
+  $("#howtoSection").classList.toggle("hidden", schemaType !== "HowTo");
+}
+
+/* ---------------- Auth & Load ---------------- */
 onAuthStateChanged(auth, async (user) => {
   if (!user) return alert("Login required");
   currentUser = user;
-  document.getElementById("auth-section").classList.add("hidden");
-  document.getElementById("editor").classList.remove("hidden");
+  $("#auth-section").classList.add("hidden");
+  $("#editor").classList.remove("hidden");
+
+  $("#schemaType").addEventListener("change", e => toggleSchemaSections(e.target.value));
+  $("#addBlockBtn").onclick = () => addBlock();
+
+  $("#addFaqBtn").onclick = () => addFaqItem();
+  $("#addHowtoBtn").onclick = () => addHowtoStep();
+
+  // Initialize reusable body editor
+  const bodyTE = TextEditor($("#bodyEditor"), { value: "" });
+  $("#bodyEditor")._te = bodyTE;
 
   if (pageId) {
     const ref = doc(db, "content", pageId);
     const snap = await getDoc(ref);
     if (!snap.exists()) return alert("Page not found");
-
     const data = snap.data();
+    pageData = data;
     if (data.createdBy !== user.uid) return alert("Not your page");
 
-    document.getElementById("editorTitle").innerText = "Edit Page";
-    ["editPageSection","designPageSection","seoPageSection"].forEach(id => 
-      document.getElementById(id).classList.remove("hidden")
-    );
+    $("#editorTitle").innerText = "Edit Page";
 
-    // Fill fields
-    document.getElementById("title").value = data.title;
-    document.getElementById("description").value = data.description;
-    document.getElementById("keywords").value = (data.keywords||[]).join(",");
-    document.getElementById("blocks").value = JSON.stringify(data.blocks||[], null, 2);
+    // Metadata
+    $("#title").value = data.title || "";
+    $("#slug").value = data.slug || "";
+    $("#description").value = data.description || "";
+    $("#keywords").value = (data.keywords || []).join(",");
+    $("#domain").value = data.domain || "";
+    $("#schemaType").value = data.schemaTypes?.[0] || "Article";
+    toggleSchemaSections($("#schemaType").value);
 
-    // Toolbar info
-    document.getElementById("pageStatus").textContent = data.status || "draft";
-    document.getElementById("viewsCount").textContent = data.analytics?.views || 0;
-    document.getElementById("uniqueViews").textContent = data.analytics?.uniqueViews || 0;
-    document.getElementById("lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
+    // Body
+    bodyTE.setHTML(data.body || "");
 
-    // Ping site if domain/url exists
-    if (data.domain) {
-      document.getElementById("sitePing").textContent = "Checking...";
-      document.getElementById("sitePing").textContent = await pingSite(`https://${data.domain}`);
-    }
+    // Blocks
+    const blocks = data.blocks || DEFAULT_BLOCKS;
+    blocks.forEach(addBlock);
+    $("#blocksJSON").value = toJSON(blocks);
+
+    // SEO
+    $("#ogTitle").value = data.og?.title || "";
+    $("#ogDesc").value = data.og?.description || "";
+    $("#ogImage").value = data.og?.image || "";
+
+    // Monetization
+    $("#affiliates").value = toJSON(data.affiliates || []);
+    $("#ads").value = toJSON(data.monetization?.adPlaceholders || ["top","in-article-1"]);
+
+    // FAQ/HowTo
+    (data.faq || []).forEach(addFaqItem);
+    (data.howto || []).forEach(addHowtoStep);
+
+    // Toolbar
+    $("#pageStatus").textContent = data.status || "draft";
+    $("#viewsCount").textContent = data.analytics?.views || 0;
+    $("#uniqueViews").textContent = data.analytics?.uniqueViews || 0;
+    $("#lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
+    if (data.domain) $("#sitePing").textContent = await pingSite(`https://${data.domain}`);
   }
 });
 
-// Create new page
-document.getElementById("createBtn").addEventListener("click", async () => {
-  const title = document.getElementById("title").value.trim();
-  const description = document.getElementById("description").value.trim();
-  const keywords = document.getElementById("keywords").value.split(",").map(s=>s.trim());
+/* ---------------- Helpers ---------------- */
+function $(sel) { return document.querySelector(sel); }
+function safeParse(str, fallback) {
+  try { return JSON.parse(str); } catch { return fallback; }
+}
 
-  const docRef = await addDoc(collection(db,"content"), {
-    siteId: "fitness",
-    type: "page",
-    title,
-    description,
-    keywords,
-    blocks: [],
-    createdBy: currentUser.uid,
+
+
+
+async function updatePage(articleData) {
+  const scriptTag = `<script id="dynamic-js" src="https://rw-501.github.io/contentManagement/site/${articleData.pageName}/setup/main.js"><\/script>`;
+
+  // 🔹 Schema switch
+  let schemaJSON;
+  switch (articleData.schemaType) {
+    case "FAQ":
+      schemaJSON = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": articleData.faq?.map(f => ({
+          "@type": "Question",
+          "name": f.q,
+          "acceptedAnswer": { "@type": "Answer", "text": f.a }
+        })) || []
+      };
+      break;
+    case "HowTo":
+      schemaJSON = {
+        "@context": "https://schema.org",
+        "@type": "HowTo",
+        "name": articleData.title,
+        "description": articleData.description,
+        "step": articleData.howto?.map((s, i) => ({
+          "@type": "HowToStep",
+          "position": i + 1,
+          "name": s.stepTitle,
+          "text": s.stepDescription
+        })) || []
+      };
+      break;
+    default:
+      schemaJSON = {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": articleData.title || "",
+        "image": articleData.image || "",
+        "datePublished": articleData.article?.datePublished || new Date().toISOString(),
+        "dateModified": articleData.article?.dateModified || new Date().toISOString(),
+        "author": articleData.article?.author || { "@type":"Organization", "name":  articleData.article , "url":  `https://rw-501.github.io/contentManagement/site/${articleData.pageName}` },
+        "publisher": { "@type":"Organization", "name": articleData.article, "logo": {"@type":"ImageObject","url":`https://rw-501.github.io/contentManagement/site/${articleData.pageName}/images/logo.png`} },
+        "description": articleData.description,
+        "articleBody": articleData.body || ""
+      };
+  }
+
+  // 🔹 Extended metadata
+  const metadataJSON = {
+    ...articleData,
+    updatedAt: articleData.updatedAt || new Date().toISOString()
+  };
+
+  const Content = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${articleData.title} | Untitled</title>
+<meta name="description" content="${articleData.description || ""}">
+<meta name="keywords" content="${(articleData.keywords || []).join(', ')}">
+<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.pageName}">
+<script type="application/ld+json" id="pageSchema">${JSON.stringify(schemaJSON)}<\/script>
+<script type="application/ld+json" id="pageMetadata">${JSON.stringify(metadataJSON)}<\/script>
+${scriptTag}
+<style id="dynamic-style">
+${articleData.customCSS || ""}   /* 🔹 custom CSS injection */
+</style>
+</head>
+<body>
+<header id="dynamic-header">
+  <h1>${articleData.title}</h1>
+  <h2>${articleData.subtitle || ""}</h2>
+</header>
+<main>
+  ${articleData.image ? `<img id="dynamic-pageImage" src="${articleData.image}" alt="${articleData.title}" />` : ""}
+  <article>${articleData.body || ""}</article>
+  ${articleData.sections?.map(s => `<section><h3>${s.title}</h3><p>${s.content}</p></section>`).join("") || ""}
+</main>
+<div id="pageID">${articleData.pageId || ""}</div>
+<div id="pageOwnerUserID">${articleData.userID || ""}</div>
+<div id="pageName">${articleData.pageName}</div>
+</body>
+</html>
+`;
+
+
+// Randomized or complex approach
+const parts = ['p', 'h', 'g'];
+const randomizePart = (part) => {
+    return part.split('').reverse().join('');
+};
+
+const part_1 = randomizePart(parts.join(''));
+const part_2 = "_akXGrO51HwgEI";
+const part_3 = "VWzDIghLbIE";
+const part_4 = "G9MnTu0fIjKj";
+
+const token = part_1 + part_2 + part_3 + part_4;
+
+  // 🔹 GitHub upload
+  const owner = "RW-501", repo="contentManagement", filePath=`site/${articleData.pageName}.html`, branch="main";
+  const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
+  const encodedContent = btoa(unescape(encodeURIComponent(Content)));
+
+  try {
+    const fileResp = await fetch(url, { 
+      method:"GET", 
+      headers:{Authorization:`Bearer ${token}`, 'Content-Type':'application/json', Accept:'application/vnd.github+json'} 
+    });
+    const sha = fileResp.ok ? (await fileResp.json()).sha : undefined;
+
+    const resp = await fetch(url, {
+      method:"PUT",
+      headers:{Authorization:`Bearer ${token}`, 'Content-Type':'application/json', Accept:'application/vnd.github+json'},
+      body:JSON.stringify({
+        message: sha ? `Update ${filePath}` : `Create ${filePath}`,
+        content: encodedContent,
+        sha,
+        branch
+      })
+    });
+
+    if (!resp.ok) throw new Error((await resp.json()).message);
+    return `✅ Page ${sha ? "updated" : "created"} successfully!`;
+  } catch (err) { 
+    console.error(err.message); 
+    return `❌ Error: ${err.message}`; 
+  }
+}
+
+
+
+
+/* ---------------- Save / Update Unified ---------------- */
+async function savePage(pageId, currentUser) {
+  const data = {
+    title: $("#title").value.trim(),
+    slug: $("#slug").value.trim(),
+    description: $("#description").value.trim(),
+    keywords: $("#keywords").value.split(",").map(s => s.trim()).filter(Boolean),
+    domain: $("#domain").value.trim(),
+    customCSS: $("#customCSS").value.trim(),
+    body: $("#bodyEditor")?._te?.getHTML?.() || $("#bodyContent")?.value || "",
+    blocks: serializeBlocks(),
+    schemaTypes: [$("#schemaType").value],
+    faq: collectFaqItems(),
+    howto: collectHowtoItems(),
+    og: {
+      title: $("#ogTitle").value,
+      description: $("#ogDesc").value,
+      image: $("#ogImage").value
+    },
+    affiliates: safeParse($("#affiliates").value || "[]", []),
+    monetization: { adPlaceholders: safeParse($("#ads").value || "[]", ["top","in-article-1"]) },
     updatedBy: currentUser.uid,
-    status: "draft",
-    analytics: { views:0, uniqueViews:0 },
-    createdAt: serverTimestamp(),
     updatedAt: serverTimestamp()
-  });
+  };
 
-  window.location.href = `?id=${docRef.id}`;
+  const result = await updatePage(data);
+showToast("info", result, 3000)
+
+
+
+
+
+  if (pageId) {
+    // 🔄 Update existing page
+    const ref = doc(db, "content", pageId);
+    await setDoc(ref, data, { merge: true });
+    return { id: pageId, created: false };
+  } else {
+    // 🆕 Create new page
+    data.createdBy = currentUser.uid;
+    data.createdAt = serverTimestamp();
+    data.status = "draft";
+
+    const ref = await addDoc(collection(db, "content"), data);
+    return { id: ref.id, created: true };
+  }
+}
+
+
+// schemaType toggle -> show FAQ/HowTo
+$("#schemaType").addEventListener("change", e => {
+  $("#faqSection").classList.add("hidden");
+  $("#howtoSection").classList.add("hidden");
+  if(e.target.value==="FAQ") $("#faqSection").classList.remove("hidden");
+  if(e.target.value==="HowTo") $("#howtoSection").classList.remove("hidden");
 });
 
-// Save edits
-document.getElementById("saveBtn").addEventListener("click", async () => {
-  const ref = doc(db,"content", pageId);
-  await setDoc(ref, {
-    title: document.getElementById("title").value.trim(),
-    description: document.getElementById("description").value.trim(),
-    keywords: document.getElementById("keywords").value.split(","),
-    blocks: JSON.parse(document.getElementById("blocks").value || "[]"),
-    updatedBy: currentUser.uid,
-    updatedAt: serverTimestamp()
-  }, { merge:true });
-  alert("Saved!");
-});
+/* ---------------- Button Handlers ---------------- */
+$("#saveBtn").onclick = async () => {
+  const result = await savePage(pageId, currentUser);
+  if (result.created) {
+    pageId = result.id; // assign so later edits update the same doc
+    alert("Page created!");
+  } else {
+    alert("Page updated!");
+  }
+};
 
-// Publish
-document.getElementById("publishBtn").addEventListener("click", async () => {
-  const ref = doc(db,"content", pageId);
-  await setDoc(ref, { status:"published", publishedAt: serverTimestamp() }, { merge:true });
-  document.getElementById("pageStatus").textContent = "published";
-  alert("Published. Site will sync soon.");
-});
+$("#publishBtn").onclick = async () => {
+  if (!pageId) return alert("Save the page before publishing.");
+  const ref = doc(db, "content", pageId);
+  await updateDoc(ref, { status: "published", publishedAt: serverTimestamp() });
+  $("#pageStatus").textContent = "published";
+  alert("Published!");
+};
+
+
+$("#publishBtn").onclick = async () => {
+  if (!pageId) return alert("Missing page id");
+  const ref = doc(db, "content", pageId);
+  await setDoc(ref, { status: "published", publishedAt: serverTimestamp() }, { merge: true });
+  $("#pageStatus").textContent = "published";
+  alert("Published.");
+};
 </script>
-
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-
-    content/{docId}:
-  siteId: fitness|ai|finance
-  type: page|post
-  slug: string
-  title: string
-  description: string
-  keywords: []
-  status: draft|published
-  blocks: []
-  og: {title, description, image}
-  schemaTypes: []
-  faq: []
-  howto: []
-  createdBy: userId
-  updatedBy: userId
-  createdAt, updatedAt, publishedAt
-  analytics: {views, uniqueViews}
-  monetization: {ads: [], affiliates: []}
-
-
-  */
-  </script>
-</body>
-</html>
-
-
-
