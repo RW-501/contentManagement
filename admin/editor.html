@@ -16,7 +16,10 @@
   section header h2 { margin:0; font-size:1.05rem; }
   .section-actions { display:flex; gap:.5rem; }
   .toggle-btn { font-size:.85rem; background:#eef2ff; color:var(--accent); border:1px solid #c7d2fe; padding:.25rem .5rem; border-radius:6px; cursor:pointer; }
-  .hidden { display:none; }
+.hidden { display:none; }
+  .color-btn { width: 36px; height: 36px; border: none; border-radius: 6px; cursor:pointer; vertical-align: middle; }
+  #previewPrimary, #previewSecondary { padding:0.5rem 1rem; margin-top:0.5rem; border:none; border-radius:8px; cursor:pointer; }
+
   input, textarea, select { width:100%; margin:.4rem 0 .8rem; padding:.6rem .65rem; border:1px solid var(--border); border-radius:8px; background:#fff; }
   textarea { min-height:120px; }
   button { padding:.55rem .9rem; border:none; border-radius:8px; cursor:pointer; background:#eaeaea; }
@@ -95,7 +98,7 @@
     </div>
     </section>
 
-    <!-- Page Styles -->
+<!-- Page Styles -->
 <section id="stylesSection">
   <header>
     <h2>Page Styles / Theme</h2>
@@ -105,20 +108,42 @@
   </header>
   <div id="stylesWrap">
     <div class="row">
-      <label>Background Color <input type="color" id="styleBg" value="#f7f7f9"></label>
-      <label>Font Color <input type="color" id="styleInk" value="#222222"></label>
+      <label>Background Color 
+        <input type="color" id="styleBg" value="#f7f7f9" class="hidden">
+        <button class="color-btn" data-target="styleBg" style="background:#f7f7f9"></button>
+      </label>
+      <label>Font Color 
+        <input type="color" id="styleInk" value="#222222" class="hidden">
+        <button class="color-btn" data-target="styleInk" style="background:#222222"></button>
+      </label>
     </div>
     <div class="row">
-      <label>Primary Button <input type="color" id="stylePrimary" value="#4f46e5"></label>
-      <label>Secondary Button <input type="color" id="styleSecondary" value="#22c55e"></label>
+      <label>Primary Button 
+        <input type="color" id="stylePrimary" value="#4f46e5" class="hidden">
+        <button class="color-btn" data-target="stylePrimary" style="background:#4f46e5"></button>
+      </label>
+      <label>Secondary Button 
+        <input type="color" id="styleSecondary" value="#22c55e" class="hidden">
+        <button class="color-btn" data-target="styleSecondary" style="background:#22c55e"></button>
+      </label>
     </div>
     <div class="row">
       <label>Border Radius <input type="range" id="styleRadius" min="0" max="30" value="8"></label>
-      <label>Outline Color <input type="color" id="styleOutline" value="#e6e6ea"></label>
+      <label>Outline Color 
+        <input type="color" id="styleOutline" value="#e6e6ea" class="hidden">
+        <button class="color-btn" data-target="styleOutline" style="background:#e6e6ea"></button>
+      </label>
     </div>
     <textarea id="extraCSS" rows="4" placeholder="Extra CSS rules…"></textarea>
+
+    <!-- Button Preview -->
+    <div style="margin-top:1rem;">
+      <button id="previewPrimary" style="margin-right:1rem;">Primary</button>
+      <button id="previewSecondary">Secondary</button>
+    </div>
   </div>
 </section>
+
 
     <!-- Body Content -->
     <section id="bodySection">
@@ -369,41 +394,86 @@ $("#schemaType").addEventListener("change", e => {
 
 
 /* ---------------- Page Styles ---------------- */
-function collectPageStyles() {
-  return {
-    bg: $("#styleBg").value,
-    ink: $("#styleInk").value,
-    primary: $("#stylePrimary").value,
-    secondary: $("#styleSecondary").value,
-    radius: $("#styleRadius").value,
-    outline: $("#styleOutline").value,
-    extra: $("#extraCSS").value
-  };
-}
-
-function applyPageStyles(styles) {
-  if (!styles) return;
-  document.documentElement.style.setProperty("--bg", styles.bg || "#f7f7f9");
-  document.documentElement.style.setProperty("--ink", styles.ink || "#222");
-  document.documentElement.style.setProperty("--accent", styles.primary || "#4f46e5");
-  document.documentElement.style.setProperty("--card", "#fff");
-  document.documentElement.style.setProperty("--border", styles.outline || "#e6e6ea");
-
-  // roundness
-  document.querySelectorAll("section, button, input, textarea").forEach(el=>{
-    el.style.borderRadius = (styles.radius || 8) + "px";
+  // Toggle section visibility
+  document.querySelectorAll(".toggle-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const wrap = document.querySelector(btn.dataset.toggle);
+      wrap.style.display = wrap.style.display === "none" ? "block" : "none";
+    });
   });
 
-  // extra custom CSS injection
-  let styleEl = document.getElementById("dynamicStyles");
-  if (!styleEl) {
-    styleEl = document.createElement("style");
-    styleEl.id = "dynamicStyles";
-    document.head.appendChild(styleEl);
-  }
-  styleEl.innerHTML = styles.extra || "";
-}
+  // Initialize color buttons
+  document.querySelectorAll(".color-btn").forEach(btn => {
+    const input = document.getElementById(btn.dataset.target);
 
+    // Open native color picker on click
+    btn.addEventListener("click", () => input.click());
+
+    // Update button color when input changes
+    input.addEventListener("input", () => {
+      btn.style.background = input.value;
+      applyPageStyles(collectPageStyles());
+    });
+  });
+
+  // Apply styles on slider/input change
+  document.getElementById("styleRadius").addEventListener("input", () => {
+    applyPageStyles(collectPageStyles());
+  });
+  document.getElementById("extraCSS").addEventListener("input", () => {
+    applyPageStyles(collectPageStyles());
+  });
+
+  // Live preview buttons
+  function applyPageStyles(styles) {
+    if (!styles) return;
+
+    document.documentElement.style.setProperty("--bg", styles.bg || "#f7f7f9");
+    document.documentElement.style.setProperty("--ink", styles.ink || "#222");
+    document.documentElement.style.setProperty("--accent", styles.primary || "#4f46e5");
+    document.documentElement.style.setProperty("--card", "#fff");
+    document.documentElement.style.setProperty("--border", styles.outline || "#e6e6ea");
+
+    document.querySelectorAll("section, button, input, textarea").forEach(el => {
+      el.style.borderRadius = (styles.radius || 8) + "px";
+    });
+
+    // Preview buttons
+    const previewPrimary = document.getElementById("previewPrimary");
+    const previewSecondary = document.getElementById("previewSecondary");
+    if (previewPrimary) {
+      previewPrimary.style.background = styles.primary || "#4f46e5";
+      previewPrimary.style.color = styles.ink || "#222";
+    }
+    if (previewSecondary) {
+      previewSecondary.style.background = styles.secondary || "#22c55e";
+      previewSecondary.style.color = styles.ink || "#222";
+    }
+
+    // Extra CSS injection
+    let styleEl = document.getElementById("dynamicStyles");
+    if (!styleEl) {
+      styleEl = document.createElement("style");
+      styleEl.id = "dynamicStyles";
+      document.head.appendChild(styleEl);
+    }
+    styleEl.innerHTML = styles.extra || "";
+  }
+
+  function collectPageStyles() {
+    return {
+      bg: document.getElementById("styleBg").value,
+      ink: document.getElementById("styleInk").value,
+      primary: document.getElementById("stylePrimary").value,
+      secondary: document.getElementById("styleSecondary").value,
+      radius: document.getElementById("styleRadius").value,
+      outline: document.getElementById("styleOutline").value,
+      extra: document.getElementById("extraCSS").value
+    };
+  }
+
+  // Initial application
+  applyPageStyles(collectPageStyles());
 
 
 /* ---------------- Reusable Text Editor ----------------
