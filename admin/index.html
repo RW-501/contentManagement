@@ -316,8 +316,8 @@ document.getElementById("createBtn").addEventListener("click", async () => {
   };
 
   if (!articleData.title || !articleData.domain) return alert("Title and domain required.");
-  const docRef = await addDoc(collection(db,"content"), {...articleData, type:"page", status:"draft", analytics:{views:0, uniqueViews:0}, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
-  await updateDoc(doc(db,"content",docRef.id), { siteId: docRef.id });
+  const docRef = await addDoc(collection(db,"pages"), {...articleData, type:"page", status:"draft", analytics:{views:0, uniqueViews:0}, createdAt: serverTimestamp(), updatedAt: serverTimestamp() });
+  await updateDoc(doc(db,"pages",docRef.id), { siteId: docRef.id });
   await updateDoc(doc(db,"users",currentUser.uid), { createdPages: arrayUnion({id:docRef.id, title:articleData.title, image:articleData.image, domain:articleData.domain, status:"draft", analytics:{views:0}}) });
   
   await createPage(articleData, docRef.id);

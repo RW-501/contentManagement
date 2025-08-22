@@ -95,6 +95,31 @@
     </div>
     </section>
 
+    <!-- Page Styles -->
+<section id="stylesSection">
+  <header>
+    <h2>Page Styles / Theme</h2>
+    <div class="section-actions">
+      <button class="toggle-btn" data-toggle="#stylesWrap">Show/Hide</button>
+    </div>
+  </header>
+  <div id="stylesWrap">
+    <div class="row">
+      <label>Background Color <input type="color" id="styleBg" value="#f7f7f9"></label>
+      <label>Font Color <input type="color" id="styleInk" value="#222222"></label>
+    </div>
+    <div class="row">
+      <label>Primary Button <input type="color" id="stylePrimary" value="#4f46e5"></label>
+      <label>Secondary Button <input type="color" id="styleSecondary" value="#22c55e"></label>
+    </div>
+    <div class="row">
+      <label>Border Radius <input type="range" id="styleRadius" min="0" max="30" value="8"></label>
+      <label>Outline Color <input type="color" id="styleOutline" value="#e6e6ea"></label>
+    </div>
+    <textarea id="extraCSS" rows="4" placeholder="Extra CSS rules…"></textarea>
+  </div>
+</section>
+
     <!-- Body Content -->
     <section id="bodySection">
       <header>
@@ -218,7 +243,7 @@ const auth = getAuth(app);
 /* ---------------- Utilities ---------------- */
 const $ = sel => document.querySelector(sel);
 const getParam = (k) => new URLSearchParams(window.location.search).get(k);
-const pageId = getParam("id");
+
 let currentUser, pageData = null;
 
 /* show/hide toggles */
@@ -240,6 +265,143 @@ async function pingSite(url) {
   try { const r = await fetch(url, { method:"HEAD", cache:"no-store" }); return r.ok ? "✅ Online" : "❌ Offline"; }
   catch { return "❌ Offline"; }
 }
+
+function getPageIdFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("pageId");
+}
+
+
+async function loadPageData(currentUser) {
+  const pageId = getPageIdFromUrl();
+  if (!pageId) {
+    console.warn("No pageId found in URL");
+    return null;
+  }
+
+  const ref = doc(db, "pages", pageId);
+  const snap = await getDoc(ref);
+
+  if (!snap.exists()) {
+    showToast("error", "Page not found!", 4000);
+    return null;
+  }
+
+  const pageData = snap.data();
+
+  // ✅ Permission check
+  if (pageData.createdBy !== currentUser.uid) {
+    showToast("error", "You are not the owner of this page", 4000);
+    throw new Error("Permission denied");
+  }
+
+  return { id: pageId, ...pageData };
+}
+
+async function initEditor(currentUser) {
+  try {
+    const pageData = await loadPageData(currentUser);
+    if (!pageData) return;
+
+    // Fill form fields
+    $("#title").value = pageData.title || "";
+    $("#slug").value = pageData.slug || "";
+    $("#description").value = pageData.description || "";
+    $("#keywords").value = pageData.keywords?.join(", ") || "";
+    $("#domain").value = pageData.domain || "";
+
+    // ✅ Show FAQ / HowTo sections depending on schema type
+const schema = $("#schemaType").value;
+if (schema === "FAQ") $("#faqSection").classList.remove("hidden");
+if (schema === "HowTo") $("#howtoSection").classList.remove("hidden");
+
+
+    // ✅ Analytics stats
+$("#viewsCount").textContent = pageData.analytics?.views ?? 0;
+$("#uniqueViews").textContent = pageData.analytics?.uniqueViews ?? 0;
+$("#lastUpdated").textContent = pageData.updatedAt?.toDate?.().toLocaleString?.() || "-";
+
+// ✅ Site ping
+if (pageData.domain) {
+  $("#sitePing").textContent = await pingSite(pageData.domain);
+}
+
+
+
+    // ✅ Apply stored styles
+    if (pageData.styles) {
+      applyPageStyles(pageData.styles);
+      $("#styleBg").value = pageData.styles.bg || "#f7f7f9";
+      $("#styleInk").value = pageData.styles.ink || "#222";
+      $("#stylePrimary").value = pageData.styles.primary || "#4f46e5";
+      $("#styleSecondary").value = pageData.styles.secondary || "#22c55e";
+      $("#styleRadius").value = pageData.styles.radius || 8;
+      $("#styleOutline").value = pageData.styles.outline || "#e6e6ea";
+      $("#extraCSS").value = pageData.styles.extra || "";
+    }
+
+    if ($("#bodyEditor") && !$("#bodyEditor")._te) {
+  $("#bodyEditor")._te = TextEditor($("#bodyEditor"), { value: pageData.body || "" });
+}
+
+    showToast("success", "Page loaded!", 2000);
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+onAuthStateChanged(auth, async (user) => {
+  if (user) {
+    currentUser = user;
+    await initEditor(user);
+  } else {
+    window.location.href = "contentManagement/";
+  }
+});
+
+$("#schemaType").addEventListener("change", e => {
+  $("#faqSection").classList.toggle("hidden", e.target.value !== "FAQ");
+  $("#howtoSection").classList.toggle("hidden", e.target.value !== "HowTo");
+});
+
+
+/* ---------------- Page Styles ---------------- */
+function collectPageStyles() {
+  return {
+    bg: $("#styleBg").value,
+    ink: $("#styleInk").value,
+    primary: $("#stylePrimary").value,
+    secondary: $("#styleSecondary").value,
+    radius: $("#styleRadius").value,
+    outline: $("#styleOutline").value,
+    extra: $("#extraCSS").value
+  };
+}
+
+function applyPageStyles(styles) {
+  if (!styles) return;
+  document.documentElement.style.setProperty("--bg", styles.bg || "#f7f7f9");
+  document.documentElement.style.setProperty("--ink", styles.ink || "#222");
+  document.documentElement.style.setProperty("--accent", styles.primary || "#4f46e5");
+  document.documentElement.style.setProperty("--card", "#fff");
+  document.documentElement.style.setProperty("--border", styles.outline || "#e6e6ea");
+
+  // roundness
+  document.querySelectorAll("section, button, input, textarea").forEach(el=>{
+    el.style.borderRadius = (styles.radius || 8) + "px";
+  });
+
+  // extra custom CSS injection
+  let styleEl = document.getElementById("dynamicStyles");
+  if (!styleEl) {
+    styleEl = document.createElement("style");
+    styleEl.id = "dynamicStyles";
+    document.head.appendChild(styleEl);
+  }
+  styleEl.innerHTML = styles.extra || "";
+}
+
+
 
 /* ---------------- Reusable Text Editor ----------------
    Minimal toolbar: bold/italic/underline, H2/H3, link, UL/OL, clear, view-html
@@ -461,13 +623,15 @@ function makeBlockCard(block, idx) {
 
   // actions
   el.querySelector(".del").onclick = () => { el.remove(); serializeBlocks(); };
-  el.querySelector(".dup").onclick = () => {
-    const copy = JSON.parse(JSON.stringify(extractBlock(el)));
-    const newCard = makeBlockCard(copy, el.parentElement.children.length);
-    el.after(newCard);
-    initBlockDnD(newCard);
-    serializeBlocks();
-  };
+el.querySelector(".dup").onclick = () => {
+  const blocksList = el.parentElement;
+  const idx = parseInt(el.dataset.index, 10);
+  const copy = JSON.parse(JSON.stringify(block));
+  const newCard = makeBlockCard(copy, idx + 1);
+  blocksList.insertBefore(newCard, el.nextSibling);
+  serializeBlocks();
+};
+
   el.querySelector(".block-type").onchange = () => { renderFields(); serializeBlocks(); };
 
   // DnD
@@ -819,7 +983,8 @@ const token = part_1 + part_2 + part_3 + part_4;
 
 
 
-/* ---------------- Save / Update Unified ---------------- */
+
+/* ---------------- Save / Publish ---------------- */
 async function savePage(pageId, currentUser) {
   const data = {
     title: $("#title").value.trim(),
@@ -827,45 +992,41 @@ async function savePage(pageId, currentUser) {
     description: $("#description").value.trim(),
     keywords: $("#keywords").value.split(",").map(s => s.trim()).filter(Boolean),
     domain: $("#domain").value.trim(),
-    customCSS: $("#customCSS").value.trim(),
-    body: $("#bodyEditor")?._te?.getHTML?.() || $("#bodyContent")?.value || "",
-    blocks: serializeBlocks(),
-    schemaTypes: [$("#schemaType").value],
-    faq: collectFaqItems(),
-    howto: collectHowtoItems(),
-    og: {
-      title: $("#ogTitle").value,
-      description: $("#ogDesc").value,
-      image: $("#ogImage").value
-    },
+    body: $("#bodyEditor")?._te?.getHTML?.() || "",
+    styles: collectPageStyles(),
+    og: { title: $("#ogTitle").value, description: $("#ogDesc").value, image: $("#ogImage").value },
     affiliates: safeParse($("#affiliates").value || "[]", []),
-    monetization: { adPlaceholders: safeParse($("#ads").value || "[]", ["top","in-article-1"]) },
+    monetization: { adPlaceholders: safeParse($("#ads").value || "[]", ["top"]) },
     updatedBy: currentUser.uid,
     updatedAt: serverTimestamp()
   };
 
-  const result = await updatePage(data);
-showToast("info", result, 3000)
-
-
-
-
-
   if (pageId) {
-    // 🔄 Update existing page
-    const ref = doc(db, "content", pageId);
-    await setDoc(ref, data, { merge: true });
-    return { id: pageId, created: false };
+    await setDoc(doc(db, "pages", pageId), data, { merge: true });
+    showToast("success", "Page updated!", 2500);
+    return pageId;
   } else {
-    // 🆕 Create new page
     data.createdBy = currentUser.uid;
     data.createdAt = serverTimestamp();
     data.status = "draft";
-
-    const ref = await addDoc(collection(db, "content"), data);
-    return { id: ref.id, created: true };
+    const ref = await addDoc(collection(db, "pages"), data);
+    showToast("success", "Page created!", 2500);
+    return ref.id;
   }
 }
+
+$("#saveBtn").onclick = async () => {
+  const id = getPageIdFromUrl();
+  pageId = await savePage(id, currentUser);
+};
+
+$("#publishBtn").onclick = async () => {
+  const id = getPageIdFromUrl();
+  if (!id) return showToast("error", "Save before publishing!", 3000);
+  await updateDoc(doc(db, "pages", id), { status: "published", publishedAt: serverTimestamp() });
+  showToast("success", "Page published!", 2500);
+};
+
 
 
 // schemaType toggle -> show FAQ/HowTo
