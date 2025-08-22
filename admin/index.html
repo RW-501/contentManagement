@@ -197,15 +197,30 @@ async function showAdminPanel(user) {
 }
 
 // Ping site
+// cache of domains that have already been checked
+const checkedDomains = {};
+
 async function pingSite(domain) {
+  if (!domain) return false;
+
+  // ✅ Return cached result if we already checked this domain
+  if (checkedDomains.hasOwnProperty(domain)) {
+    return checkedDomains[domain];
+  }
+
   try {
-    const url = domain.startsWith("http") 
-      ? domain 
+    const url = domain.startsWith("http")
+      ? domain
       : `https://rw-501.github.io/contentManagement/site/${domain}.html`;
 
     const resp = await fetch(url, { method: "GET", cache: "no-store" });
-    return resp.ok;
+    const isOnline = resp.ok;
+
+    // ✅ Store result in cache so we don’t recheck
+    checkedDomains[domain] = isOnline;
+    return isOnline;
   } catch {
+    checkedDomains[domain] = false;
     return false;
   }
 }

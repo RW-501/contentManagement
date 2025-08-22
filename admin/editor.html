@@ -312,16 +312,34 @@ const toJSON = (obj) => JSON.stringify(obj ?? null, null, 2);
 
 /* ping */
 
+// Cache for domain checks
+const checkedDomains = {};
+
 async function pingSite(domain) {
+  if (!domain) return "❌ Offline";
+
+  // ✅ Return cached result if already checked
+  if (checkedDomains.hasOwnProperty(domain)) {
+    return checkedDomains[domain];
+  }
+
   try {
     const url = domain.startsWith("http") 
       ? domain 
       : `https://rw-501.github.io/contentManagement/site/${domain}.html`;
 
     const resp = await fetch(url, { method: "GET", cache: "no-store" });
- return r.ok ? "✅ Online" : "❌ Offline"; }
-  catch { return "❌ Offline"; }
+    const status = resp.ok ? "✅ Online" : "❌ Offline";
+
+    // ✅ Save result to cache
+    checkedDomains[domain] = status;
+    return status;
+  } catch {
+    checkedDomains[domain] = "❌ Offline";
+    return "❌ Offline";
+  }
 }
+
 function getPageIdFromUrl() {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
