@@ -349,7 +349,7 @@ function getPageIdFromUrl() {
 let currentUser, pageData = null;
   const pageId = getPageIdFromUrl();
 
-  
+
 /* show/hide toggles */
 document.addEventListener("click", (e) => {
   const btn = e.target.closest("[data-toggle]");
@@ -1243,20 +1243,14 @@ $("#saveBtn").onclick = async () => {
 
 $("#publishBtn").onclick = async () => {
   if (!pageId) return alert("Save the page before publishing.");
-  const ref = doc(db, "content", pageId);
+  const ref = doc(db, "pages", pageId);
   await updateDoc(ref, { status: "published", publishedAt: serverTimestamp() });
   $("#pageStatus").textContent = "published";
   alert("Published!");
 };
 
 
-$("#publishBtn").onclick = async () => {
-  if (!pageId) return alert("Missing page id");
-  const ref = doc(db, "content", pageId);
-  await setDoc(ref, { status: "published", publishedAt: serverTimestamp() }, { merge: true });
-  $("#pageStatus").textContent = "published";
-  alert("Published.");
-};
+
 </script>
 </body>
 </html>
