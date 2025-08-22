@@ -430,9 +430,9 @@ document.getElementById("createBtn").addEventListener("click", async () => {
   }
 
   const pageName = Date.now().toString();
+  const jsTimestamp = Date.now(); // numeric timestamp for users.createdPages
 
-  
-  // Build page object
+  // Build page object for Firestore
   const newPage = {
     title,
     description,
@@ -450,19 +450,29 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     type: "page",
     status: "draft",
     analytics: { views: 0, uniqueViews: 0 },
-    createdAt: serverTimestamp(),
+    createdAt: serverTimestamp(), // Firestore timestamp
     updatedAt: serverTimestamp(),
     publishedCount: 0,
     pageCount: 0
   };
 
   try {
-    // Save to Firestore
+    // Save to Firestore pages collection
     const docRef = await addDoc(collection(db, "pages"), newPage);
     await updateDoc(doc(db, "pages", docRef.id), { siteId: docRef.id });
 
+    // Add to user's createdPages array with numeric timestamp
+    const userPageData = {
+      id: docRef.id,
+      title,
+      domain,
+      pageName,
+      createdAt: jsTimestamp, // numeric timestamp for sorting/filtering
+      status: "draft",
+      tags: keywords
+    };
     await setDoc(doc(db, "users", currentUser.uid), {
-      createdPages: arrayUnion({ id: docRef.id, ...newPage })
+      createdPages: arrayUnion(userPageData)
     }, { merge: true });
 
     // Create static HTML page
@@ -494,6 +504,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     showToast("error", "Error creating page: " + err.message);
   }
 });
+
 
 // Load Dashboard with Live Status
 // Add "Remove" button to the dashboard table
