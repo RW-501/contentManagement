@@ -10,6 +10,9 @@
     min-height: 100%;
 }
 
+.hidden {
+display = "none";
+}
     #auth-section {
       display: grid;
       place-items: center;
