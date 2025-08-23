@@ -1,6 +1,5 @@
-// main.js
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
 // 🔹 Firebase config
 const firebaseConfig = {
@@ -17,31 +16,31 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// 🔹 Get page ID from DOM
 const pageID = document.getElementById("pageID")?.textContent || "unknown";
 const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
-// 🔹 Update page views (daily breakdown + total)
-async function updatePageViews() {
+// 🔹 Update page views (total + daily)
+async function updatePageViews(unique = false) {
   if (!pageID) return;
 
   const pageRef = doc(db, "pages", pageID);
   const pageSnap = await getDoc(pageRef);
 
   if (pageSnap.exists()) {
-    await updateDoc(pageRef, {
+    const updates = {
       views: increment(1),
       lastVisited: new Date(),
       [`dailyViews.${today}`]: increment(1)
-    });
+    };
+    if (unique) updates.uniqueViews = increment(1); // increment unique views if needed
+    await updateDoc(pageRef, updates);
   } else {
     await setDoc(pageRef, {
       views: 1,
+      uniqueViews: unique ? 1 : 0,
       createdAt: new Date(),
       lastVisited: new Date(),
-      dailyViews: {
-        [today]: 1
-      }
+      dailyViews: { [today]: 1 }
     });
   }
 }
@@ -51,7 +50,9 @@ async function logVisitor(data) {
   const visitorRef = doc(db, "page_visitors", `${pageID}_${data.ip}_${today}`);
   const visitorSnap = await getDoc(visitorRef);
 
+  let isUnique = false;
   if (!visitorSnap.exists()) {
+    isUnique = true; // first time today
     await setDoc(visitorRef, {
       pageID,
       ip: data.ip,
@@ -78,6 +79,9 @@ async function logVisitor(data) {
       });
     }
   }
+
+  // Always increment total views, only increment uniqueViews if first time
+  await updatePageViews(isUnique);
 }
 
 // 🔹 Get visitor IP & location
@@ -94,6 +98,5 @@ async function getVisitorLocation() {
 
 // 🔹 Run on page load
 document.addEventListener("DOMContentLoaded", async () => {
-  await updatePageViews();
   await getVisitorLocation();
 });

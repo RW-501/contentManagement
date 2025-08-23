@@ -509,7 +509,8 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     createdAt: serverTimestamp(), // Firestore timestamp
     updatedAt: serverTimestamp(),
     publishedCount: 0,
-    pageCount: 0
+    views: 0,
+    uniqueViews: 0
   };
 
   try {
