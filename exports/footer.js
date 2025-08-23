@@ -6,7 +6,7 @@ export function loadFooter(targetId = "main-footer") {
   footerContainer.innerHTML = `
     <footer class="site-footer" style="text-align:center; padding:20px; border-top:1px;">
       <p>
-        &copy; <span id="currentYear"></span> ContentHub.guru | All rights reserved
+        &copy; <span id="currentYear"></span> <div><a href="https://contenthub.guru/" target="_blank">ContentHub.guru</a>  | All rights reserved
       </p>
       <nav>
         <a href="https://contenthub.guru">Home</a> |
@@ -30,3 +30,7 @@ export function loadFooter(targetId = "main-footer") {
     });
   }
 }
+
+
+
+  import {  } from 'https://contenthub.guru/exports/privacyBanner.js';
