@@ -190,13 +190,6 @@ let currentPage = 1;
 const pageSize = 6;
 let activeTag = null;
 
-loginBtn.addEventListener("click", async () => {
-  const provider = new GoogleAuthProvider();
-  try { await signInWithPopup(auth, provider); } 
-  catch (err) { alert("Login failed: " + err.message); }
-});
-
-adminBtn.addEventListener("click", () => { window.location.href = "https://contenthub.guru/admin/index.html"; });
 
 onAuthStateChanged(auth, user => {
   if(user){
@@ -206,6 +199,15 @@ onAuthStateChanged(auth, user => {
     loginBtn.textContent="Login";
     adminBtn.style.display="none";
   }
+
+  loginBtn.addEventListener("click", async () => {
+  const provider = new GoogleAuthProvider();
+  try { await signInWithPopup(auth, provider); } 
+  catch (err) { alert("Login failed: " + err.message); }
+});
+
+adminBtn.addEventListener("click", () => { window.location.href = "https://contenthub.guru/admin/index.html"; });
+
 });
 
 // Render sites for current page

@@ -88,7 +88,7 @@ if (i < links.length - 1) {
   loginBtn.style.fontWeight = 'bold';
   loginBtn.onmouseover = () => loginBtn.style.opacity = '0.85';
   loginBtn.onmouseout = () => loginBtn.style.opacity = '1';
-  loginBtn.addEventListener('click', () => window.location.href = '/login');
+//  loginBtn.addEventListener('click', () => window.location.href = '/login');
   btnContainer.appendChild(loginBtn);
 
   if (currentHost === 'contenthub.guru' || currentPath === '/') {
@@ -104,7 +104,7 @@ if (i < links.length - 1) {
     adminBtn.style.fontWeight = 'bold';
     adminBtn.onmouseover = () => adminBtn.style.opacity = '0.85';
     adminBtn.onmouseout = () => adminBtn.style.opacity = '1';
-    adminBtn.addEventListener('click', () => window.location.href = 'https://contenthub.guru/admin');
+   // adminBtn.addEventListener('click', () => window.location.href = 'https://contenthub.guru/admin');
     btnContainer.appendChild(adminBtn);
   }
   topRow.appendChild(btnContainer);
