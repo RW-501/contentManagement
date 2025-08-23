@@ -89,7 +89,40 @@
 <script type="module">
   import { loadFooter } from 'https://contenthub.guru/exports/footer.js';
   loadFooter(); // injects footer into div#main-footer
+
+  
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { showToast } from "https://contenthub.guru/exports/showToast.js";
+
+
+const loginBtn = document.getElementById("loginBtn");
+const adminBtn = document.getElementById("adminBtn");
+
+onAuthStateChanged(auth, user => {
+  if(user){
+    loginBtn.textContent = "Logged in as " + user.displayName;
+    if(allowedEmails.includes(user.email) || allowedPhones.includes(user.phoneNumber)) adminBtn.style.display="inline-block";
+  } else {
+    loginBtn.textContent="Login";
+    adminBtn.style.display="none";
+  }
+
+  loginBtn.addEventListener("click", async () => {
+  const provider = new GoogleAuthProvider();
+  try { await signInWithPopup(auth, provider); } 
+  catch (err) { alert("Login failed: " + err.message); }
+});
+
+adminBtn.addEventListener("click", () => { window.location.href = "https://contenthub.guru/admin/index.html"; });
+
+});
+
 </script>
+
+
+
 
 </body>
 </html>
