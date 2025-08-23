@@ -77,6 +77,7 @@ if (i < links.length - 1) {
   btnContainer.style.gap = '10px';
 
   const loginBtn = document.createElement('button');
+  loginBtn.id ="loginBtn";
   loginBtn.textContent = 'Login';
   loginBtn.style.background = '#4f46e5';
   loginBtn.style.color = '#fff';
@@ -92,6 +93,7 @@ if (i < links.length - 1) {
 
   if (currentHost === 'contenthub.guru' || currentPath === '/') {
     const adminBtn = document.createElement('button');
+    adminBtn.id = "adminBtn";
     adminBtn.textContent = 'Admin Page';
     adminBtn.style.background = '#10b981';
     adminBtn.style.color = '#fff';
