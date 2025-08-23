@@ -125,6 +125,22 @@
         <option value="createdAsc">Oldest</option>
         <option value="viewsDesc">Most Viewed</option>
       </select>
+          <div class="row">
+      <label for="searchCategory">Category</label>
+      <select id="searchCategory">
+        <option value="">-- Select Category --</option>
+        <option value="health">Health</option>
+        <option value="nutrition">Nutrition</option>
+        <option value="fitness">Fitness</option>
+        <option value="business">Business</option>
+        <option value="tech">Technology</option>
+        <option value="lifestyle">Lifestyle</option>
+        <option value="education">Education</option>
+        <option value="finance">Finance</option>
+        <option value="news">News</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
     </div>
 
     <div id="dashboardContent"></div>
@@ -663,6 +679,17 @@ async function loadAnalytics() {
 window.loadAnalytics = loadAnalytics;
 
 
+
+const searchInput = document.getElementById("searchInput");
+const sortSelect = document.getElementById("sortSelect");
+const tagFiltersDiv = document.getElementById("tagFilters");
+const sitesList = document.getElementById("sitesList");
+
+let sitesData = [];
+let filteredSites = [];
+let currentPage = 1;
+let activeTag = null;
+
 // Load Dashboard with Live Status
 // Add "Remove" button to the dashboard table
 async function loadDashboard(autoPing = false) {
@@ -672,6 +699,31 @@ async function loadDashboard(autoPing = false) {
 
   if (pages.length === 0) {
     contentDiv.innerHTML = "<p>No pages yet.</p>";
+    return;
+  }
+
+
+    const queryText = searchInput.value.toLowerCase();
+  filteredSites = pages.filter(site =>
+    site.title.toLowerCase().includes(queryText) ||
+    site.domain.toLowerCase().includes(queryText) ||
+    (site.tags || []).some(t=>t.toLowerCase().includes(queryText))
+  );
+
+  if(activeTag) filteredSites = filteredSites.filter(site => site.tags.includes(activeTag));
+
+  const sortValue = sortSelect.value;
+  if(sortValue==="createdDesc") filteredSites.sort((a,b)=>b.createdAt-a.createdAt);
+  if(sortValue==="createdAsc") filteredSites.sort((a,b)=>a.createdAt-a.createdAt);
+  if(sortValue==="publishedDesc") filteredSites.sort((a,b)=>b.publishedCount-a.publishedCount);
+  if(sortValue==="viewsDesc") filteredSites.sort((a,b)=>b.views-a.views);
+
+  const totalPages = Math.ceil(filteredSites.length/pageSize);
+  if(currentPage>totalPages) currentPage=1;
+
+  sitesList.innerHTML='';
+  if(filteredSites.length===0){
+    sitesList.innerHTML="<p class='loading'>No matching websites.</p>";
     return;
   }
 
@@ -691,6 +743,7 @@ async function loadDashboard(autoPing = false) {
         <button onclick="removePage('${p.id}','${p.domain}')">Remove</button>
       </td>
     </tr>`;
+    
     console.log("image  ",p.image);
   });
 
