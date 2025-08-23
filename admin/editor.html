@@ -48,6 +48,7 @@
   .row > * { flex:1; }
   .muted { color:var(--muted); font-size:.9rem; }
   .pill { background:#eef2ff; color:#3730a3; font-size:.75rem; padding:.1rem .5rem; border-radius:999px; border:1px solid #c7d2fe; }
+  .group { display: grid; margin: .5rem ; }
 </style>
 
 
@@ -103,7 +104,7 @@
       </div>
     </header>
     <div id="metadataContent">
-      <div class="row">
+      <div class="group">
         <label for="title">Title</label>
         <input id="title" placeholder="Title" />
         <div id="titleFeedback" class="seo-feedback"></div>
@@ -125,7 +126,7 @@
       <div id="keywordsFeedback" class="seo-feedback"></div>
       <small>Tip: Use 5–10 relevant keywords, separated by commas.</small>
 
-      <div class="row">
+      <div class="group">
         <label for="schemaType">Schema Type</label>
         <select id="schemaType" title="Schema Type">
           <option value="Article">Article</option>
@@ -142,7 +143,7 @@
       </div>
 
       <!-- Category -->
-      <div class="row">
+      <div class="group">
         <label for="category">Category</label>
         <select id="category">
           <option value="">-- Select Category --</option>
@@ -162,7 +163,7 @@
       </div>
 
       <!-- Custom CSS -->
-      <div class="row">
+      <div class="group">
         <label for="customCSS">Custom CSS</label>
         <textarea id="customCSS" rows="6" placeholder="Write custom styles here..."></textarea>
         <small>Tip: Optional styling for page customization.</small>
