@@ -61,11 +61,13 @@
     nav.appendChild(a);
 
     // Separator if not last
-    if (i < links.length - 1) {
-      const sep = document.createTextNode(' | ');
-      sep.style.color = '#9ca3af';
-      nav.appendChild(sep);
-    }
+if (i < links.length - 1) {
+  const sep = document.createElement('span');
+  sep.textContent = ' | ';
+  sep.style.color = '#9ca3af';
+  nav.appendChild(sep);
+}
+
   });
   topRow.appendChild(nav);
 

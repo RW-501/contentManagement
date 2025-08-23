@@ -4,18 +4,44 @@ export function loadFooter(targetId = "main-footer") {
   if (!footerContainer) return;
 
   footerContainer.innerHTML = `
-    <footer class="site-footer" style="text-align:center; padding:20px; border-top:1px;">
-      <p>
-        Copyright &copy; <span id="currentYear"></span> 
-        <a href="https://contenthub.guru" target="_blank">ContentHub.guru</a>  | All rights reserved
+    <footer class="site-footer" style="
+      background:#1f2937;
+      color:#f3f4f6;
+      padding:25px 20px;
+      font-family: Arial, sans-serif;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:10px;
+      border-top:1px solid #374151;
+    ">
+      <p style="margin:0; font-size:14px;">
+        &copy; <span id="currentYear"></span> 
+        <a href="https://contenthub.guru" target="_blank" style="color:#4f46e5; text-decoration:none;">ContentHub.guru</a> 
+        | All rights reserved
       </p>
-      <nav>
-        <a href="https://contenthub.guru">Home</a> |
-        <a href="https://contenthub.guru/admin" id="mainAdminBtn">Dashboard</a> |
-        <a href="https://contenthub.guru/about">About</a> |
-        <a href="https://contenthub.guru/contact-us">Contact Us</a>
-        <a href="https://contenthub.guru/privacy-policy">Privacy Policy</a>
+
+      <nav style="
+        display:flex;
+        flex-wrap:wrap;
+        justify-content:center;
+        gap:10px;
+        font-size:14px;
+      ">
+        <a href="https://contenthub.guru" style="color:#f3f4f6; text-decoration:none;">Home</a>
+        <span>|</span>
+        <a href="https://contenthub.guru/admin" id="mainAdminBtn" style="color:#f3f4f6; text-decoration:none;">Dashboard</a>
+        <span>|</span>
+        <a href="https://contenthub.guru/about" style="color:#f3f4f6; text-decoration:none;">About</a>
+        <span>|</span>
+        <a href="https://contenthub.guru/contact-us" style="color:#f3f4f6; text-decoration:none;">Contact Us</a>
+        <span>|</span>
+        <a href="https://contenthub.guru/privacy-policy" style="color:#f3f4f6; text-decoration:none;">Privacy Policy</a>
       </nav>
+
+      <p style="margin:0; font-size:12px; color:#9ca3af;">
+        Created by <a href="https://contenthub.guru" style="color:#4f46e5; text-decoration:none;">ContentHub Team</a>
+      </p>
     </footer>
   `;
 
@@ -32,7 +58,6 @@ export function loadFooter(targetId = "main-footer") {
     });
   }
 }
-
 
 
   import {  } from 'https://contenthub.guru/exports/privacyBanner.js';
