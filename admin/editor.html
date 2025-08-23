@@ -1680,7 +1680,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
     const keywords = keywordsInput.value.trim();
-    const body = bodyEditor.value.trim();
+    const body = bodyEditor.innerText;
     const slugVal = slugInput.value.trim();
 
     const titleCount = title.length;
