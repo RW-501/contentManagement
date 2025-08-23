@@ -661,7 +661,7 @@ async function loadDashboard(autoPing = false) {
       <td><img src="${p.image||''}" alt="preview"></td>
       <td>${p.domain}</td>
       <td id="status-${p.id}" class="status-offline">❌ Offline</td>
-      <td>${p.analytics?.views||0}</td>
+      <td>${p.views||0}</td>
       <td>
         <button onclick="window.location.href='https://contenthub.guru/admin/editor?id=${p.id}'">Edit</button>
         <button onclick="removePage('${p.id}','${p.domain}')">Remove</button>
