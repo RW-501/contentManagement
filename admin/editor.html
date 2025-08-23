@@ -1360,12 +1360,13 @@ ${scriptTag}
   </main>
 
   <footer class="site-footer" role="contentinfo">
-    <p>© ${new Date().getFullYear()} ${articleData.domain || "Untitled Site"}</p>
+    <p>© ${new Date().getFullYear()} ${articleData.domain || "Untitled Site"} | <a href="https://rw-501.github.io/Portfolio" target="_blank" hidden>Created by Ron W.</a></div>
+</p>
   </footer>
 
   <!-- 🔹 Hidden meta info for debugging / internal use -->
   <div hidden>
-    <div id="pageID">${articleData.pageID}</div>
+    <div id="pageID">${articleData.siteId}</div>
     <div id="pageOwnerUserID">${articleData.userID}</div>
     <div id="pageDomain">${articleData.domain}</div>
   </div>
