@@ -167,13 +167,23 @@
         <small>Tip: Pick the category closest to your content.</small>
       </div>
 
-      <!-- Custom CSS -->
-      <div class="group">
-        <label for="customCSS">Custom CSS</label>
-        <textarea id="customCSS" rows="6" placeholder="Write custom styles here..."></textarea>
-        <small>Tip: Optional styling for page customization.</small>
-      </div>
-    </div>
+      <div style="margin-top:10px;">
+  <div style="font-weight:bold;">SEO Score:</div>
+  <div style="width:100%; background:#eee; height:20px; border-radius:4px;">
+    <div id="seoScoreBar" style="width:0%; height:100%; background:green; border-radius:4px;"></div>
+  </div>
+  <div id="seoScoreText" style="font-size:12px; font-weight:bold; margin-top:2px;"></div>
+</div>
+
+<style>
+  .seo-feedback {
+    height: 14px;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+</style>
+
   </section>
 
 
@@ -232,7 +242,14 @@
         <button class="color-btn" data-target="styleOutline" style="background:#e6e6ea"></button>
       </label>
     </div>
-    <textarea id="extraCSS" rows="4" placeholder="Extra CSS rules…"></textarea>
+
+          <!-- Custom CSS -->
+      <div class="group">
+        <label for="customCSS">Custom CSS</label>
+        <textarea id="customCSS" rows="6" placeholder="Write custom styles here..."></textarea>
+        <small>Tip: Optional styling for page customization.</small>
+      </div>
+    </div>
 
     <!-- Button Preview -->
     <div style="margin-top:1rem;">
@@ -498,7 +515,7 @@ if (pageData.domain) {
       $("#styleSecondary").value = pageData.styles.secondary || "#22c55e";
       $("#styleRadius").value = pageData.styles.radius || 8;
       $("#styleOutline").value = pageData.styles.outline || "#e6e6ea";
-      $("#extraCSS").value = pageData.styles.extra || "";
+      $("#customCSS").value = pageData.styles.extra || "";
     }
 
     if ($("#bodyEditor") && !$("#bodyEditor")._te) {
@@ -553,7 +570,7 @@ $("#schemaType").addEventListener("change", e => {
   document.getElementById("styleRadius").addEventListener("input", () => {
     applyPageStyles(collectPageStyles());
   });
-  document.getElementById("extraCSS").addEventListener("input", () => {
+  document.getElementById("customCSS").addEventListener("input", () => {
     applyPageStyles(collectPageStyles());
   });
 
@@ -601,7 +618,7 @@ $("#schemaType").addEventListener("change", e => {
       secondary: document.getElementById("styleSecondary").value,
       radius: document.getElementById("styleRadius").value,
       outline: document.getElementById("styleOutline").value,
-      extra: document.getElementById("extraCSS").value
+      extra: document.getElementById("customCSS").value
     };
   }
 
