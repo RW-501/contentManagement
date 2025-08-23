@@ -780,6 +780,43 @@ async function updateLiveStatus(pageId, domain) {
   setTimeout(() => updateLiveStatus(pageId, domain), 10000);
 }
 
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+  const titleInput = document.getElementById("title");
+  const domainInput = document.getElementById("domain");
+  const keywordsInput = document.getElementById("keywords");
+
+  // Common stop words to filter out
+  const stopWords = ["a","an","and","the","is","of","to","in","for","on","at","by","with","from","or","as","be","this","that","it"];
+
+  titleInput.addEventListener("blur", () => {
+    const titleVal = titleInput.value.trim();
+
+    if (!titleVal) return;
+
+    // If domain is empty → generate from title
+    if (!domainInput.value.trim()) {
+      domainInput.value = titleVal
+        .toLowerCase()
+        .replace(/\s+/g, "-")    // replace spaces with "-"
+        .replace(/[^a-z0-9\-]/g, ""); // remove invalid chars
+    }
+
+    // If keywords is empty → generate from title
+    if (!keywordsInput.value.trim()) {
+      const words = titleVal
+        .toLowerCase()
+        .split(/\s+/) // split into words
+        .filter(w => !stopWords.includes(w)) // remove stop words
+        .map(w => w.replace(/[^a-z0-9]/g, "")) // clean punctuation
+        .filter(Boolean); // remove empty
+
+      keywordsInput.value = words.join(", ");
+    }
+  });
+});
 </script>
 </body>
 </html>
