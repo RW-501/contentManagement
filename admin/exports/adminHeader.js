@@ -5,6 +5,11 @@
   // Inject CSS
   const style = document.createElement("style");
   style.textContent = `
+
+  main {
+    min-height: 100%;
+}
+
     #auth-section {
       display: grid;
       place-items: center;
