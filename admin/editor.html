@@ -1206,7 +1206,7 @@ async function updatePage(pageId, currentUser) {
   };
 
   // Modern Layout HTML
-  const Content = `
+const Content = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1216,6 +1216,8 @@ async function updatePage(pageId, currentUser) {
 <meta name="description" content="${articleData.description}">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}">
 <link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.domain}">
+
+<!-- Schema & Metadata -->
 <script type="application/ld+json">${JSON.stringify(schemaJSON)}<\/script>
 <script type="application/ld+json">${JSON.stringify(metadataJSON)}<\/script>
 ${scriptTag}
@@ -1228,36 +1230,52 @@ ${scriptTag}
 </style>
 </head>
 <body>
-  <header class="site-header">
+  <!-- 🔹 Skip to main content (screen readers & keyboard users) -->
+  <a href="#main-content" class="skip-link">Skip to content</a>
+
+  <header class="site-header" role="banner">
     <div class="container">
-      <h1>${articleData.title}</h1>
+      <h1 id="page-title">${articleData.title}</h1>
       <p class="subtitle">${articleData.subtitle || ""}</p>
     </div>
   </header>
 
-  <main class="container">
-    ${articleData.image ? `<figure><img src="${articleData.image}" alt="${articleData.title}" class="hero-img"></figure>` : ""}
-    <article>${articleData.body || ""}</article>
+  <main class="container" id="main-content" role="main">
+    ${articleData.image ? `
+      <figure>
+        <img src="${articleData.image}" 
+             alt="${articleData.alt || articleData.title}" 
+             class="hero-img" 
+             role="img"
+             aria-describedby="page-title"/>
+        ${articleData.caption ? `<figcaption>${articleData.caption}</figcaption>` : ""}
+      </figure>` : ""}
 
-${articleData.blocks?.map((b, i) => `
-  <section id="block-${i}" class="block block-${b.type}">
-    ${renderBlockHTML(b)}
-  </section>
-`).join("") || ""}
+    <article role="article" aria-labelledby="page-title">
+      ${articleData.body || ""}
+    </article>
 
+    ${articleData.blocks?.map((b, i) => `
+      <section id="block-${i}" class="block block-${b.type}" role="region" aria-label="Content block: ${b.type}">
+        ${renderBlockHTML(b)}
+      </section>
+    `).join("") || ""}
   </main>
 
-  <footer class="site-footer">
+  <footer class="site-footer" role="contentinfo">
     <p>© ${new Date().getFullYear()} ${articleData.domain || "Untitled Site"}</p>
   </footer>
+
+  <!-- 🔹 Hidden meta info for debugging / internal use -->
+  <div hidden>
+    <div id="pageID">${pageID}</div>
+    <div id="pageOwnerUserID">${articleData.userID}</div>
+    <div id="pageDomain">${articleData.domain}</div>
+  </div>
 </body>
-<div hidden>
-<div id="pageID">${pageID}</div>
-<div id="pageOwnerUserID">${articleData.userID}</div>
-<div id="pageDomain">${articleData.domain}</div>
-</div>
 </html>
 `;
+
 
 // Randomized or complex approach
 const parts = ['p', 'h', 'g'];

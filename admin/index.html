@@ -300,15 +300,15 @@ async function createPage(articleData, pageID) {
     monetization: articleData.monetization || { adPlaceholders: ["top","in-article-1"] }
   };
 
-  const Content = `
+const Content = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title id="pageTitledata">${articleData.title} | Untitled</title>
-<meta name="description" content="${articleData.description}"  id="pageDescriptiondata">
-<meta name="keywords" content="${articleData.keywords?.join(', ') || ''}"  id="pageKeywordsdata">
+<meta name="description" content="${articleData.description}" id="pageDescriptiondata">
+<meta name="keywords" content="${articleData.keywords?.join(', ') || ''}" id="pageKeywordsdata">
 <link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.domain}">
 <script type="application/ld+json" id="pageSchema">${JSON.stringify(schemaJSON)}<\/script>
 <script type="application/ld+json" id="pageMetadata">${JSON.stringify(metadataJSON)}<\/script>
@@ -327,22 +327,29 @@ ${articleData.customCSS || ""}   /* 🔹 custom CSS injection */
   <h2>${articleData.subtitle || ''}</h2>
 </header>
 <main>
-  <img  id="dynamic-pageImage" src="${articleData.image}" alt="${articleData.title}" />
-  <article>${articleData.body || ''}</article>
+  <img id="dynamic-pageImage" src="${articleData.image}" alt="${articleData.title}" />
+  <article>
+    ${articleData.body || `
+      <div class="new-page-message" role="note" aria-label="New page message">
+        <h3>✨ This is a brand-new page!</h3>
+        <p>Start editing your content here. Add text, images, videos, or blocks to build your page.</p>
+      </div>
+    `}
+  </article>
 
   <section id="block-section" class="block">
   </section>
-
-
 </main>
+
 <div hidden>
-<div id="pageID">${pageID}</div>
-<div id="pageOwnerUserID">${articleData.userID}</div>
-<div id="pageDomain">${articleData.domain}</div>
+  <div id="pageID">${pageID}</div>
+  <div id="pageOwnerUserID">${articleData.userID}</div>
+  <div id="pageDomain">${articleData.domain}</div>
 </div>
 </body>
 </html>
 `;
+
 
 // Randomized or complex approach
 const parts = ['p', 'h', 'g'];

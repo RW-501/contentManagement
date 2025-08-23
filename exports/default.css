@@ -96,3 +96,49 @@ main article:hover {
     padding: 1.5rem;
   }
 }
+
+
+
+
+/* ===== New Page Placeholder Message ===== */
+.new-page-message {
+  background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+  border: 2px dashed #6366f1;
+  border-radius: 12px;
+  padding: 2rem;
+  text-align: center;
+  margin: 2rem auto;
+  max-width: 700px;
+  color: #1e3a8a;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  animation: fadeIn 0.8s ease-in-out;
+}
+
+.new-page-message h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #4338ca;
+}
+
+.new-page-message p {
+  font-size: 1.1rem;
+  opacity: 0.85;
+}
+
+/* Accessibility: make dashed border stand out in dark mode */
+@media (prefers-color-scheme: dark) {
+  .new-page-message {
+    background: linear-gradient(135deg, #1e293b, #334155);
+    border-color: #818cf8;
+    color: #e0e7ff;
+  }
+  .new-page-message h3 {
+    color: #a5b4fc;
+  }
+}
+
+/* Simple fade-in animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
