@@ -592,6 +592,8 @@ const categorySelect = document.getElementById("category").value;
     const docRef = await addDoc(collection(db, "pages"), newPage);
     await updateDoc(doc(db, "pages", docRef.id), { siteId: docRef.id });
 
+    const selectedCategory = document.getElementById("category").value;
+
     // Add to user's createdPages array with numeric timestamp
     const userPageData = {
       id: docRef.id,
