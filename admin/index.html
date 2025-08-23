@@ -43,9 +43,14 @@
 <body>
 
 <div id="admin-header"></div>
+
 <script type="module">
-  import {  } from 'https://contenthub.guru/admin/exports/adminHeader.js';
+  import { loadAdminHeader } from 'https://contenthub.guru/admin/exports/adminHeader.js';
+
+  // Call the function to render the admin header
+  loadAdminHeader('admin-header');
 </script>
+
 
 <main>
   <div id="auth-section">
@@ -120,11 +125,13 @@
   </div>
 </div>
 
+<div id="admin-footer"></div>
+<script type="module">
+  import { loadFooter } from 'https://contenthub.guru/admin/exports/adminFooter.js';
+  loadFooter(); // injects footer into div#admin-footer
+</script>
 
-<footer>
-  <div>&copy; <span id="year"></span> Admin CMS</div>
-  <div><a href="#">Help & Documentation</a></div>
-</footer>
+
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
@@ -151,7 +158,6 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 let currentUser;
-document.getElementById("year").textContent = new Date().getFullYear();
 
 // Allowed emails/phones
 const allowedEmails = ["1988lrp@gmail.com"];

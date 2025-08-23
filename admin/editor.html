@@ -52,9 +52,13 @@
 </head>
 <body>
 
-  <div id="admin-header"></div>
+ <div id="admin-header"></div>
+
 <script type="module">
-  import {  } from 'https://contenthub.guru/admin/exports/adminHeader.js';
+  import { loadAdminHeader } from 'https://contenthub.guru/admin/exports/adminHeader.js';
+
+  // Call the function to render the admin header
+  loadAdminHeader('admin-header');
 </script>
 
 <div id="auth-section" class="container">Login first…</div>
@@ -282,6 +286,14 @@
     </div>
   </div>
 </div>
+
+
+<div id="admin-footer"></div>
+<script type="module">
+  import { loadFooter } from 'https://contenthub.guru/admin/exports/adminFooter.js';
+  loadFooter(); // injects footer into div#admin-footer
+</script>
+
 
 <script type="module">
 /* ---------------- Firebase Boot ---------------- */
