@@ -80,9 +80,44 @@
   <div id="admin-panel" class="hidden">
     <section id="createPageSection">
       <h3>Create New Page</h3>
-      <input id="title" placeholder="Page Title" />
-      <textarea id="description" placeholder="Page Description"></textarea>
-      <input id="keywords" placeholder="Comma separated keywords" />
+  <label>Title:</label>
+  <input id="title" type="text"  placeholder="Page Title" />
+  <div id="titleFeedback" class="seo-feedback"></div>
+</div>
+
+<div>
+  <label>Description:</label>
+  <textarea id="description"  placeholder="Page Description"></textarea>
+  <div id="descriptionFeedback" class="seo-feedback"></div>
+</div>
+
+<div>
+  <label>Keywords:</label>
+  <input id="keywords" type="text" placeholder="Comma separated keywords" />
+  <div id="keywordsFeedback" class="seo-feedback"></div>
+</div>
+
+<div>
+  <label>Domain:</label>
+  <input id="domain" type="text" placeholder="Page Domain (example.com)" />
+</div>
+
+<div style="margin-top:10px;">
+  <div style="font-weight:bold;">SEO Score:</div>
+  <div style="width:100%; background:#eee; height:20px; border-radius:4px;">
+    <div id="seoScoreBar" style="width:0%; height:100%; background:green; border-radius:4px;"></div>
+  </div>
+  <div id="seoScoreText" style="font-size:12px; font-weight:bold; margin-top:2px;"></div>
+</div>
+
+<style>
+  .seo-feedback {
+    height: 12px;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: bold;
+  }
+</style>
 
 
 <!-- Image Upload Section -->
@@ -99,7 +134,6 @@
   <input id="imageUrl" placeholder="Page Image URL"  hidden/>
 </div>
 
-<input id="domain" placeholder="Page Domain (example.com)" />
       <select id="schemaType">
         <option value="Article">Article</option>
         <option value="FAQ">FAQ</option>
@@ -855,41 +889,32 @@ async function updateLiveStatus(pageId, domain) {
   setTimeout(() => updateLiveStatus(pageId, domain), 10000);
 }
 
-
-
 document.addEventListener("DOMContentLoaded", () => {
-  // Input elements
   const titleInput = document.getElementById("title");
   const descriptionInput = document.getElementById("description");
-  const domainInput = document.getElementById("domain");
   const keywordsInput = document.getElementById("keywords");
+  const domainInput = document.getElementById("domain");
 
-  // Common stop words to filter out
-  const stopWords = [
-    "a","an","and","the","is","of","to","in","for","on","at","by","with","from","or","as","be","this","that","it"
-  ];
+  const titleFeedback = document.getElementById("titleFeedback");
+  const descriptionFeedback = document.getElementById("descriptionFeedback");
+  const keywordsFeedback = document.getElementById("keywordsFeedback");
+  const seoScoreBar = document.getElementById("seoScoreBar");
+  const seoScoreText = document.getElementById("seoScoreText");
 
-  // SEO scoring thresholds
+  const stopWords = ["a","an","and","the","is","of","to","in","for","on","at","by","with","from","or","as","be","this","that","it"];
+
   const seoRubric = {
-    title: { min: 50, max: 70 },       // characters
-    description: { min: 150, max: 160 }, // characters
-    keywords: { min: 5, max: 15 }      // number of keywords
+    title: { min: 50, max: 70 },          // chars
+    description: { min: 150, max: 160 },  // chars
+    keywords: { min: 5, max: 15 }         // count
   };
 
-  // Helper: count words
-  function countWords(text) {
-    if (!text) return 0;
-    return text.trim().split(/\s+/).filter(Boolean).length;
-  }
-
-  // Helper: evaluate color based on rubric
   function evaluateSEOLength(count, min, max) {
-    if (count < min) return "red";
-    if (count > max) return "orange";
-    return "green";
+    if (count < min) return 0;      // bad
+    if (count > max) return 50;     // okay
+    return 100;                     // good
   }
 
-  // Helper: count keywords present in text
   function countKeywordMatches(text, keywords) {
     if (!text || !keywords) return 0;
     const words = text.toLowerCase().split(/\s+/);
@@ -897,7 +922,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return words.reduce((acc, word) => acc + (keyList.includes(word) ? 1 : 0), 0);
   }
 
-  // Helper: generate clean keywords
   function generateKeywords(text) {
     return text
       .toLowerCase()
@@ -907,7 +931,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .join(", ");
   }
 
-  // Helper: generate URL-friendly domain
   function generateDomain(text) {
     return text
       .toLowerCase()
@@ -915,53 +938,55 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/[^a-z0-9\-]/g, "");
   }
 
-  // Update SEO indicators dynamically
   function updateSEOIndicators() {
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
     const keywords = keywordsInput.value.trim();
 
-    // Character/keyword counts
     const titleCount = title.length;
     const descCount = description.length;
     const keywordCount = keywords.split(/\s*,\s*/).filter(Boolean).length;
 
-    // Set border colors for feedback
-    titleInput.style.borderColor = evaluateSEOLength(titleCount, seoRubric.title.min, seoRubric.title.max);
-    descriptionInput.style.borderColor = evaluateSEOLength(descCount, seoRubric.description.min, seoRubric.description.max);
-    keywordsInput.style.borderColor = evaluateSEOLength(keywordCount, seoRubric.keywords.min, seoRubric.keywords.max);
+    // Evaluate each part (0–100)
+    const titleScore = evaluateSEOLength(titleCount, seoRubric.title.min, seoRubric.title.max);
+    const descScore = evaluateSEOLength(descCount, seoRubric.description.min, seoRubric.description.max);
+    const keywordsScore = evaluateSEOLength(keywordCount, seoRubric.keywords.min, seoRubric.keywords.max);
 
-    // Count keyword matches in title and description
+    // Average SEO score
+    const seoScore = Math.round((titleScore + descScore + keywordsScore) / 3);
+
+    // Update score bar
+    seoScoreBar.style.width = `${seoScore}%`;
+    seoScoreBar.style.background = seoScore >= 80 ? "green" : seoScore >= 50 ? "orange" : "red";
+    seoScoreText.textContent = `SEO Score: ${seoScore}/100`;
+
+    // Feedback text
+    titleFeedback.style.color = titleScore === 100 ? "green" : titleScore === 50 ? "orange" : "red";
+    descriptionFeedback.style.color = descScore === 100 ? "green" : descScore === 50 ? "orange" : "red";
+    keywordsFeedback.style.color = keywordsScore === 100 ? "green" : keywordsScore === 50 ? "orange" : "red";
+
+    titleFeedback.textContent = `Title: ${titleCount} chars`;
+    descriptionFeedback.textContent = `Description: ${descCount} chars`;
+    keywordsFeedback.textContent = `Keywords: ${keywordCount}`;
+
+    // Keyword match suggestions
     const titleMatches = countKeywordMatches(title, keywords);
     const descMatches = countKeywordMatches(description, keywords);
 
-    /*
-    // Optional console feedback
-    console.log(`Title: ${titleCount} chars, keywords in title: ${titleMatches}`);
-    console.log(`Description: ${descCount} chars, keywords in description: ${descMatches}`);
-    console.log(`Keywords count: ${keywordCount}`);
-    */
+    if(titleMatches < 1) titleFeedback.textContent += " ⚠ Add keywords in title!";
+    if(descMatches < 2) descriptionFeedback.textContent += " ⚠ Add keywords in description!";
   }
 
-  // Auto-generate domain and keywords from title
-  titleInput.addEventListener("blur", () => {
-    const titleVal = titleInput.value.trim();
-    if (!titleVal) return;
-
-    if (!domainInput.value.trim()) {
-      domainInput.value = generateDomain(titleVal);
-    }
-
-    if (!keywordsInput.value.trim()) {
-      keywordsInput.value = generateKeywords(titleVal);
-    }
-
+  titleInput.addEventListener("input", () => {
+    if (!domainInput.value.trim()) domainInput.value = generateDomain(titleInput.value);
+    if (!keywordsInput.value.trim()) keywordsInput.value = generateKeywords(titleInput.value);
     updateSEOIndicators();
   });
 
-  // Run SEO check on description and keywords blur
-  descriptionInput.addEventListener("blur", updateSEOIndicators);
-  keywordsInput.addEventListener("blur", updateSEOIndicators);
+  descriptionInput.addEventListener("input", updateSEOIndicators);
+  keywordsInput.addEventListener("input", updateSEOIndicators);
+
+  updateSEOIndicators();
 });
 
 </script>
