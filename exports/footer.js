@@ -4,7 +4,7 @@ export function loadFooter(targetId = "main-footer") {
   if (!footerContainer) return;
 
   footerContainer.innerHTML = `
-    <footer class="site-footer" style="text-align:center; padding:20px; background:#f7f7f9; border-top:1px solid #ddd;">
+    <footer class="site-footer" style="text-align:center; padding:20px; background:#f7f7f9; border-top:1px;">
       <p>
         &copy; <span id="currentYear"></span> ContentHub.guru | All rights reserved
       </p>
