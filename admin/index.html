@@ -334,6 +334,7 @@ const Content = `
 <meta name="description" content="${articleData.description}" id="pageDescriptiondata">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}" id="pageKeywordsdata">
 <link rel="canonical" href="https://contenthub.guru/site/${articleData.domain}">
+<meta name="google-adsense-account" content="${articleData.adsense}">
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=${articleData.gTag}" id="google-tag"><\/script>
@@ -513,6 +514,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     sections: [],
     moderators: [],
     gTag: "G-ZPWGF7YMPE",
+    adsense: "ca-pub-2001518155292747",
     type: "page",
     status: "draft",
     analytics: { views: 0, uniqueViews: 0 },

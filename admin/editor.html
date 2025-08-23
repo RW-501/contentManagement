@@ -1320,6 +1320,7 @@ const Content = `
 <meta name="description" content="${articleData.description}">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}">
 <link rel="canonical" href="https://contenthub.guru/site/${articleData.domain}">
+<meta name="google-adsense-account" content="${articleData.adsense}">
 
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=${articleData.gTag}" id="google-tag"><\/script>
@@ -1330,6 +1331,7 @@ const Content = `
 
   gtag('config', '${articleData.gTag}');
 <\/script>
+
 
 <!-- Schema & Metadata -->
 <script type="application/ld+json">${JSON.stringify(schemaJSON)}<\/script>
@@ -1438,6 +1440,7 @@ async function savePage(pageId, currentUser) {
 
   const data = {
     //gTag: "G-ZPWGF7YMPE",
+    //adsense: "ca-pub-2001518155292747",
     title: $("#title").value.trim(),
     slug: $("#slug").value.trim(),
     description: $("#description").value.trim(),
