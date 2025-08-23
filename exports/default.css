@@ -3,21 +3,248 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+
+  user-select: none;
 }
 
+/* =========================
+   Global / Layout
+========================= */
 body {
-  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937; /* Dark gray for readability */
   line-height: 1.6;
-  color: #1a1a1a;
-  background-color: #fafafa;
+  margin: 0;
+  padding: 0;
 }
 
-/* Container for consistent width */
 .container {
-  width: 90%;
-  max-width: 1100px;
+  max-width: 960px;
   margin: 0 auto;
   padding: 1rem;
+}
+
+/* =========================
+   Headings
+========================= */
+.content-heading {
+  font-weight: 700;
+  line-height: 1.3;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.heading-1 { font-size: 2.5rem; }
+.heading-2 { font-size: 2rem; }
+.heading-3 { font-size: 1.75rem; }
+.heading-4 { font-size: 1.5rem; }
+.heading-5 { font-size: 1.25rem; }
+.heading-6 { font-size: 1rem; }
+
+/* =========================
+   Paragraphs
+========================= */
+.content-paragraph {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.content-paragraph p {
+  margin: 0.75rem 0;
+}
+
+/* =========================
+   Images
+========================= */
+.content-image {
+  margin: 1.5rem 0;
+  text-align: center;
+}
+
+.content-image img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.content-image:focus-within {
+  outline: 3px solid #2563eb; /* focus ring */
+}
+
+.content-image figcaption {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+/* =========================
+   Videos
+========================= */
+.content-video {
+  position: relative;
+  width: 100%;
+  margin: 1.5rem 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.content-video iframe,
+.content-video video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.content-video:focus-within {
+  outline: 3px solid #2563eb;
+}
+
+.content-video .caption {
+  text-align: center;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+}
+
+/* =========================
+   Buttons / CTA
+========================= */
+.content-cta {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.content-cta a {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  background-color: #2563eb;
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-decoration: none;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.content-cta a:hover {
+  background-color: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.content-cta a:focus {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* =========================
+   Tables
+========================= */
+.comparison-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.875rem;
+}
+
+.comparison-table th,
+.comparison-table td {
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+
+.comparison-table th {
+  background-color: #f3f4f6;
+  font-weight: 600;
+}
+
+.comparison-table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+/* =========================
+   FAQ
+========================= */
+.content-faq {
+  margin: 1.5rem 0;
+  border-top: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.faq-item {
+  padding: 1rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.faq-item:last-child {
+  border-bottom: none;
+}
+
+.faq-question {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.faq-question:focus {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+.faq-answer {
+  margin-top: 0.5rem;
+  color: #4b5563;
+}
+
+/* =========================
+   Ads / Raw HTML
+========================= */
+.ad-slot {
+  background-color: #f9fafb;
+  border: 1px dashed #9ca3af;
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  margin: 1.5rem 0;
+}
+
+/* =========================
+   Accessibility
+========================= */
+[role="region"] {
+  outline: none;
+}
+
+[tabindex]:focus {
+  outline: 3px solid #2563eb;
+  outline-offset: 2px;
+}
+
+/* =========================
+   Misc / Prose Enhancements
+========================= */
+a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #1d4ed8;
+}
+
+p, li {
+  line-height: 1.75;
+}
+
+figure {
+  margin: 0;
 }
 
 /* ========== Header ========== */
@@ -142,3 +369,4 @@ main article:hover {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
