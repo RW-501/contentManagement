@@ -100,6 +100,24 @@
           <input id="domain" placeholder="Domain for site ping (optional)" disabled/>
         </div>
         
+            <!-- New Category Dropdown -->
+    <div class="row">
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="">-- Select Category --</option>
+        <option value="health">Health</option>
+        <option value="nutrition">Nutrition</option>
+        <option value="fitness">Fitness</option>
+        <option value="business">Business</option>
+        <option value="tech">Technology</option>
+        <option value="lifestyle">Lifestyle</option>
+        <option value="education">Education</option>
+        <option value="finance">Finance</option>
+        <option value="news">News</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
         <div class="row">
         <label for="customCSS">Custom CSS</label>
         <textarea id="customCSS" rows="6" placeholder="Write custom styles here..."></textarea>
@@ -1504,6 +1522,7 @@ async function savePage(pageId, currentUser) {
     title: $("#title").value.trim(),
     slug: $("#slug").value.trim(),
     description: $("#description").value.trim(),
+    category: $("#category").value.trim(),
     keywords: $("#keywords").value.split(",").map(s => s.trim()).filter(Boolean),
     domain: $("#domain").value.trim(),
     body: $("#bodyEditor")?._te?.getHTML?.() || "",

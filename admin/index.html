@@ -95,6 +95,25 @@
         <option value="FAQ">FAQ</option>
         <option value="HowTo">How-To</option>
       </select>
+
+          <!-- New Category Dropdown -->
+    <div class="row">
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="">-- Select Category --</option>
+        <option value="health">Health</option>
+        <option value="nutrition">Nutrition</option>
+        <option value="fitness">Fitness</option>
+        <option value="business">Business</option>
+        <option value="tech">Technology</option>
+        <option value="lifestyle">Lifestyle</option>
+        <option value="education">Education</option>
+        <option value="finance">Finance</option>
+        <option value="news">News</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
       <div id="keywordTags" style="margin-top:0.5rem;"></div>
       <button id="createBtn">Create Page</button>
     </section>
@@ -484,6 +503,8 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     .split(",")
     .map(k => k.trim())
     .filter(k => k);
+const categorySelect = document.getElementById("category").value;
+
 
   if (!title || !domain) return showToast("Title and domain are required.");
 
@@ -510,6 +531,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     image,
     schemaType,
     keywords,
+    category: selectedCategory,
     tags: keywords,
     pageName,
     userID: currentUser.uid,
@@ -540,6 +562,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
       title,
       domain,
       pageName,
+      category: selectedCategory,
       createdAt: jsTimestamp, // numeric timestamp for sorting/filtering
       status: "draft",
       tags: keywords
@@ -567,6 +590,7 @@ document.getElementById("createBtn").addEventListener("click", async () => {
     document.getElementById("description").value = "";
     document.getElementById("domain").value = "";
     document.getElementById("imageUrl").value = "";
+    document.getElementById("category").value = "";
     document.getElementById("keywords").value = "";
     document.getElementById("schemaType").selectedIndex = 0;
     const previewImg = document.getElementById("previewImg");
