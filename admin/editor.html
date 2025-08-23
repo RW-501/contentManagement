@@ -1005,13 +1005,16 @@ onAuthStateChanged(auth, async (user) => {
     (data.faq || []).forEach(addFaqItem);
     (data.howto || []).forEach(addHowtoStep);
 
-    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
 
     // Toolbar
     $("#pageStatus").textContent = data.status || "draft";
     $("#viewsCount").textContent = data.views || 0;
     $("#uniqueViews").textContent = data.uniqueViews || 0;
-    $("#dailyViews").textContent = data.dailyViews.today || 0;
+
+const today = new Date().toISOString().split("T")[0]; // "2025-08-23"
+
+$("#dailyViews").textContent = data.dailyViews?.[today] || 0;
+
     $("#lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
     if (data.domain) $("#sitePing").textContent = await pingSite(`https://rw-501.github.io/contentManagement/site/${data.domain}.html`);
   }
