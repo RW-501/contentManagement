@@ -1,21 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<title>Content Hub – Smart CMS Dashboard for Websites</title>
+
+<!-- Essential Meta -->
 <meta charset="UTF-8">
-<title>Content Hub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Contenthub.guru, CMS Dashboard to manage your websites: view, filter, search, and edit your pages easily.">
-<meta name="keywords" content="CMS, Content Management, Dashboard, Websites, Editor, Admin">
+<meta name="description" content="Content Hub is a modern CMS dashboard to manage, edit, filter, and optimize your websites. Streamline publishing with SEO tools, analytics, and collaboration.">
+<meta name="keywords" content="CMS, Content Management, Dashboard, Website Editor, Admin Panel, SEO Tools, ContentHub Guru">
+<meta name="author" content="ContentHub.guru">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://contenthub.guru">
+<link rel="canonical" href="https://contenthub.guru/">
 
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Content Hub">
+<meta property="og:title" content="Content Hub – Smart CMS Dashboard for Websites">
+<meta property="og:description" content="Manage, edit, and optimize your websites from one dashboard. ContentHub.guru makes content management simple and powerful.">
+<meta property="og:url" content="https://contenthub.guru/">
+<meta property="og:image" content="https://contenthub.guru/images/og-preview.png">
 
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Content Hub – Smart CMS Dashboard for Websites">
+<meta name="twitter:description" content="Manage, edit, and optimize your websites with ContentHub.guru. A powerful CMS dashboard built for creators.">
+<meta name="twitter:image" content="https://contenthub.guru/images/og-preview.png">
+
+<!-- Favicons -->
+<link rel="apple-touch-icon" sizes="180x180" href="https://contenthub.guru/images/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://contenthub.guru/images/favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://contenthub.guru/images/favicons/favicon-16x16.png">
+<link rel="manifest" href="https://contenthub.guru/images/favicons/site.webmanifest">
+<meta name="theme-color" content="#1a1a1a">
+
+<!-- Schema.org JSON-LD -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebSite",
-  "name": "CMS Dashboard",
+  "name": "Content Hub",
   "url": "https://contenthub.guru",
+  "description": "CMS dashboard to manage your websites with SEO, analytics, and collaboration tools.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "ContentHub.guru",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://contenthub.guru/images/logo.png"
+    }
+  },
   "potentialAction": {
     "@type": "SearchAction",
     "target": "https://contenthub.guru/search?query={search_term_string}",
@@ -24,19 +57,20 @@
 }
 </script>
 
+<!-- Monetization -->
 <meta name="google-adsense-account" content="ca-pub-2001518155292747">
-<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2001518155292747"
-     crossorigin="anonymous"></script>
-     
-<!-- Google tag (gtag.js) -->
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2001518155292747" crossorigin="anonymous"></script>
+
+<!-- Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZPWGF7YMPE"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-ZPWGF7YMPE');
 </script>
+
+<link rel="stylesheet" href="https://contenthub.guru/css/style.css">
 
 <style>
   body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin:0; padding:0; background:#f4f6f8; color:#333; }
@@ -85,6 +119,13 @@
 
 <header>
   <h1>Content Hub</h1>
+    <nav>
+    <a href="/">Home</a> | 
+    <a href="https://contenthub.guru/admin">Dashboard</a> | 
+    <a href="https://contenthub.guru/about">About</a> | 
+    <a href="https://contenthub.guru/contact-us">Contact Us</a>
+  </nav>
+
   <div>
     <button id="loginBtn" class="login-btn">Login</button>
     <button id="adminBtn" class="admin-btn" style="display:none;">Go to Admin Page</button>
@@ -92,7 +133,7 @@
 </header>
 
 <main>
-  <h2>Websites</h2>
+  <h2>Our Sites</h2>
 
   <nav class="toolbar" aria-label="Search and sort websites">
     <input type="text" id="searchInput" aria-label="Search sites" placeholder="Search by title, domain, or tag">
@@ -117,6 +158,12 @@
   <div>&copy; <span id="currentYear"></span> CMS</div>
   <div>Last updated: <span id="lastUpdated">-</span> | <a href="https://contenthub.guru/" target="_blank">ContentHub.guru</a> | <a href="https://rw-501.github.io/Portfolio" target="_blank">Created by Ron W.</a></div>
 </footer>
+
+<div id="main-footer"></div>
+<script type="module">
+  import { loadFooter } from 'https://contenthub.guru/exports/footer.js';
+  loadFooter(); // injects footer into div#main-footer
+</script>
 
 
 <script type="module">

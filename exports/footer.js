@@ -1,0 +1,32 @@
+// footer.js
+export function loadFooter(targetId = "main-footer") {
+  const footerContainer = document.getElementById(targetId);
+  if (!footerContainer) return;
+
+  footerContainer.innerHTML = `
+    <footer class="site-footer" style="text-align:center; padding:20px; background:#f7f7f9; border-top:1px solid #ddd;">
+      <p>
+        &copy; <span id="currentYear"></span> ContentHub.guru | All rights reserved
+      </p>
+      <nav>
+        <a href="https://contenthub.guru">Home</a> |
+        <a href="https://contenthub.guru/admin" id="mainAdminBtn">Dashboard</a> |
+        <a href="https://contenthub.guru/about">About</a> |
+        <a href="https://contenthub.guru/contact-us">Contact Us</a>
+      </nav>
+    </footer>
+  `;
+
+  // Set current year
+  const yearEl = document.getElementById("currentYear");
+  if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+  // Admin button click handler
+  const adminBtn = document.getElementById("mainAdminBtn");
+  if (adminBtn) {
+    adminBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      window.location.href = "https://contenthub.guru/admin/index.html";
+    });
+  }
+}
