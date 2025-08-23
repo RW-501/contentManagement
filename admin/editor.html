@@ -1322,13 +1322,13 @@ const Content = `
 <link rel="canonical" href="https://contenthub.guru/site/${articleData.domain}">
 
 <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZPWGF7YMPE"><\/script>
-<script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=${articleData.gTag}" id="google-tag"><\/script>
+<script id="google-gtag">
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
 
-  gtag('config', 'G-ZPWGF7YMPE');
+  gtag('config', '${articleData.gTag}');
 <\/script>
 
 <!-- Schema & Metadata -->
@@ -1435,6 +1435,7 @@ async function savePage(pageId, currentUser) {
   const blocks = serializeBlocks();
 
   const data = {
+    //gTag: "G-ZPWGF7YMPE",
     title: $("#title").value.trim(),
     slug: $("#slug").value.trim(),
     description: $("#description").value.trim(),
