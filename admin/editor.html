@@ -1576,6 +1576,112 @@ $("#schemaType").addEventListener("change", e => {
   if(e.target.value==="HowTo") $("#howtoSection").classList.remove("hidden");
 });
 
+document.addEventListener("DOMContentLoaded", () => {
+  // Input elements
+  const titleInput = document.getElementById("title");
+  const descriptionInput = document.getElementById("description");
+  const domainInput = document.getElementById("domain");
+  const keywordsInput = document.getElementById("keywords");
+
+  // Common stop words to filter out
+  const stopWords = [
+    "a","an","and","the","is","of","to","in","for","on","at","by","with","from","or","as","be","this","that","it"
+  ];
+
+  // SEO scoring thresholds
+  const seoRubric = {
+    title: { min: 50, max: 70 },       // characters
+    description: { min: 150, max: 160 }, // characters
+    keywords: { min: 5, max: 15 }      // number of keywords
+  };
+
+  // Helper: count words
+  function countWords(text) {
+    if (!text) return 0;
+    return text.trim().split(/\s+/).filter(Boolean).length;
+  }
+
+  // Helper: evaluate color based on rubric
+  function evaluateSEOLength(count, min, max) {
+    if (count < min) return "red";
+    if (count > max) return "orange";
+    return "green";
+  }
+
+  // Helper: count keywords present in text
+  function countKeywordMatches(text, keywords) {
+    if (!text || !keywords) return 0;
+    const words = text.toLowerCase().split(/\s+/);
+    const keyList = keywords.toLowerCase().split(/\s*,\s*/);
+    return words.reduce((acc, word) => acc + (keyList.includes(word) ? 1 : 0), 0);
+  }
+
+  // Helper: generate clean keywords
+  function generateKeywords(text) {
+    return text
+      .toLowerCase()
+      .split(/\s+/)
+      .map(word => word.replace(/[^a-z0-9]/g, ""))
+      .filter(word => word && !stopWords.includes(word) && !/^\d+$/.test(word))
+      .join(", ");
+  }
+
+  // Helper: generate URL-friendly domain
+  function generateDomain(text) {
+    return text
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\-]/g, "");
+  }
+
+  // Update SEO indicators dynamically
+  function updateSEOIndicators() {
+    const title = titleInput.value.trim();
+    const description = descriptionInput.value.trim();
+    const keywords = keywordsInput.value.trim();
+
+    // Character/keyword counts
+    const titleCount = title.length;
+    const descCount = description.length;
+    const keywordCount = keywords.split(/\s*,\s*/).filter(Boolean).length;
+
+    // Set border colors for feedback
+    titleInput.style.borderColor = evaluateSEOLength(titleCount, seoRubric.title.min, seoRubric.title.max);
+    descriptionInput.style.borderColor = evaluateSEOLength(descCount, seoRubric.description.min, seoRubric.description.max);
+    keywordsInput.style.borderColor = evaluateSEOLength(keywordCount, seoRubric.keywords.min, seoRubric.keywords.max);
+
+    // Count keyword matches in title and description
+    const titleMatches = countKeywordMatches(title, keywords);
+    const descMatches = countKeywordMatches(description, keywords);
+
+    /*
+    // Optional console feedback
+    console.log(`Title: ${titleCount} chars, keywords in title: ${titleMatches}`);
+    console.log(`Description: ${descCount} chars, keywords in description: ${descMatches}`);
+    console.log(`Keywords count: ${keywordCount}`);
+    */
+  }
+
+  // Auto-generate domain and keywords from title
+  titleInput.addEventListener("blur", () => {
+    const titleVal = titleInput.value.trim();
+    if (!titleVal) return;
+
+    if (!domainInput.value.trim()) {
+      domainInput.value = generateDomain(titleVal);
+    }
+
+    if (!keywordsInput.value.trim()) {
+      keywordsInput.value = generateKeywords(titleVal);
+    }
+
+    updateSEOIndicators();
+  });
+
+  // Run SEO check on description and keywords blur
+  descriptionInput.addEventListener("blur", updateSEOIndicators);
+  keywordsInput.addEventListener("blur", updateSEOIndicators);
+});
 /*
 https://adsense.payouts.hyperwallet.com/hw2web/
 https://search.google.com/search-console?resource_id=sc-domain%3Acontenthub.guru
