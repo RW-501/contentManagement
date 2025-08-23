@@ -24,6 +24,14 @@ body {
   padding: 1rem;
 }
 
+.skip-link {
+    background-color: #0a004c;
+    width: 100%;
+    display: block;
+    color: #ffffff;
+    padding: .5rem;
+}
+
 /* =========================
    Headings
 ========================= */
