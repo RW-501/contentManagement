@@ -284,7 +284,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, serverTimestamp, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-import { showToast } from "https://rw-501.github.io/contentManagement/admin/src/components/showToast.js";
+import { showToast } from "https://contenthub.guru/exports/showToast.js";
 
 // fallback toast if import fails
 window.showToast = window.showToast || function(type,msg,dur){alert(`${type}: ${msg}`)};
@@ -327,7 +327,7 @@ async function pingSite(domain) {
   try {
     const url = domain.startsWith("http") 
       ? domain 
-      : `https://rw-501.github.io/contentManagement/site/${domain}.html`;
+      : `https://contenthub.guru/site/${domain}.html`;
 
     const resp = await fetch(url, { method: "GET", cache: "no-store" });
     const status = resp.ok ? "✅ Online" : "❌ Offline";
@@ -771,7 +771,7 @@ if (t === "image") {
       const row = document.createElement("div"); row.className="row";
       row.innerHTML = `
         <input class="b-text" placeholder="${t.toUpperCase()} text" />
-        <input class="b-href" placeholder="https://target.url" />
+        <input class="b-href" placeholder="https://contenthub.guru" />
       `;
       body.appendChild(row);
       body.querySelector(".b-text").value = block.text ?? "";
@@ -1016,7 +1016,7 @@ const today = new Date().toISOString().split("T")[0]; // "2025-08-23"
 $("#dailyViews").textContent = data.dailyViews?.[today] || 0;
 
     $("#lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
-    if (data.domain) $("#sitePing").textContent = await pingSite(`https://rw-501.github.io/contentManagement/site/${data.domain}.html`);
+    if (data.domain) $("#sitePing").textContent = await pingSite(`https://contenthub.guru/site/${data.domain}.html`);
   }
 });
 
@@ -1236,7 +1236,7 @@ async function updatePage(pageId, currentUser) {
   }
   const articleData = docSnap.data();
 
-  const scriptTag = `<script id="dynamic-js" type="module" src="https://rw-501.github.io/contentManagement/exports/main.js"><\/script>`;
+  const scriptTag = `<script id="dynamic-js" type="module" src="https://contenthub.guru/exports/main.js"><\/script>`;
 
   // Schema generation
   let schemaJSON;
@@ -1319,16 +1319,25 @@ const Content = `
 <title>${articleData.title} | ${articleData.domain || "Untitled"}</title>
 <meta name="description" content="${articleData.description}">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}">
-<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.domain}">
-<meta name="google-adsense-account" content="ca-pub-2001518155292747">
-<meta name="google-site-verification" content="4kz1EllhR0JAHy4y1JTdzrQKr6Ck9qg64WVp2KhOYCU" />
+<link rel="canonical" href="https://contenthub.guru/site/${articleData.domain}">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZPWGF7YMPE"><\/script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZPWGF7YMPE');
+<\/script>
+
 <!-- Schema & Metadata -->
 <script type="application/ld+json">${JSON.stringify(schemaJSON)}<\/script>
 <script type="application/ld+json">${JSON.stringify(metadataJSON)}<\/script>
 ${scriptTag}
 
 <!-- 🔹 Changeable Theme CSS -->
-<link rel="stylesheet" href="https://rw-501.github.io/contentManagement/exports/default.css" id="theme-css">
+<link rel="stylesheet" href="https://contenthub.guru/exports/default.css" id="theme-css">
 <style id="dynamic-style">
   ${articleData.styles || ""}
   ${articleData.customCSS || ""}
@@ -1484,8 +1493,20 @@ $("#schemaType").addEventListener("change", e => {
 
 /*
 https://adsense.payouts.hyperwallet.com/hw2web/
-<meta name="google-adsense-account" content="ca-pub-2001518155292747">
-https://www.ionos.com/domainshop/
+https://search.google.com/search-console?resource_id=sc-domain%3Acontenthub.guru
+
+G-ZPWGF7YMPE
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZPWGF7YMPE"><\/script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZPWGF7YMPE');
+<\/script>
+
 */
 </script>
 </body>

@@ -131,7 +131,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getAuth, GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, collection, getDoc,  setDoc, doc, updateDoc, arrayUnion, addDoc, serverTimestamp, deleteDoc  } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
 import { getStorage } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-storage.js";
-import { showToast } from "https://rw-501.github.io/contentManagement/admin/src/components/showToast.js";
+import { showToast } from "https://contenthub.guru/exports/showToast.js";
 
 
 // Firebase config
@@ -235,7 +235,7 @@ async function pingSite(domain) {
   try {
     const url = domain.startsWith("http")
       ? domain
-      : `https://rw-501.github.io/contentManagement/site/${domain}.html`;
+      : `https://contenthub.guru/site/${domain}.html`;
 
     const resp = await fetch(url, { method: "GET", cache: "no-store" });
     const isOnline = resp.ok;
@@ -251,7 +251,7 @@ async function pingSite(domain) {
 
 // Create article page with dynamic schema, monetization, and full metadata
 async function createPage(articleData, pageID) {
-  const scriptTag = `<script  type="module" id="dynamic-js" src="https://rw-501.github.io/contentManagement/exports/main.js"><\/script>`;
+  const scriptTag = `<script  type="module" id="dynamic-js" src="https://contenthub.guru/exports/main.js"><\/script>`;
 
   // Generate schema based on selected type
   let schemaJSON;
@@ -289,8 +289,8 @@ async function createPage(articleData, pageID) {
         "image": articleData.image,
         "datePublished": articleData.article?.datePublished || new Date().toISOString(),
         "dateModified": articleData.article?.dateModified || new Date().toISOString(),
-        "author": articleData.article?.author || { "@type":"Organization", "name":  articleData.article , "url":  `https://rw-501.github.io/contentManagement/site/${articleData.pageName}` },
-        "publisher": { "@type":"Organization", "name": articleData.article, "logo": {"@type":"ImageObject","url":`https://rw-501.github.io/contentManagement/site/${articleData.pageName}/images/logo.png`} },
+        "author": articleData.article?.author || { "@type":"Organization", "name":  articleData.article , "url":  `https://contenthub.guru/site/${articleData.pageName}` },
+        "publisher": { "@type":"Organization", "name": articleData.article, "logo": {"@type":"ImageObject","url":`https://contenthub.guru/site/${articleData.pageName}/images/logo.png`} },
         "description": articleData.description,
         "articleBody": articleData.body || ""
       };
@@ -333,15 +333,24 @@ const Content = `
 <title id="pageTitledata">${articleData.title} | Untitled</title>
 <meta name="description" content="${articleData.description}" id="pageDescriptiondata">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}" id="pageKeywordsdata">
-<link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.domain}">
-<meta name="google-adsense-account" content="ca-pub-2001518155292747">
-<meta name="google-site-verification" content="4kz1EllhR0JAHy4y1JTdzrQKr6Ck9qg64WVp2KhOYCU" />
+<link rel="canonical" href="https://contenthub.guru/site/${articleData.domain}">
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZPWGF7YMPE"><\/script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZPWGF7YMPE');
+<\/script>
+
 <script type="application/ld+json" id="pageSchema">${JSON.stringify(schemaJSON)}<\/script>
 <script type="application/ld+json" id="pageMetadata">${JSON.stringify(metadataJSON)}<\/script>
 ${scriptTag}
 <script type="application/ld+json" id="dynamic-json"><\/script>
 
-<link rel="stylesheet" href="https://rw-501.github.io/contentManagement/exports/default.css" id="theme-css">
+<link rel="stylesheet" href="https://contenthub.guru/exports/default.css" id="theme-css">
 
 <style id="dynamic-style">
 ${articleData.customCSS || ""}   /* 🔹 custom CSS injection */

@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>CMS Home</title>
+<title>Content Hub</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="CMS Dashboard to manage your websites: view, filter, search, and edit your pages easily.">
+<meta name="description" content="Contenthub.guru, CMS Dashboard to manage your websites: view, filter, search, and edit your pages easily.">
 <meta name="keywords" content="CMS, Content Management, Dashboard, Websites, Editor, Admin">
 <meta name="robots" content="index, follow">
 
@@ -13,13 +13,23 @@
   "@context": "https://schema.org",
   "@type": "WebSite",
   "name": "CMS Dashboard",
-  "url": "https://your-cms-url.com",
+  "url": "https://contenthub.guru",
   "potentialAction": {
     "@type": "SearchAction",
-    "target": "https://your-cms-url.com/search?query={search_term_string}",
+    "target": "https://contenthub.guru/search?query={search_term_string}",
     "query-input": "required name=search_term_string"
   }
 }
+</script>
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZPWGF7YMPE"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-ZPWGF7YMPE');
 </script>
 
 <style>
@@ -106,6 +116,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+import { showToast } from "https://contenthub.guru/exports/showToast.js";
+
 
 const firebaseConfig = { apiKey:"AIzaSyBXZcSYdspfi2jBipwUFeNmKZgU02ksg8c", authDomain:"contentmanagement-8af61.firebaseapp.com", projectId:"contentmanagement-8af61", storageBucket:"contentmanagement-8af61.appspot.com", messagingSenderId:"579537581112", appId:"1:579537581112:web:736c7faafaf1391ce1e2cd", measurementId:"G-ZPWGF7YMPE" };
 const app = initializeApp(firebaseConfig);
@@ -137,7 +149,7 @@ loginBtn.addEventListener("click", async () => {
   catch (err) { alert("Login failed: " + err.message); }
 });
 
-adminBtn.addEventListener("click", () => { window.location.href = "/contentManagement/admin/index.html"; });
+adminBtn.addEventListener("click", () => { window.location.href = "https://contenthub.guru/admin/index.html"; });
 
 onAuthStateChanged(auth, user => {
   if(user){
@@ -192,7 +204,7 @@ function renderSites(){
       <p>Pages: ${data.pageCount || 0} | Published: ${data.publishedCount || 0}</p>
       <div class="tags">${(data.tags||[]).map(tag=>`<span class="tag">${tag}</span>`).join('')}</div>
     `;
-    card.addEventListener("click",()=>{window.location.href=`https://rw-501.github.io/contentManagement/site/${data.domain}`});
+    card.addEventListener("click",()=>{window.location.href=`https://contenthub.guru/site/${data.domain}`});
     sitesList.appendChild(card);
   });
 
