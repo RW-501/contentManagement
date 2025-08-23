@@ -1,5 +1,5 @@
 // footer.js
-export function loadFooter(targetId = "main-footer") {
+export function loadFooter(targetId = "admin-footer") {
   const footerContainer = document.getElementById(targetId);
   if (!footerContainer) return;
 
