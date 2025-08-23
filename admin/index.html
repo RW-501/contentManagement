@@ -636,7 +636,8 @@ const categorySelect = document.getElementById("category").value;
       category: selectedCategory,
       createdAt: jsTimestamp, // numeric timestamp for sorting/filtering
       status: "draft",
-      tags: keywords
+      tags: keywords,
+      image
     };
     await setDoc(doc(db, "users", currentUser.uid), {
       createdPages: arrayUnion(userPageData)
