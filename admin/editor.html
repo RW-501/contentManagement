@@ -1313,6 +1313,7 @@ const Content = `
 <meta name="description" content="${articleData.description}">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}">
 <link rel="canonical" href="https://rw-501.github.io/contentManagement/site/${articleData.domain}">
+<meta name="google-adsense-account" content="ca-pub-2001518155292747">
 
 <!-- Schema & Metadata -->
 <script type="application/ld+json">${JSON.stringify(schemaJSON)}<\/script>
@@ -1474,7 +1475,11 @@ $("#schemaType").addEventListener("change", e => {
   if(e.target.value==="HowTo") $("#howtoSection").classList.remove("hidden");
 });
 
-
+/*
+https://adsense.payouts.hyperwallet.com/hw2web/
+<meta name="google-adsense-account" content="ca-pub-2001518155292747">
+https://www.ionos.com/domainshop/
+*/
 </script>
 </body>
 </html>
