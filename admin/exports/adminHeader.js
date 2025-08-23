@@ -1,5 +1,72 @@
 // adminHeader.js
 
+// authSection.js
+(function () {
+  // Inject CSS
+  const style = document.createElement("style");
+  style.textContent = `
+    #auth-section {
+      display: grid;
+      place-items: center;
+      width: 50%;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: #fff;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: all 0.3s ease-in-out;
+      font-family: Arial, sans-serif;
+    }
+
+    @media (max-width: 768px) {
+      #auth-section {
+        width: 80%;
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      #auth-section {
+        width: 95%;
+        padding: 1rem;
+      }
+    }
+
+    #auth-section h2 {
+      margin-bottom: 1rem;
+      color: #1f2937;
+    }
+
+    #auth-section input {
+      width: 100%;
+      padding: 10px;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 0.5rem;
+      font-size: 14px;
+    }
+
+    #auth-section button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 1rem;
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+    }
+
+    #auth-section button:hover {
+      background: #4338ca;
+    }
+  `;
+  document.head.appendChild(style);
+
+})();
+
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, RecaptchaVerifier, signInWithPhoneNumber, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
