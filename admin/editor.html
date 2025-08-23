@@ -1635,7 +1635,6 @@ $("#schemaType").addEventListener("change", e => {
 });
 
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const titleInput = document.getElementById("title");
   const descriptionInput = document.getElementById("description");
@@ -1702,7 +1701,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
     const keywords = keywordsInput.value.trim();
-    const body = bodyEditor.innerText;
+    const body = bodyEditor.value.trim();
     const slugVal = slugInput.value.trim();
 
     const titleCount = title.length;
