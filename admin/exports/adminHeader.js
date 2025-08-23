@@ -10,8 +10,10 @@
     min-height: 100%;
 }
 
+.hidden {
+display = "none";
+}
     #auth-section {
-      display: grid;
       place-items: center;
       width: 50%;
       margin: 2rem auto;
@@ -67,11 +69,6 @@
     #auth-section button:hover {
       background: #4338ca;
     }
-
-    
-.hidden {
-display = "none";
-}
   `;
   document.head.appendChild(style);
 
