@@ -663,7 +663,7 @@ async function loadDashboard(autoPing = false) {
       <td id="status-${p.id}" class="status-offline">❌ Offline</td>
       <td>${p.analytics?.views||0}</td>
       <td>
-        <button onclick="window.location.href='/contentManagement/admin/editor?id=${p.id}'">Edit</button>
+        <button onclick="window.location.href='https://contenthub.guru/admin/editor?id=${p.id}'">Edit</button>
         <button onclick="removePage('${p.id}','${p.domain}')">Remove</button>
       </td>
     </tr>`;
