@@ -1106,6 +1106,9 @@ $("#dailyViews").textContent = data.dailyViews?.[today] || 0;
     $("#lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
     if (data.domain) $("#sitePing").textContent = await pingSite(`https://contenthub.guru/site/${data.domain}.html`);
   }
+
+    updateSEOIndicators();
+
 });
 
 
@@ -1762,7 +1765,6 @@ document.addEventListener("DOMContentLoaded", () => {
   bodyEditor.addEventListener("input", updateSEOIndicators);
   slugInput.addEventListener("input", updateSEOIndicators);
 
-  updateSEOIndicators();
 });
 
 /*
