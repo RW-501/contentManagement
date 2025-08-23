@@ -1328,7 +1328,7 @@ ${scriptTag}
 </head>
 <body>
   <!-- 🔹 Skip to main content (screen readers & keyboard users) -->
-  <a href="#main-content" class="skip-link">Skip to content</a>
+  <a href="#main-body" class="skip-link">Skip to content</a>
 
   <header class="site-header" role="banner">
     <div class="container">
@@ -1348,7 +1348,7 @@ ${scriptTag}
         ${articleData.caption ? `<figcaption>${articleData.caption}</figcaption>` : ""}
       </figure>` : ""}
 
-    <article role="article" aria-labelledby="page-title">
+    <article  id="main-body" role="article" aria-labelledby="page-title">
       ${articleData.body || ""}
     </article>
 
