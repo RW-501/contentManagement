@@ -118,13 +118,20 @@
       <button id="createBtn">Create Page</button>
     </section>
 
+    <div class="row">
     <div class="dashboard-tools">
+    <label for="searchCategory">Search</label>
       <input id="searchInput" placeholder="Search by title, domain, keyword..." />
+      </div>
+
+      <div class="row">
+      <label for="searchCategory">Sort</label>
       <select id="sortSelect">
         <option value="createdDesc">Newest</option>
         <option value="createdAsc">Oldest</option>
         <option value="viewsDesc">Most Viewed</option>
       </select>
+      </div>
           <div class="row">
       <label for="searchCategory">Category</label>
       <select id="searchCategory">
@@ -743,7 +750,7 @@ async function loadDashboard(autoPing = false) {
         <button onclick="removePage('${p.id}','${p.domain}')">Remove</button>
       </td>
     </tr>`;
-    
+
     console.log("image  ",p.image);
   });
 
