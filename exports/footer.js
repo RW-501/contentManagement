@@ -14,6 +14,7 @@ export function loadFooter(targetId = "main-footer") {
         <a href="https://contenthub.guru/admin" id="mainAdminBtn">Dashboard</a> |
         <a href="https://contenthub.guru/about">About</a> |
         <a href="https://contenthub.guru/contact-us">Contact Us</a>
+        <a href="https://contenthub.guru/privacy">Privacy</a>
       </nav>
     </footer>
   `;
