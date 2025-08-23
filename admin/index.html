@@ -251,7 +251,7 @@ async function pingSite(domain) {
 
 // Create article page with dynamic schema, monetization, and full metadata
 async function createPage(articleData, pageID) {
-  const scriptTag = `<script id="dynamic-js" src="https://rw-501.github.io/contentManagement/exports/main.js"><\/script>`;
+  const scriptTag = `<script  type="module" id="dynamic-js" src="https://rw-501.github.io/contentManagement/exports/main.js"><\/script>`;
 
   // Generate schema based on selected type
   let schemaJSON;
