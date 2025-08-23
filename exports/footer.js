@@ -6,7 +6,7 @@ export function loadFooter(targetId = "main-footer") {
   footerContainer.innerHTML = `
     <footer class="site-footer" style="text-align:center; padding:20px; border-top:1px;">
       <p>
-        &copy; <span id="currentYear"></span> 
+        Copyright &copy; <span id="currentYear"></span> 
         <a href="https://contenthub.guru" target="_blank">ContentHub.guru</a>  | All rights reserved
       </p>
       <nav>
@@ -14,7 +14,7 @@ export function loadFooter(targetId = "main-footer") {
         <a href="https://contenthub.guru/admin" id="mainAdminBtn">Dashboard</a> |
         <a href="https://contenthub.guru/about">About</a> |
         <a href="https://contenthub.guru/contact-us">Contact Us</a>
-        <a href="https://contenthub.guru/privacy">Privacy</a>
+        <a href="https://contenthub.guru/privacy-policy">Privacy Policy</a>
       </nav>
     </footer>
   `;

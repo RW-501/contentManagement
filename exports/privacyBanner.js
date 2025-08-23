@@ -32,7 +32,7 @@
   const message = document.createElement('span');
   message.innerHTML = `
     We use cookies, Google AdSense, and Firebase Analytics to improve your experience.
-    By clicking "Accept", you consent to our <a href="/privacy.html" style="color:#4f46e5;text-decoration:underline;">Privacy Policy</a>.
+    By clicking "Accept", you consent to our <a href="/privacy-policy.html" style="color:#4f46e5;text-decoration:underline;">Privacy Policy</a>.
   `;
 
   // Accept button
