@@ -49,6 +49,24 @@
   .muted { color:var(--muted); font-size:.9rem; }
   .pill { background:#eef2ff; color:#3730a3; font-size:.75rem; padding:.1rem .5rem; border-radius:999px; border:1px solid #c7d2fe; }
 </style>
+
+
+<style>
+  .image-drop-zone {
+    border: 2px dashed #ccc;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .image-drop-zone.dragover {
+    border-color: #357ABD;
+    background: #f0f4fa;
+  }
+  .hidden { display: none; }
+</style>
+
 </head>
 <body>
 
@@ -73,58 +91,84 @@
     <div>Site Live: <span id="sitePing">-</span></div>
   </div>
 
-  <div class="container">
-    <h1 id="editorTitle">Create Page</h1>
+<div class="container">
+  <h1 id="editorTitle">Create Page</h1>
 
-    <!-- Metadata -->
-    <section id="metadataSection">
-      <header>
-        <h2>Page Metadata</h2>
-        <div class="section-actions">
-          <button class="toggle-btn" data-toggle="#metadataContent">Show/Hide</button>
-        </div>
-      </header>
-      <div id="metadataContent">
-        <div class="row">
-          <input id="title" placeholder="Title" />
-          <input id="slug" placeholder="Slug (unique)" />
-        </div>
-        <textarea id="description" placeholder="Description"></textarea>
-        <input id="keywords" placeholder="Comma separated keywords" />
-        <div class="row">
-          <select id="schemaType" title="Schema Type">
-            <option value="Article">Article</option>
-            <option value="FAQ">FAQ</option>
-            <option value="HowTo">HowTo</option>
-          </select>
-          <input id="domain" placeholder="Domain for site ping (optional)" disabled/>
-        </div>
-        
-            <!-- New Category Dropdown -->
-    <div class="row">
-      <label for="category">Category</label>
-      <select id="category">
-        <option value="">-- Select Category --</option>
-        <option value="health">Health</option>
-        <option value="nutrition">Nutrition</option>
-        <option value="fitness">Fitness</option>
-        <option value="business">Business</option>
-        <option value="tech">Technology</option>
-        <option value="lifestyle">Lifestyle</option>
-        <option value="education">Education</option>
-        <option value="finance">Finance</option>
-        <option value="news">News</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
+  <!-- Metadata -->
+  <section id="metadataSection">
+    <header>
+      <h2>Page Metadata</h2>
+      <div class="section-actions">
+        <button class="toggle-btn" data-toggle="#metadataContent">Show/Hide</button>
+      </div>
+    </header>
+    <div id="metadataContent">
+      <div class="row">
+        <label for="title">Title</label>
+        <input id="title" placeholder="Title" />
+        <div id="titleFeedback" class="seo-feedback"></div>
+        <small>Tip: Keep under 60 characters and include main keyword.</small>
 
-        <div class="row">
+        <label for="slug">Slug</label>
+        <input id="slug" placeholder="Slug (unique)" />
+        <div id="slugFeedback" class="seo-feedback"></div>
+        <small>Tip: Use hyphens, lowercase, no spaces or special chars.</small>
+      </div>
+
+      <label for="description">Description</label>
+      <textarea id="description" placeholder="Description"></textarea>
+      <div id="descriptionFeedback" class="seo-feedback"></div>
+      <small>Tip: 150–160 characters summarizing the page content.</small>
+
+      <label for="keywords">Keywords</label>
+      <input id="keywords" placeholder="Comma separated keywords" />
+      <div id="keywordsFeedback" class="seo-feedback"></div>
+      <small>Tip: Use 5–10 relevant keywords, separated by commas.</small>
+
+      <div class="row">
+        <label for="schemaType">Schema Type</label>
+        <select id="schemaType" title="Schema Type">
+          <option value="Article">Article</option>
+          <option value="FAQ">FAQ</option>
+          <option value="HowTo">HowTo</option>
+        </select>
+        <div id="schemaFeedback" class="seo-feedback"></div>
+        <small>Tip: Choose the most appropriate schema for SEO rich snippets.</small>
+
+        <label for="domain">Domain (optional)</label>
+        <input id="domain" placeholder="Domain for site ping" disabled/>
+        <div id="domainFeedback" class="seo-feedback"></div>
+        <small>Tip: Leave blank to auto-generate from title.</small>
+      </div>
+
+      <!-- Category -->
+      <div class="row">
+        <label for="category">Category</label>
+        <select id="category">
+          <option value="">-- Select Category --</option>
+          <option value="health">Health</option>
+          <option value="nutrition">Nutrition</option>
+          <option value="fitness">Fitness</option>
+          <option value="business">Business</option>
+          <option value="tech">Technology</option>
+          <option value="lifestyle">Lifestyle</option>
+          <option value="education">Education</option>
+          <option value="finance">Finance</option>
+          <option value="news">News</option>
+          <option value="other">Other</option>
+        </select>
+        <div id="categoryFeedback" class="seo-feedback"></div>
+        <small>Tip: Pick the category closest to your content.</small>
+      </div>
+
+      <!-- Custom CSS -->
+      <div class="row">
         <label for="customCSS">Custom CSS</label>
         <textarea id="customCSS" rows="6" placeholder="Write custom styles here..."></textarea>
+        <small>Tip: Optional styling for page customization.</small>
       </div>
-      
     </div>
-    </section>
+  </section>
 
 
     <!-- Main Image Section -->
@@ -144,22 +188,6 @@
     <input type="hidden" id="imageUrl">
   </div>
 </section>
-
-<style>
-  .image-drop-zone {
-    border: 2px dashed #ccc;
-    padding: 1rem;
-    border-radius: 8px;
-    text-align: center;
-    cursor: pointer;
-    transition: border-color 0.2s, background 0.2s;
-  }
-  .image-drop-zone.dragover {
-    border-color: #357ABD;
-    background: #f0f4fa;
-  }
-  .hidden { display: none; }
-</style>
 
 
 <!-- Page Styles -->
@@ -213,6 +241,8 @@
     <section id="bodySection">
       <header>
         <h2>Body Content</h2>
+        <div id="bodyFeedback" class="body-feedback"></div>
+
         <div class="section-actions">
           <span class="pill">Reusable Text Editor</span>
           <button class="toggle-btn" data-toggle="#bodyContentWrap">Show/Hide</button>
@@ -1576,39 +1606,39 @@ $("#schemaType").addEventListener("change", e => {
   if(e.target.value==="HowTo") $("#howtoSection").classList.remove("hidden");
 });
 
+
+
 document.addEventListener("DOMContentLoaded", () => {
-  // Input elements
   const titleInput = document.getElementById("title");
   const descriptionInput = document.getElementById("description");
-  const domainInput = document.getElementById("domain");
   const keywordsInput = document.getElementById("keywords");
+  const domainInput = document.getElementById("domain");
+  const slugInput = document.getElementById("slug");
+  const slugFeedback = document.getElementById("slugFeedback");
+  const bodyEditor = document.getElementById("bodyEditor");
+  const bodyFeedback = document.getElementById("bodyFeedback");
 
-  // Common stop words to filter out
-  const stopWords = [
-    "a","an","and","the","is","of","to","in","for","on","at","by","with","from","or","as","be","this","that","it"
-  ];
+  const titleFeedback = document.getElementById("titleFeedback");
+  const descriptionFeedback = document.getElementById("descriptionFeedback");
+  const keywordsFeedback = document.getElementById("keywordsFeedback");
+  const seoScoreBar = document.getElementById("seoScoreBar");
+  const seoScoreText = document.getElementById("seoScoreText");
 
-  // SEO scoring thresholds
+  const stopWords = ["a","an","and","the","is","of","to","in","for","on","at","by","with","from","or","as","be","this","that","it"];
+
   const seoRubric = {
-    title: { min: 50, max: 70 },       // characters
-    description: { min: 150, max: 160 }, // characters
-    keywords: { min: 5, max: 15 }      // number of keywords
+    title: { min: 50, max: 70 },          // characters
+    description: { min: 150, max: 160 },  // characters
+    keywords: { min: 5, max: 15 },        // number of keywords
+    body: { min: 300, max: 5000 }         // characters for main content
   };
 
-  // Helper: count words
-  function countWords(text) {
-    if (!text) return 0;
-    return text.trim().split(/\s+/).filter(Boolean).length;
-  }
-
-  // Helper: evaluate color based on rubric
   function evaluateSEOLength(count, min, max) {
-    if (count < min) return "red";
-    if (count > max) return "orange";
-    return "green";
+    if (count < min) return 0;      // bad
+    if (count > max) return 50;     // okay
+    return 100;                     // good
   }
 
-  // Helper: count keywords present in text
   function countKeywordMatches(text, keywords) {
     if (!text || !keywords) return 0;
     const words = text.toLowerCase().split(/\s+/);
@@ -1616,7 +1646,6 @@ document.addEventListener("DOMContentLoaded", () => {
     return words.reduce((acc, word) => acc + (keyList.includes(word) ? 1 : 0), 0);
   }
 
-  // Helper: generate clean keywords
   function generateKeywords(text) {
     return text
       .toLowerCase()
@@ -1626,7 +1655,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .join(", ");
   }
 
-  // Helper: generate URL-friendly domain
   function generateDomain(text) {
     return text
       .toLowerCase()
@@ -1634,54 +1662,86 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/[^a-z0-9\-]/g, "");
   }
 
-  // Update SEO indicators dynamically
+  function generateSlug(text) {
+    return text
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9\-]/g, "")
+      .slice(0, 100); // limit slug length
+  }
+
   function updateSEOIndicators() {
     const title = titleInput.value.trim();
     const description = descriptionInput.value.trim();
     const keywords = keywordsInput.value.trim();
+    const body = bodyEditor.value.trim();
+    const slugVal = slugInput.value.trim();
 
-    // Character/keyword counts
     const titleCount = title.length;
     const descCount = description.length;
     const keywordCount = keywords.split(/\s*,\s*/).filter(Boolean).length;
+    const bodyCount = body.length;
 
-    // Set border colors for feedback
-    titleInput.style.borderColor = evaluateSEOLength(titleCount, seoRubric.title.min, seoRubric.title.max);
-    descriptionInput.style.borderColor = evaluateSEOLength(descCount, seoRubric.description.min, seoRubric.description.max);
-    keywordsInput.style.borderColor = evaluateSEOLength(keywordCount, seoRubric.keywords.min, seoRubric.keywords.max);
+    // Evaluate each part (0–100)
+    const titleScore = evaluateSEOLength(titleCount, seoRubric.title.min, seoRubric.title.max);
+    const descScore = evaluateSEOLength(descCount, seoRubric.description.min, seoRubric.description.max);
+    const keywordsScore = evaluateSEOLength(keywordCount, seoRubric.keywords.min, seoRubric.keywords.max);
+    const bodyScore = evaluateSEOLength(bodyCount, seoRubric.body.min, seoRubric.body.max);
 
-    // Count keyword matches in title and description
+    // Average SEO score
+    const seoScore = Math.round((titleScore + descScore + keywordsScore + bodyScore) / 4);
+
+    // Update score bar
+    seoScoreBar.style.width = `${seoScore}%`;
+    seoScoreBar.style.background = seoScore >= 80 ? "green" : seoScore >= 50 ? "orange" : "red";
+    seoScoreText.textContent = `SEO Score: ${seoScore}/100`;
+
+    // Feedback colors
+    titleFeedback.style.color = titleScore === 100 ? "green" : titleScore === 50 ? "orange" : "red";
+    descriptionFeedback.style.color = descScore === 100 ? "green" : descScore === 50 ? "orange" : "red";
+    keywordsFeedback.style.color = keywordsScore === 100 ? "green" : keywordsScore === 50 ? "orange" : "red";
+    bodyFeedback.style.color = bodyScore === 100 ? "green" : bodyScore === 50 ? "orange" : "red";
+
+    // Feedback text
+    titleFeedback.textContent = `Title: ${titleCount} chars`;
+    descriptionFeedback.textContent = `Description: ${descCount} chars`;
+    keywordsFeedback.textContent = `Keywords: ${keywordCount}`;
+    bodyFeedback.textContent = `Body: ${bodyCount} chars`;
+
+    // Keyword match suggestions
     const titleMatches = countKeywordMatches(title, keywords);
     const descMatches = countKeywordMatches(description, keywords);
+    const bodyMatches = countKeywordMatches(body, keywords);
 
-    /*
-    // Optional console feedback
-    console.log(`Title: ${titleCount} chars, keywords in title: ${titleMatches}`);
-    console.log(`Description: ${descCount} chars, keywords in description: ${descMatches}`);
-    console.log(`Keywords count: ${keywordCount}`);
-    */
+    if(titleMatches < 1) titleFeedback.textContent += " ⚠ Add keywords in title!";
+    if(descMatches < 2) descriptionFeedback.textContent += " ⚠ Add keywords in description!";
+    if(bodyMatches < 3) bodyFeedback.textContent += " ⚠ Add keywords in body!";
+
+    // Slug validation
+    if(!slugVal || slugVal !== generateSlug(title)) {
+      slugFeedback.textContent = "⚠ Slug should match URL-friendly version of the title.";
+      slugFeedback.style.color = "red";
+    } else {
+      slugFeedback.textContent = "Slug looks good!";
+      slugFeedback.style.color = "green";
+    }
   }
 
-  // Auto-generate domain and keywords from title
-  titleInput.addEventListener("blur", () => {
-    const titleVal = titleInput.value.trim();
-    if (!titleVal) return;
-
-    if (!domainInput.value.trim()) {
-      domainInput.value = generateDomain(titleVal);
-    }
-
-    if (!keywordsInput.value.trim()) {
-      keywordsInput.value = generateKeywords(titleVal);
-    }
-
+  titleInput.addEventListener("input", () => {
+    if (!domainInput.value.trim()) domainInput.value = generateDomain(titleInput.value);
+    if (!keywordsInput.value.trim()) keywordsInput.value = generateKeywords(titleInput.value);
+    if (!slugInput.value.trim()) slugInput.value = generateSlug(titleInput.value);
     updateSEOIndicators();
   });
 
-  // Run SEO check on description and keywords blur
-  descriptionInput.addEventListener("blur", updateSEOIndicators);
-  keywordsInput.addEventListener("blur", updateSEOIndicators);
+  descriptionInput.addEventListener("input", updateSEOIndicators);
+  keywordsInput.addEventListener("input", updateSEOIndicators);
+  bodyEditor.addEventListener("input", updateSEOIndicators);
+  slugInput.addEventListener("input", updateSEOIndicators);
+
+  updateSEOIndicators();
 });
+
 /*
 https://adsense.payouts.hyperwallet.com/hw2web/
 https://search.google.com/search-console?resource_id=sc-domain%3Acontenthub.guru
