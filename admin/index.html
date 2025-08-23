@@ -767,7 +767,7 @@ async function loadDashboard(autoPing = false) {
 
   pages.forEach(p => {
     html += `<tr>
-      <td><img src="${p.image||''}" alt="preview"></td>
+      <td><p><img src="${p.image||''}" alt="preview" width="300" height="200"></p></td>
       <td>${p.domain}</td>
       <td id="status-${p.id}" class="status-offline">❌ Offline</td>
       <td>${p.views||0}</td>
@@ -778,6 +778,7 @@ async function loadDashboard(autoPing = false) {
     </tr>`;
 
     console.log("image  ",p.image);
+    console.log("data   ",p);
   });
 
   html += "</tbody></table>";
