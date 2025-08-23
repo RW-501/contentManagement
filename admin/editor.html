@@ -48,7 +48,7 @@
   .row > * { flex:1; }
   .muted { color:var(--muted); font-size:.9rem; }
   .pill { background:#eef2ff; color:#3730a3; font-size:.75rem; padding:.1rem .5rem; border-radius:999px; border:1px solid #c7d2fe; }
-  .group { display: grid; margin: .5rem ; }
+  .group { display: grid; margin: 1rem ; }
 </style>
 
 
@@ -103,29 +103,33 @@
         <button class="toggle-btn" data-toggle="#metadataContent">Show/Hide</button>
       </div>
     </header>
+
     <div id="metadataContent">
       <div class="group">
         <label for="title">Title</label>
         <input id="title" placeholder="Title" />
         <div id="titleFeedback" class="seo-feedback"></div>
         <small>Tip: Keep under 60 characters and include main keyword.</small>
-
+</div>
+      <div class="group">
         <label for="slug">Slug</label>
         <input id="slug" placeholder="Slug (unique)" />
         <div id="slugFeedback" class="seo-feedback"></div>
         <small>Tip: Use hyphens, lowercase, no spaces or special chars.</small>
-      </div>
-
+</div>
+      <div class="group">
       <label for="description">Description</label>
       <textarea id="description" placeholder="Description"></textarea>
       <div id="descriptionFeedback" class="seo-feedback"></div>
       <small>Tip: 150–160 characters summarizing the page content.</small>
-
+</div>
+      <div class="group">
       <label for="keywords">Keywords</label>
       <input id="keywords" placeholder="Comma separated keywords" />
       <div id="keywordsFeedback" class="seo-feedback"></div>
       <small>Tip: Use 5–10 relevant keywords, separated by commas.</small>
 
+</div>
       <div class="group">
         <label for="schemaType">Schema Type</label>
         <select id="schemaType" title="Schema Type">
@@ -135,7 +139,8 @@
         </select>
         <div id="schemaFeedback" class="seo-feedback"></div>
         <small>Tip: Choose the most appropriate schema for SEO rich snippets.</small>
-
+</div>
+      <div class="group">
         <label for="domain">Domain (optional)</label>
         <input id="domain" placeholder="Domain for site ping" disabled/>
         <div id="domainFeedback" class="seo-feedback"></div>
