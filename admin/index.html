@@ -759,29 +759,6 @@ async function loadDashboard(autoPing = false) {
   }
 
 
-    const queryText = searchInput.value.toLowerCase();
-  filteredSites = pages.filter(site =>
-    site.title.toLowerCase().includes(queryText) ||
-    site.domain.toLowerCase().includes(queryText) ||
-    (site.tags || []).some(t=>t.toLowerCase().includes(queryText))
-  );
-
-  if(activeTag) filteredSites = filteredSites.filter(site => site.tags.includes(activeTag));
-
-  const sortValue = sortSelect.value;
-  if(sortValue==="createdDesc") filteredSites.sort((a,b)=>b.createdAt-a.createdAt);
-  if(sortValue==="createdAsc") filteredSites.sort((a,b)=>a.createdAt-a.createdAt);
-  if(sortValue==="publishedDesc") filteredSites.sort((a,b)=>b.publishedCount-a.publishedCount);
-  if(sortValue==="viewsDesc") filteredSites.sort((a,b)=>b.views-a.views);
-
-  const totalPages = Math.ceil(filteredSites.length/pageSize);
-  if(currentPage>totalPages) currentPage=1;
-
-  sitesList.innerHTML='';
-  if(filteredSites.length===0){
-    sitesList.innerHTML="<p class='loading'>No matching websites.</p>";
-    return;
-  }
 
   let html = `<table>
     <thead>
