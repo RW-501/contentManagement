@@ -1660,6 +1660,17 @@ document.addEventListener("DOMContentLoaded", () => {
     body: { min: 300, max: 5000 }         // characters for main content
   };
 
+  function generateSuggestions(count, min, max, fieldName) {
+  if (count < min) return `Add ${min - count} more ${fieldName} to reach minimum.`;
+  if (count > max) return `Reduce ${count - max} ${fieldName} to stay within recommended max.`;
+  return `Good length!`;
+}
+
+function keywordMatchSuggestion(matches, minRequired, fieldName) {
+  if (matches < minRequired) return `Add ${minRequired - matches} more keywords in ${fieldName}.`;
+  return "";
+}
+
   function evaluateSEOLength(count, min, max) {
     if (count < min) return 0;      // bad
     if (count > max) return 50;     // okay
@@ -1696,63 +1707,63 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/[^a-z0-9\-]/g, "")
       .slice(0, 100); // limit slug length
   }
+function updateSEOIndicators() {
+  const title = titleInput.value.trim();
+  const description = descriptionInput.value.trim();
+  const keywords = keywordsInput.value.trim();
+  const body = bodyEditor.value.trim();
+  const slugVal = slugInput.value.trim();
 
-  function updateSEOIndicators() {
-    const title = titleInput.value.trim();
-    const description = descriptionInput.value.trim();
-    const keywords = keywordsInput.value.trim();
-    const body = bodyEditor.value.trim();
-    const slugVal = slugInput.value.trim();
+  const titleCount = title.length;
+  const descCount = description.length;
+  const keywordCount = keywords.split(/\s*,\s*/).filter(Boolean).length;
+  const bodyCount = body.length;
 
-    const titleCount = title.length;
-    const descCount = description.length;
-    const keywordCount = keywords.split(/\s*,\s*/).filter(Boolean).length;
-    const bodyCount = body.length;
+  const titleScore = evaluateSEOLength(titleCount, seoRubric.title.min, seoRubric.title.max);
+  const descScore = evaluateSEOLength(descCount, seoRubric.description.min, seoRubric.description.max);
+  const keywordsScore = evaluateSEOLength(keywordCount, seoRubric.keywords.min, seoRubric.keywords.max);
+  const bodyScore = evaluateSEOLength(bodyCount, seoRubric.body.min, seoRubric.body.max);
 
-    // Evaluate each part (0–100)
-    const titleScore = evaluateSEOLength(titleCount, seoRubric.title.min, seoRubric.title.max);
-    const descScore = evaluateSEOLength(descCount, seoRubric.description.min, seoRubric.description.max);
-    const keywordsScore = evaluateSEOLength(keywordCount, seoRubric.keywords.min, seoRubric.keywords.max);
-    const bodyScore = evaluateSEOLength(bodyCount, seoRubric.body.min, seoRubric.body.max);
+  const seoScore = Math.round((titleScore + descScore + keywordsScore + bodyScore) / 4);
+  seoScoreBar.style.width = `${seoScore}%`;
+  seoScoreBar.style.background = seoScore >= 80 ? "green" : seoScore >= 50 ? "orange" : "red";
+  seoScoreText.textContent = `SEO Score: ${seoScore}/100`;
 
-    // Average SEO score
-    const seoScore = Math.round((titleScore + descScore + keywordsScore + bodyScore) / 4);
+  // Feedback colors
+  titleFeedback.style.color = titleScore === 100 ? "green" : titleScore === 50 ? "orange" : "red";
+  descriptionFeedback.style.color = descScore === 100 ? "green" : descScore === 50 ? "orange" : "red";
+  keywordsFeedback.style.color = keywordsScore === 100 ? "green" : keywordsScore === 50 ? "orange" : "red";
+  bodyFeedback.style.color = bodyScore === 100 ? "green" : bodyScore === 50 ? "orange" : "red";
 
-    // Update score bar
-    seoScoreBar.style.width = `${seoScore}%`;
-    seoScoreBar.style.background = seoScore >= 80 ? "green" : seoScore >= 50 ? "orange" : "red";
-    seoScoreText.textContent = `SEO Score: ${seoScore}/100`;
+  // Feedback text with suggestions
+  titleFeedback.textContent = `Title: ${titleCount} chars. ${generateSuggestions(titleCount, seoRubric.title.min, seoRubric.title.max, "characters")}`;
+  descriptionFeedback.textContent = `Description: ${descCount} chars. ${generateSuggestions(descCount, seoRubric.description.min, seoRubric.description.max, "characters")}`;
+  keywordsFeedback.textContent = `Keywords: ${keywordCount}. ${generateSuggestions(keywordCount, seoRubric.keywords.min, seoRubric.keywords.max, "keywords")}`;
+  bodyFeedback.textContent = `Body: ${bodyCount} chars. ${generateSuggestions(bodyCount, seoRubric.body.min, seoRubric.body.max, "characters")}`;
 
-    // Feedback colors
-    titleFeedback.style.color = titleScore === 100 ? "green" : titleScore === 50 ? "orange" : "red";
-    descriptionFeedback.style.color = descScore === 100 ? "green" : descScore === 50 ? "orange" : "red";
-    keywordsFeedback.style.color = keywordsScore === 100 ? "green" : keywordsScore === 50 ? "orange" : "red";
-    bodyFeedback.style.color = bodyScore === 100 ? "green" : bodyScore === 50 ? "orange" : "red";
+  // Keyword match suggestions
+  const titleMatches = countKeywordMatches(title, keywords);
+  const descMatches = countKeywordMatches(description, keywords);
+  const bodyMatches = countKeywordMatches(body, keywords);
 
-    // Feedback text
-    titleFeedback.textContent = `Title: ${titleCount} chars`;
-    descriptionFeedback.textContent = `Description: ${descCount} chars`;
-    keywordsFeedback.textContent = `Keywords: ${keywordCount}`;
-    bodyFeedback.textContent = `Body: ${bodyCount} chars`;
+  const titleKeywordTip = keywordMatchSuggestion(titleMatches, 1, "title");
+  const descKeywordTip = keywordMatchSuggestion(descMatches, 2, "description");
+  const bodyKeywordTip = keywordMatchSuggestion(bodyMatches, 3, "body");
 
-    // Keyword match suggestions
-    const titleMatches = countKeywordMatches(title, keywords);
-    const descMatches = countKeywordMatches(description, keywords);
-    const bodyMatches = countKeywordMatches(body, keywords);
+  if(titleKeywordTip) titleFeedback.textContent += " ⚠ " + titleKeywordTip;
+  if(descKeywordTip) descriptionFeedback.textContent += " ⚠ " + descKeywordTip;
+  if(bodyKeywordTip) bodyFeedback.textContent += " ⚠ " + bodyKeywordTip;
 
-    if(titleMatches < 1) titleFeedback.textContent += " ⚠ Add keywords in title!";
-    if(descMatches < 2) descriptionFeedback.textContent += " ⚠ Add keywords in description!";
-    if(bodyMatches < 3) bodyFeedback.textContent += " ⚠ Add keywords in body!";
-
-    // Slug validation
-    if(!slugVal || slugVal !== generateSlug(title)) {
-      slugFeedback.textContent = "⚠ Slug should match URL-friendly version of the title.";
-      slugFeedback.style.color = "red";
-    } else {
-      slugFeedback.textContent = "Slug looks good!";
-      slugFeedback.style.color = "green";
-    }
+  // Slug validation
+  if(!slugVal || slugVal !== generateSlug(title)) {
+    slugFeedback.textContent = "⚠ Slug should match URL-friendly version of the title.";
+    slugFeedback.style.color = "red";
+  } else {
+    slugFeedback.textContent = "Slug looks good!";
+    slugFeedback.style.color = "green";
   }
+}
+
 
   titleInput.addEventListener("input", () => {
     if (!domainInput.value.trim()) domainInput.value = generateDomain(titleInput.value);
