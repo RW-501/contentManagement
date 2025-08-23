@@ -59,6 +59,7 @@
     <div>Status: <span id="pageStatus">-</span></div>
     <div>Views: <span id="viewsCount">0</span></div>
     <div>Unique: <span id="uniqueViews">0</span></div>
+    <div>Today Views: <span id="dailyViews">0</span></div>
     <div>Last Updated: <span id="lastUpdated">-</span></div>
     <div>Site Live: <span id="sitePing">-</span></div>
   </div>
@@ -1004,10 +1005,13 @@ onAuthStateChanged(auth, async (user) => {
     (data.faq || []).forEach(addFaqItem);
     (data.howto || []).forEach(addHowtoStep);
 
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
     // Toolbar
     $("#pageStatus").textContent = data.status || "draft";
-    $("#viewsCount").textContent = data.analytics?.views || 0;
-    $("#uniqueViews").textContent = data.analytics?.uniqueViews || 0;
+    $("#viewsCount").textContent = data.views || 0;
+    $("#uniqueViews").textContent = data.uniqueViews || 0;
+    $("#dailyViews").textContent = data.dailyViews.today || 0;
     $("#lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
     if (data.domain) $("#sitePing").textContent = await pingSite(`https://rw-501.github.io/contentManagement/site/${data.domain}.html`);
   }
