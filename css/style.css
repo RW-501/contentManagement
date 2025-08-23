@@ -34,6 +34,7 @@ body {
 main {
     width: 90%;
     display: block;
+    place-self: center;
 }
 
 /* Apply the animation to the whole page */
