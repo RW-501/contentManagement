@@ -852,34 +852,46 @@ document.addEventListener("DOMContentLoaded", () => {
   const domainInput = document.getElementById("domain");
   const keywordsInput = document.getElementById("keywords");
 
-  // Common stop words to filter out
-  const stopWords = ["a","an","and","the","is","of","to","in","for","on","at","by","with","from","or","as","be","this","that","it"];
+// Common stop words to filter out
+const stopWords = [
+  "a","an","and","the","is","of","to","in","for","on","at","by","with","from","or","as","be","this","that","it"
+];
 
-  titleInput.addEventListener("blur", () => {
-    const titleVal = titleInput.value.trim();
+// Function to generate clean keywords from a string
+function generateKeywords(text) {
+  return text
+    .toLowerCase()
+    .split(/\s+/) // split by spaces
+    .map(word => word.replace(/[^a-z0-9]/g, "")) // remove punctuation
+    .filter(word => word && !stopWords.includes(word) && !/^\d+$/.test(word)) // remove stop words & numbers
+    .join(", ");
+}
 
-    if (!titleVal) return;
+// Function to generate a URL-friendly domain from a string
+function generateDomain(text) {
+  return text
+    .toLowerCase()
+    .replace(/\s+/g, "-")        // replace spaces with "-"
+    .replace(/[^a-z0-9\-]/g, ""); // remove invalid characters
+}
 
-    // If domain is empty → generate from title
-    if (!domainInput.value.trim()) {
-      domainInput.value = titleVal
-        .toLowerCase()
-        .replace(/\s+/g, "-")    // replace spaces with "-"
-        .replace(/[^a-z0-9\-]/g, ""); // remove invalid chars
-    }
+// Event listener for title input blur
+titleInput.addEventListener("blur", () => {
+  const titleVal = titleInput.value.trim();
+  if (!titleVal) return;
 
-    // If keywords is empty → generate from title
-    if (!keywordsInput.value.trim()) {
-      const words = titleVal
-        .toLowerCase()
-        .split(/\s+/) // split into words
-        .filter(w => !stopWords.includes(w)) // remove stop words
-        .map(w => w.replace(/[^a-z0-9]/g, "")) // clean punctuation
-        .filter(Boolean); // remove empty
+  // Generate domain if empty
+  if (!domainInput.value.trim()) {
+    domainInput.value = generateDomain(titleVal);
+  }
 
-      keywordsInput.value = words.join(", ");
-    }
-  });
+  // Generate keywords if empty
+  if (!keywordsInput.value.trim()) {
+    keywordsInput.value = generateKeywords(titleVal);
+  }
+});
+
+
 });
 </script>
 </body>
