@@ -86,7 +86,6 @@ export function loadAdminHeader(targetId = "admin-header") {
   const logoutBtn = document.createElement("button");
   logoutBtn.textContent = "Logout";
   logoutBtn.id = "logoutBtn";
-  logoutBtn.style.display = "none"; // initially hidden
   logoutBtn.style.background = "#ef4444";
   logoutBtn.style.color = "#fff";
   logoutBtn.style.border = "none";
