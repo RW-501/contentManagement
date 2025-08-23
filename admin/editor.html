@@ -663,23 +663,56 @@ function makeBlockCard(block, idx) {
       el._te = te;
     }
 
-    if (t === "image") {
-      const row = document.createElement("div"); row.className="row";
-      row.innerHTML = `
-        <input class="b-mediaId" placeholder="mediaId or URL" />
-        <input class="b-alt" placeholder="alt text" />
-      `;
-      const row2 = document.createElement("div"); row2.className="row";
-      row2.innerHTML = `
-        <input class="b-caption" placeholder="caption (optional)" />
-        <input class="b-width" placeholder="width (px, optional)" type="number" min="0"/>
-      `;
-      body.appendChild(row); body.appendChild(row2);
-      body.querySelector(".b-mediaId").value = block.mediaId ?? "";
-      body.querySelector(".b-alt").value = block.alt ?? "";
-      body.querySelector(".b-caption").value = block.caption ?? "";
-      body.querySelector(".b-width").value = block.width ?? "";
+if (t === "image") { 
+  const row = document.createElement("div");
+  row.className = "row";
+  row.innerHTML = `
+    <input class="b-mediaId" placeholder="mediaId or URL" />
+    <input class="b-alt" placeholder="alt text" />
+    <input type="file" class="b-upload" accept="image/*"/>
+    <span class="upload-status"></span>
+  `;
+
+  const row2 = document.createElement("div"); 
+  row2.className = "row";
+  row2.innerHTML = `
+    <input class="b-caption" placeholder="caption (optional)" />
+    <input class="b-width" placeholder="width (px, optional)" type="number" min="0"/>
+  `;
+
+  body.appendChild(row);
+  body.appendChild(row2);
+
+  // Initialize values
+  body.querySelector(".b-mediaId").value = block.mediaId ?? "";
+  body.querySelector(".b-alt").value = block.alt ?? "";
+  body.querySelector(".b-caption").value = block.caption ?? "";
+  body.querySelector(".b-width").value = block.width ?? "";
+
+  // File upload handler
+  const fileInput = row.querySelector(".b-upload");
+  const mediaInput = row.querySelector(".b-mediaId");
+  const statusSpan = row.querySelector(".upload-status");
+
+  fileInput.addEventListener("change", async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    try {
+      statusSpan.textContent = "Uploading...";
+      const storageRef = ref(storage, `pages/${pageId}/${file.name}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadURL = await getDownloadURL(snapshot.ref);
+
+      mediaInput.value = downloadURL;
+      statusSpan.textContent = "Uploaded ✅";
+    } catch (err) {
+      console.error("Upload failed", err);
+      statusSpan.textContent = "Upload failed ❌";
     }
+  });
+}
+
 
     if (t === "video") {
       const row = document.createElement("div"); row.className="row";
