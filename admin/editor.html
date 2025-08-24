@@ -222,6 +222,7 @@ function stick() {
   seoContainer.style.transform = 'translateY(-20px)';
   seoContainer.style.opacity = '0';
   seoContainer.style.marginTop = '0';
+  seoContainer.style.zIndex = '1000';
 
   requestAnimationFrame(() => {
     seoContainer.style.transform = 'translateY(0)';
@@ -243,6 +244,8 @@ function unstick() {
   seoContainer.style.boxShadow = '';
   seoContainer.style.transform = '';
   seoContainer.style.opacity = '';
+  seoContainer.style.zIndex = '';
+
   if (placeholder.parentElement) placeholder.remove();
   isSticky = false;
 }
