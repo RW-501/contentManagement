@@ -213,84 +213,6 @@
   <div id="seoScoreText" style="font-size:12px; font-weight:bold; margin-top:2px;"></div>
 </div>
 
-<script>
-const seoContainer = document.getElementById('seoContainer');
-const placeholder = document.createElement('div');
-let isSticky = false;
-
-// Function to stick
-function stick() {
-  if (isSticky) return;
-
-  const rect = seoContainer.getBoundingClientRect();
-  const parent = seoContainer.parentNode;
-
-  placeholder.style.height = rect.height + 'px';
-  parent.insertBefore(placeholder, seoContainer);
-
-  seoContainer.style.position = 'fixed';
-  seoContainer.style.top = '0';
-  seoContainer.style.left = '0'; rect.left + 'px';
-  seoContainer.style.width = 100 + "%"; // rect.width + 'px';
-  seoContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
-  seoContainer.style.transform = 'translateY(-20px)';
-  seoContainer.style.opacity = '0';
-  seoContainer.style.marginTop = '0';
-  seoContainer.style.zIndex = '1000';
-  seoContainer.style.padding = '10' + 'px';
-
-  requestAnimationFrame(() => {
-    seoContainer.style.transform = 'translateY(0)';
-    seoContainer.style.opacity = '1';
-  });
-
-  isSticky = true;
-}
-
-// Function to unstick
-function unstick() {
-  if (!isSticky) return;
-
-  seoContainer.style.marginTop = '10' + 'px';
-  seoContainer.style.padding = '0' + 'px';
-  seoContainer.style.position = '';
-  seoContainer.style.top = '';
-  seoContainer.style.left = '';
-  seoContainer.style.width = '';
-  seoContainer.style.boxShadow = '';
-  seoContainer.style.transform = '';
-  seoContainer.style.opacity = '';
-  seoContainer.style.zIndex = '';
-
-  if (placeholder.parentElement) placeholder.remove();
-  isSticky = false;
-}
-
-// Listen to scroll
-window.addEventListener('scroll', () => {
-  const rect = seoContainer.getBoundingClientRect();
-
-  // Only stick if top is above viewport and not already sticky
-  if (rect.top <= 0 && !isSticky) {
-    stick();
-  }
-
-  // Only unstick if placeholder is visible in viewport
-  if (isSticky && window.scrollY < placeholder.offsetTop) {
-    unstick();
-  }
-});
-
-// Recalculate left & width on resize
-window.addEventListener('resize', () => {
-  if (isSticky) {
-    const rect = placeholder.getBoundingClientRect();
-    seoContainer.style.left = rect.left + 'px';
-    seoContainer.style.width = rect.width + 'px';
-  }
-});
-</script>
-
 
 
 
@@ -342,6 +264,89 @@ window.addEventListener('resize', () => {
 
   <div class="preview-bottom"></div>
 </div>
+
+
+
+<script>
+const seoContainer = document.getElementById('seoContainer');
+const pagePreview = document.getElementById('pagePreview');
+const placeholder = document.createElement('div');
+let isSticky = false;
+
+function stick() {
+  if (isSticky) return;
+
+  const rect = seoContainer.getBoundingClientRect();
+  const parent = seoContainer.parentNode;
+
+  placeholder.style.height = rect.height + 'px';
+  parent.insertBefore(placeholder, seoContainer);
+
+  seoContainer.style.position = 'fixed';
+  seoContainer.style.top = '0';
+  seoContainer.style.left = rect.left + 'px';
+  seoContainer.style.width = rect.width + 'px';
+  seoContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+  seoContainer.style.transform = 'translateY(-20px)';
+  seoContainer.style.opacity = '0';
+  seoContainer.style.marginTop = '0';
+  seoContainer.style.zIndex = '1000';
+  seoContainer.style.padding = '10px';
+
+  requestAnimationFrame(() => {
+    seoContainer.style.transform = 'translateY(0)';
+    seoContainer.style.opacity = '1';
+  });
+
+  isSticky = true;
+}
+
+function unstick() {
+  if (!isSticky) return;
+
+  seoContainer.style.position = '';
+  seoContainer.style.top = '';
+  seoContainer.style.left = '';
+  seoContainer.style.width = '';
+  seoContainer.style.boxShadow = '';
+  seoContainer.style.transform = '';
+  seoContainer.style.opacity = '';
+  seoContainer.style.zIndex = '';
+  seoContainer.style.padding = '';
+
+  if (placeholder.parentElement) placeholder.remove();
+  isSticky = false;
+}
+
+window.addEventListener('scroll', () => {
+  const seoRect = seoContainer.getBoundingClientRect();
+  const previewRect = pagePreview.getBoundingClientRect();
+
+  // Stick if top of SEO is above viewport
+  if (seoRect.top <= 0 && !isSticky && previewRect.top > 0) {
+    stick();
+  }
+
+  // Unstick if scrolled back above SEO
+  if (isSticky && window.scrollY < placeholder.offsetTop) {
+    unstick();
+  }
+
+  // Unstick if pagePreview reaches top
+  if (isSticky && previewRect.top <= 0) {
+    unstick();
+  }
+});
+
+window.addEventListener('resize', () => {
+  if (isSticky) {
+    const rect = placeholder.getBoundingClientRect();
+    seoContainer.style.left = rect.left + 'px';
+    seoContainer.style.width = rect.width + 'px';
+  }
+});
+</script>
+
 
 
 
