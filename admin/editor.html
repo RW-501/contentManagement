@@ -1536,7 +1536,7 @@ function renderBlockHTML(b) {
                 <img src="${b.mediaId}" 
                      alt="${b.alt || ""}" 
                      class="rounded-lg shadow-md" 
-                     ${b.width ? `style="width:${b.width}px;"` : "style='max-width:100%;height:auto;'"} />
+                     ${b.width ? `style="width:${b.width}px;"` : "style='max-width:100%;height:auto;'"}  loading="lazy" />
                 ${b.caption ? `<figcaption class="caption text-sm text-gray-500 mt-2">${b.caption}</figcaption>` : ""}
               </figure>`;
 
