@@ -223,6 +223,7 @@ function stick() {
   seoContainer.style.opacity = '0';
   seoContainer.style.marginTop = '0';
   seoContainer.style.zIndex = '1000';
+  seoContainer.style.padding = '10' + 'px';
 
   requestAnimationFrame(() => {
     seoContainer.style.transform = 'translateY(0)';
@@ -237,6 +238,7 @@ function unstick() {
   if (!isSticky) return;
 
   seoContainer.style.marginTop = '10' + 'px';
+  seoContainer.style.padding = '0' + 'px';
   seoContainer.style.position = '';
   seoContainer.style.top = '';
   seoContainer.style.left = '';
