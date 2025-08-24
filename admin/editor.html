@@ -517,7 +517,7 @@ async function pingSite(domain) {
   try {
     const url = domain.startsWith("http") 
       ? domain 
-      : `https://contenthub.guru/site/${slug}.html`;
+      : `https://contenthub.guru/site/${domain}.html`;
 
     const resp = await fetch(url, { method: "GET", cache: "no-store" });
     const status = resp.ok ? "✅ Online" : "❌ Offline";
