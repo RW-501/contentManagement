@@ -473,3 +473,37 @@ main article:hover {
     grid-column: span 12 / span 12;
   }
 }
+
+
+.flex {
+  display: flex;
+  gap: 1.5rem;           /* space between columns */
+  flex-wrap: wrap;        /* stack on smaller screens */
+}
+
+.flex > aside,
+.flex > section {
+  flex-grow: 0;           /* don’t grow beyond defined width */
+  flex-shrink: 0;         /* don’t shrink too much */
+}
+
+/* specific widths */
+#left-sidebar {
+  flex-basis: 25%;        /* 3 / 12 columns */
+}
+
+#in-article-blocks {
+  flex-basis: 50%;        /* 6 / 12 columns */
+}
+
+#right-sidebar {
+  flex-basis: 25%;        /* 3 / 12 columns */
+}
+
+/* Stack on smaller screens */
+@media (max-width: 1023px) {
+  .flex > aside,
+  .flex > section {
+    flex-basis: 100%;
+  }
+}
