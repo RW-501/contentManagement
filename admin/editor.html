@@ -51,6 +51,7 @@
   .group { display: grid; margin: 1rem ; }
 
   main { margin-bottom: 2rem;}
+  .hidden { display: none;}
 </style>
 
 
@@ -221,14 +222,7 @@ window.addEventListener('scroll', () => {
   }
 });
 
-// Optional: adjust width if window resizes
-window.addEventListener('resize', () => {
-  if (isSticky) {
-    const rect = placeholder.getBoundingClientRect();
-    seoContainer.style.width = rect.width + 'px';
-    seoContainer.style.left = rect.left + 'px';
-  }
-});
+
 </script>
 
 
@@ -265,6 +259,38 @@ window.addEventListener('resize', () => {
   </div>
 </section>
 
+
+    <!-- Blocks Builder -->
+    <section id="blocksSection">
+      <header>
+        <h2>Blocks Builder (drag to reorder)</h2>
+        <div class="section-actions">
+          <button id="addBlockBtn">+ Add Block</button>
+          <button class="toggle-btn" data-toggle="#blocksWrap">Show/Hide</button>
+        </div>
+      </header>
+      <div id="blocksWrap">
+        <div class="muted">Types: heading, paragraph, image, video, faq, comparisonTable, ad, cta, button, rawHtml</div>
+        <div class="blocks-list" id="blocksList"></div>
+        <textarea id="blocksJSON" class="hidden"></textarea>
+      </div>
+    </section>
+
+    <!-- Body Content -->
+    <section id="bodySection">
+      <header>
+        <h2>Body Content</h2>
+
+        <div class="section-actions">
+          <span class="pill">Reusable Text Editor</span>
+          <button class="toggle-btn" data-toggle="#bodyContentWrap">Show/Hide</button>
+        </div>
+      </header>
+      <div id="bodyContentWrap">
+        <div id="bodyEditor" class="te"></div>
+      </div>
+      <div id="bodyFeedback" class="body-feedback"></div>
+    </section>
 
 <!-- Page Styles -->
 <section id="stylesSection">
@@ -318,39 +344,6 @@ window.addEventListener('resize', () => {
     </div>
   </div>
 </section>
-
-
-    <!-- Body Content -->
-    <section id="bodySection">
-      <header>
-        <h2>Body Content</h2>
-
-        <div class="section-actions">
-          <span class="pill">Reusable Text Editor</span>
-          <button class="toggle-btn" data-toggle="#bodyContentWrap">Show/Hide</button>
-        </div>
-      </header>
-      <div id="bodyContentWrap">
-        <div id="bodyEditor" class="te"></div>
-      </div>
-      <div id="bodyFeedback" class="body-feedback"></div>
-    </section>
-
-    <!-- Blocks Builder -->
-    <section id="blocksSection">
-      <header>
-        <h2>Blocks Builder (drag to reorder)</h2>
-        <div class="section-actions">
-          <button id="addBlockBtn">+ Add Block</button>
-          <button class="toggle-btn" data-toggle="#blocksWrap">Show/Hide</button>
-        </div>
-      </header>
-      <div id="blocksWrap">
-        <div class="muted">Types: heading, paragraph, image, video, faq, comparisonTable, ad, cta, button, rawHtml</div>
-        <div class="blocks-list" id="blocksList"></div>
-        <textarea id="blocksJSON" class="hidden"></textarea>
-      </div>
-    </section>
 
     <!-- FAQ -->
     <section id="faqSection" class="hidden">
@@ -1186,7 +1179,6 @@ function addBlock(block = { type: "paragraph", html: "" }) {
   refreshBlockNumbers();
 }
 
-// Initialize drag and drop
 
 /* ---------------- FAQ & HowTo UI ---------------- */
 function addFaqItem(item = {q:'', a:''}) {
