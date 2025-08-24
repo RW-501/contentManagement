@@ -314,6 +314,23 @@ function unstick() {
   seoContainer.style.zIndex = '';
   seoContainer.style.padding = '';
 
+  pagePreview.style.position = 'fixed';
+  pagePreview.style.top = '0';
+  pagePreview.style.left = rect.left + 'px';
+  pagePreview.style.width = rect.width + 'px';
+  pagePreview.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+  pagePreview.style.transform = 'translateY(-20px)';
+  pagePreview.style.opacity = '0';
+  pagePreview.style.marginTop = '0';
+  pagePreview.style.zIndex = '1000';
+  pagePreview.style.padding = '10px';
+
+  requestAnimationFrame(() => {
+    pagePreview.style.transform = 'translateY(0)';
+    pagePreview.style.opacity = '1';
+  });
+
+  
   if (placeholder.parentElement) placeholder.remove();
   isSticky = false;
 }
