@@ -1797,12 +1797,14 @@ ${JSON.stringify(articleData.customCSS)}
       <p class="subtitle">${articleData.subtitle || ""}</p>
     </div>
   </header>
-<main class="container mx-auto px-4" id="main-content" role="main">
+
+  
+  <main class="container mx-auto px-4" id="main-content" role="main">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
     <!-- Hero / Featured image -->
     ${articleData.image ? `
-    <section class="hero lg:col-span-12">
+    <section class="hero lg:col-span-12 order-1">
       <figure>
         <img src="${articleData.image}" 
              alt="${articleData.alt || articleData.title}" 
@@ -1815,33 +1817,34 @@ ${JSON.stringify(articleData.customCSS)}
     </section>` : ""}
 
     <!-- Top banner -->
-    <section id="top-banner-container" class="lg:col-span-12">
+    <section id="top-banner-container" class="lg:col-span-12 order-2">
       ${topBlocksHTML}
     </section>
 
-    <!-- Left sidebar -->
-    <aside id="left-sidebar" class="lg:col-span-3 space-y-6">
-      ${leftBlocksHTML}
-    </aside>
-
-    <!-- In-article blocks -->
-    <section id="in-article-blocks" class="lg:col-span-6 space-y-6">
+    <!-- In-article blocks (main content FIRST on mobile) -->
+    <section id="in-article-blocks" class="lg:col-span-6 space-y-6 order-3">
       ${articleData.body}
       ${inArticleBlocksHTML}
     </section>
 
+    <!-- Left sidebar -->
+    <aside id="left-sidebar" class="lg:col-span-3 space-y-6 order-4 lg:order-2">
+      ${leftBlocksHTML}
+    </aside>
+
     <!-- Right sidebar -->
-    <aside id="right-sidebar" class="lg:col-span-3 space-y-6">
+    <aside id="right-sidebar" class="lg:col-span-3 space-y-6 order-5 lg:order-4">
       ${rightBlocksHTML}
     </aside>
 
     <!-- Bottom banner -->
-    <section id="bottom-banner-container" class="lg:col-span-12">
+    <section id="bottom-banner-container" class="lg:col-span-12 order-6">
       ${bottomBlocksHTML}
     </section>
 
   </div>
 </main>
+
 
 
   <footer class="site-footer" role="contentinfo">
