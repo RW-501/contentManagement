@@ -662,7 +662,7 @@ const categorySelect = document.getElementById("category").value;
 
   
     showToast("info", "Ready...");
-    
+
 setTimeout(() => {
   window.location = `https://contenthub.guru/admin/editor?id=${docRef.id}`;
 }, 2000);
@@ -786,21 +786,30 @@ async function loadDashboard(autoPing = false) {
       <tr><th>Preview</th><th>Domain</th><th>Status</th><th>Views</th><th>Actions</th></tr>
     </thead><tbody>`;
 
-  pages.forEach(p => {
-    html += `<tr>
-      <td><p><img src="${p.image||''}" alt="preview" width="300" height="200"></p></td>
-      <td>${p.domain}</td>
-      <td id="status-${p.id}" class="status-offline">❌ Offline</td>
-      <td>${p.views||0}</td>
-      <td>
-        <button onclick="window.location.href='https://contenthub.guru/admin/editor?id=${p.id}'">Edit</button>
-        <button onclick="removePage('${p.id}','${p.domain}')">Remove</button>
-      </td>
-    </tr>`;
+pages.forEach(p => {
+  html += `<tr>
+    <td>
+      <p>
+        <a href="https://contenthub.guru/site/${p.slug}" target="_blank">
+          <img src="${p.image || ''}" alt="preview" width="300" height="200">
+        </a>
+      </p>
+    </td>
+    <td>
+      <a href="https://contenthub.guru/site/${p.slug}" target="_blank">${p.slug}</a>
+    </td>
+    <td id="status-${p.id}" class="status-offline">❌ Offline</td>
+    <td>${p.views || 0}</td>
+    <td>
+      <button onclick="window.location.href='https://contenthub.guru/admin/editor?id=${p.id}'">Edit</button>
+      <button onclick="removePage('${p.id}','${p.slug}')">Remove</button>
+    </td>
+  </tr>`;
 
-    console.log("image  ",p.image);
-    console.log("data   ",p);
-  });
+  console.log("image  ", p.image);
+  console.log("data   ", p);
+});
+
 
   html += "</tbody></table>";
   contentDiv.innerHTML = html;
