@@ -1322,6 +1322,8 @@ typeSel.onchange = () => {
 
 // when block position changes
 positionSel.onchange = () => {
+  unstick();
+  
   pill.textContent = positionSel.value;
   renderPreview();   // 🔥 add preview refresh
   serializeBlocks();
