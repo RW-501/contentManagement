@@ -268,7 +268,6 @@
     <section id="bodySection">
       <header>
         <h2>Body Content</h2>
-        <div id="bodyFeedback" class="body-feedback"></div>
 
         <div class="section-actions">
           <span class="pill">Reusable Text Editor</span>
@@ -278,6 +277,7 @@
       <div id="bodyContentWrap">
         <div id="bodyEditor" class="te"></div>
       </div>
+      <div id="bodyFeedback" class="body-feedback"></div>
     </section>
 
     <!-- Blocks Builder -->
@@ -699,7 +699,10 @@ function TextEditor(root, { value = "", compact = false } = {}) {
 
 /* ---------------- Blocks Builder ---------------- */
 const DEFAULT_BLOCKS = [];
-const BLOCK_TYPES = ["heading","paragraph","image","video","faq","comparisonTable","ad","cta","button","rawHtml"];
+const BLOCK_TYPES = [
+  "heading", "paragraph", "image", "video", "faq",
+  "comparisonTable", "ad", "cta", "button", "rawHtml"
+];
 
 function makeBlockCard(block, idx) {
   const el = document.createElement("div");
@@ -712,7 +715,7 @@ function makeBlockCard(block, idx) {
         <span class="drag-handle" title="Drag to reorder">⠿</span>
         <strong>Block</strong>
         <select class="block-type"></select>
-        <span class="pill" title="Render order">#${idx+1}</span>
+        <span class="pill" title="Render order">#${idx + 1}</span>
       </div>
       <div class="block-actions">
         <button class="dup">Duplicate</button>
@@ -722,27 +725,34 @@ function makeBlockCard(block, idx) {
     <div class="block-body"></div>
   `;
 
-  // type select
+  // populate type select
   const typeSel = el.querySelector(".block-type");
   BLOCK_TYPES.forEach(t => {
     const opt = document.createElement("option");
-    opt.value = t; opt.textContent = t;
+    opt.value = t;
+    opt.textContent = t;
     typeSel.appendChild(opt);
   });
   typeSel.value = block.type || "paragraph";
 
   const body = el.querySelector(".block-body");
+
   const renderFields = () => {
     body.innerHTML = "";
     const t = typeSel.value;
 
     if (t === "heading") {
-      const row = document.createElement("div"); row.className="row";
+      const row = document.createElement("div");
+      row.className = "row";
+      const uid = `heading-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
       row.innerHTML = `
-        <select class="b-level">
-          <option value="1">H1</option><option value="2">H2</option><option value="3">H3</option><option value="4">H4</option>
+        <label for="level-${uid}">Heading Level</label>
+        <select id="level-${uid}" class="b-level">
+          <option value="1">H1</option><option value="2">H2</option>
+          <option value="3">H3</option><option value="4">H4</option>
         </select>
-        <input class="b-text" placeholder="Heading text" />
+        <label for="text-${uid}">Heading Text</label>
+        <input id="text-${uid}" class="b-text" placeholder="Heading text" />
       `;
       body.appendChild(row);
       body.querySelector(".b-level").value = block.level ?? 2;
@@ -751,84 +761,169 @@ function makeBlockCard(block, idx) {
 
     if (t === "paragraph") {
       const wrap = document.createElement("div");
-      wrap.innerHTML = `<div class="muted" style="margin:.2rem 0;">Paragraph content</div><div class="p-editor"></div>`;
+      wrap.innerHTML = `
+        <div class="muted" style="margin:.2rem 0;">Paragraph content</div>
+        <div class="p-editor"></div>
+      `;
       body.appendChild(wrap);
-      const te = TextEditor(wrap.querySelector(".p-editor"), { compact:true, value: block.html || block.markdown || "" });
+      const te = TextEditor(wrap.querySelector(".p-editor"), {
+        compact: true,
+        value: block.html || block.markdown || ""
+      });
       el._te = te;
     }
 
-if (t === "image") { 
-  const row = document.createElement("div");
-  row.className = "row";
-  row.innerHTML = `
-    <input class="b-mediaId" placeholder="mediaId or URL" />
-    <input class="b-alt" placeholder="alt text" />
-    <input type="file" class="b-upload" accept="image/*"/>
-    <span class="upload-status"></span>
-  `;
+    if (t === "image") {
+      const uid = `img-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const index = parseInt(el.dataset.index, 10) + 1;
 
-  const row2 = document.createElement("div"); 
-  row2.className = "row";
-  row2.innerHTML = `
-    <input class="b-caption" placeholder="caption (optional)" />
-    <input class="b-width" placeholder="width (px, optional)" type="number" min="0"/>
-  `;
+      const row = document.createElement("div");
+      row.className = "row";
+      row.innerHTML = `
+        <h4 class="block-label">Image ${index}</h4>
+        <label for="media-${uid}">Image Source</label>
+        <input id="media-${uid}" class="b-mediaId" placeholder="mediaId or URL" />
+        <div id="imageSourceFeedback-${uid}" class="seo-feedback"></div>
+        <small>Tip: Use optimized WebP/JPEGs for best SEO.</small>
 
-  body.appendChild(row);
-  body.appendChild(row2);
+        <label for="alt-${uid}">Alt Text</label>
+        <input id="alt-${uid}" class="b-alt" placeholder="Alt text for accessibility" />
+        <div id="imageAltFeedback-${uid}" class="seo-feedback"></div>
+        <small>Tip: Meaningful description helps SEO + screen readers.</small>
 
-  // Initialize values
-  body.querySelector(".b-mediaId").value = block.mediaId ?? "";
-  body.querySelector(".b-alt").value = block.alt ?? "";
-  body.querySelector(".b-caption").value = block.caption ?? "";
-  body.querySelector(".b-width").value = block.width ?? "";
+        <input type="file" class="b-upload" accept="image/*"/>
+        <span class="upload-status"></span>
+      `;
 
-  // File upload handler
-  const fileInput = row.querySelector(".b-upload");
-  const mediaInput = row.querySelector(".b-mediaId");
-  const statusSpan = row.querySelector(".upload-status");
+      const row2 = document.createElement("div");
+      row2.className = "row";
+      row2.innerHTML = `
+        <label for="caption-${uid}">Caption</label>
+        <input id="caption-${uid}" class="b-caption" placeholder="Caption (optional)" />
+        <div id="imageCaptionFeedback-${uid}" class="seo-feedback"></div>
+        <small>Tip: Useful for credits or extra context.</small>
 
-  fileInput.addEventListener("change", async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+        <label for="width-${uid}">Width</label>
+        <input id="width-${uid}" class="b-width" placeholder="width (px, optional)" type="number" min="0"/>
+        <div id="imageWidthFeedback-${uid}" class="seo-feedback"></div>
+        <small>Leave blank for responsive sizing.</small>
+      `;
 
-    try {
-      statusSpan.textContent = "Uploading...";
-      const storageRef = ref(storage, `pages/${pageId}/${file.name}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadURL = await getDownloadURL(snapshot.ref);
+      body.appendChild(row);
+      body.appendChild(row2);
 
-      mediaInput.value = downloadURL;
-      statusSpan.textContent = "Uploaded ✅";
-    } catch (err) {
-      console.error("Upload failed", err);
-      statusSpan.textContent = "Upload failed ❌";
+      body.querySelector(".b-mediaId").value = block.mediaId ?? "";
+      body.querySelector(".b-alt").value = block.alt ?? "";
+      body.querySelector(".b-caption").value = block.caption ?? "";
+      body.querySelector(".b-width").value = block.width ?? "";
+
+      const fileInput = row.querySelector(".b-upload");
+      const mediaInput = row.querySelector(".b-mediaId");
+      const statusSpan = row.querySelector(".upload-status");
+
+      fileInput.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          statusSpan.textContent = "Uploading...";
+          const uniqueName = `${Date.now()}-${file.name}`;
+          const storageRef = ref(storage, `pages/${pageId}/${uniqueName}`);
+          const snapshot = await uploadBytes(storageRef, file);
+          const downloadURL = await getDownloadURL(snapshot.ref);
+          mediaInput.value = downloadURL;
+          statusSpan.textContent = "Uploaded ✅";
+        } catch (err) {
+          console.error("Image upload failed", err);
+          statusSpan.textContent = "Upload failed ❌";
+        }
+      });
     }
-  });
-}
-
 
     if (t === "video") {
-      const row = document.createElement("div"); row.className="row";
+      const uid = `vid-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      const index = parseInt(el.dataset.index, 10) + 1;
+
+      const row = document.createElement("div");
+      row.className = "row";
       row.innerHTML = `
-        <input class="b-url" placeholder="Video URL (YouTube/Vimeo/custom)" />
-        <input class="b-caption" placeholder="Caption (optional)" />
+        <h4 class="block-label">Video ${index}</h4>
+        <label for="url-${uid}">Video Source</label>
+        <input id="url-${uid}" class="b-url" placeholder="Video URL (YouTube, Vimeo, MP4/WebM)" />
+        <div id="videoUrlFeedback-${uid}" class="seo-feedback"></div>
+        <small>YouTube/Vimeo auto-embed; custom uploads must be MP4/WebM.</small>
+
+        <label for="alt-${uid}">Video Description</label>
+        <input id="alt-${uid}" class="b-alt" placeholder="Short description for accessibility" />
+        <div id="videoAltFeedback-${uid}" class="seo-feedback"></div>
+        <small>Provide text alternative for SEO and accessibility.</small>
+
+        <input type="file" class="b-upload" accept="video/*"/>
+        <span class="upload-status"></span>
       `;
+
+      const row2 = document.createElement("div");
+      row2.className = "row";
+      row2.innerHTML = `
+        <label for="caption-${uid}">Caption</label>
+        <input id="caption-${uid}" class="b-caption" placeholder="Caption (optional)" />
+        <div id="videoCaptionFeedback-${uid}" class="seo-feedback"></div>
+        <small>Displayed under the video for context.</small>
+
+        <label for="width-${uid}">Width</label>
+        <input id="width-${uid}" class="b-width" placeholder="width (px, optional)" type="number" min="0"/>
+        <div id="videoWidthFeedback-${uid}" class="seo-feedback"></div>
+        <small>Leave blank for responsive full width.</small>
+      `;
+
       body.appendChild(row);
+      body.appendChild(row2);
+
       body.querySelector(".b-url").value = block.url ?? "";
+      body.querySelector(".b-alt").value = block.alt ?? "";
       body.querySelector(".b-caption").value = block.caption ?? "";
+      body.querySelector(".b-width").value = block.width ?? "";
+
+      const fileInput = row.querySelector(".b-upload");
+      const urlInput = row.querySelector(".b-url");
+      const statusSpan = row.querySelector(".upload-status");
+
+      fileInput.addEventListener("change", async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        try {
+          statusSpan.textContent = "Uploading...";
+          const uniqueName = `${Date.now()}-${file.name}`;
+          const storageRef = ref(storage, `pages/${pageId}/${uniqueName}`);
+          const snapshot = await uploadBytes(storageRef, file);
+          const downloadURL = await getDownloadURL(snapshot.ref);
+          urlInput.value = downloadURL;
+          statusSpan.textContent = "Uploaded ✅";
+        } catch (err) {
+          console.error("Video upload failed", err);
+          statusSpan.textContent = "Upload failed ❌";
+        }
+      });
     }
 
     if (t === "faq") {
       const wrap = document.createElement("div");
-      wrap.innerHTML = `<div class="muted">Add Q/A pairs below</div><div class="faq-items"></div><button class="add-faq">+ Add Q/A</button>`;
+      wrap.innerHTML = `
+        <div class="muted">Add Q/A pairs below</div>
+        <div class="faq-items"></div>
+        <button class="add-faq">+ Add Q/A</button>
+      `;
       body.appendChild(wrap);
       const holder = wrap.querySelector(".faq-items");
-      const addItem = (qa={q:"",a:""}) => {
+      const addItem = (qa = { q: "", a: "" }) => {
         const row = document.createElement("div");
-        row.className="row";
-        row.innerHTML = `<input placeholder="Question" class="q"/><input placeholder="Answer" class="a"/> <button class="rem">×</button>`;
-        row.querySelector(".q").value = qa.q; row.querySelector(".a").value = qa.a;
+        row.className = "row";
+        row.innerHTML = `
+          <input placeholder="Question" class="q"/>
+          <input placeholder="Answer" class="a"/>
+          <button class="rem">×</button>
+        `;
+        row.querySelector(".q").value = qa.q;
+        row.querySelector(".a").value = qa.a;
         row.querySelector(".rem").onclick = () => row.remove();
         holder.appendChild(row);
       };
@@ -845,13 +940,15 @@ if (t === "image") {
         <textarea class="b-rows" placeholder="e.g. Basic|$9|3 projects\nPro|$29|Unlimited"></textarea>
       `;
       body.appendChild(top);
-      body.querySelector(".b-cols").value = (block.columns||[]).join(", ");
-      body.querySelector(".b-rows").value = (block.rows||[]).map(r => r.join("|")).join("\n");
+      body.querySelector(".b-cols").value = (block.columns || []).join(", ");
+      body.querySelector(".b-rows").value = (block.rows || []).map(r => r.join("|")).join("\n");
     }
 
     if (t === "ad") {
-      const row = document.createElement("div"); row.className="row";
+      const row = document.createElement("div");
+      row.className = "row";
       row.innerHTML = `
+        <label>Ad Slot</label>
         <select class="b-slot">
           <option>top</option><option>in-article-1</option><option>sidebar-1</option>
         </select>
@@ -861,9 +958,12 @@ if (t === "image") {
     }
 
     if (t === "cta" || t === "button") {
-      const row = document.createElement("div"); row.className="row";
+      const row = document.createElement("div");
+      row.className = "row";
       row.innerHTML = `
+        <label>${t.toUpperCase()} Text</label>
         <input class="b-text" placeholder="${t.toUpperCase()} text" />
+        <label>Link</label>
         <input class="b-href" placeholder="https://contenthub.guru" />
       `;
       body.appendChild(row);
@@ -873,7 +973,7 @@ if (t === "image") {
 
     if (t === "rawHtml") {
       const ta = document.createElement("textarea");
-      ta.className="b-html";
+      ta.className = "b-html";
       ta.placeholder = "Paste raw HTML";
       ta.value = block.html ?? "";
       body.appendChild(ta);
@@ -883,29 +983,61 @@ if (t === "image") {
   renderFields();
 
   // actions
-  el.querySelector(".del").onclick = () => { el.remove(); serializeBlocks(); };
-el.querySelector(".dup").onclick = () => {
-  const blocksList = el.parentElement;
-  const idx = parseInt(el.dataset.index, 10);
-  const copy = JSON.parse(JSON.stringify(block));
-  const newCard = makeBlockCard(copy, idx + 1);
-  blocksList.insertBefore(newCard, el.nextSibling);
-  serializeBlocks();
-};
+  el.querySelector(".del").onclick = () => {
+    el.remove();
+    serializeBlocks();
+    refreshBlockNumbers();
+  };
+  el.querySelector(".dup").onclick = () => {
+    const blocksList = el.parentElement;
+    const idx = parseInt(el.dataset.index, 10);
+    const copy = JSON.parse(JSON.stringify(block));
+    delete copy.id; // force new UID regeneration
+    const newCard = makeBlockCard(copy, idx + 1);
+    blocksList.insertBefore(newCard, el.nextSibling);
+    serializeBlocks();
+    refreshBlockNumbers();
+  };
 
-  el.querySelector(".block-type").onchange = () => { renderFields(); serializeBlocks(); };
+  el.querySelector(".block-type").onchange = () => {
+    renderFields();
+    serializeBlocks();
+    refreshBlockNumbers();
+  };
 
   // DnD
-  el.addEventListener("dragstart", (e) => { e.dataTransfer.setData("text/plain", el.dataset.index); el.classList.add("dragging"); });
-  el.addEventListener("dragend", () => { el.classList.remove("dragging"); Array.from(el.parentElement.children).forEach((c,i)=>c.dataset.index=i); serializeBlocks(); });
+  el.addEventListener("dragstart", (e) => {
+    e.dataTransfer.setData("text/plain", el.dataset.index);
+    el.classList.add("dragging");
+  });
+  el.addEventListener("dragend", () => {
+    el.classList.remove("dragging");
+    Array.from(el.parentElement.children).forEach((c, i) => (c.dataset.index = i));
+    serializeBlocks();
+    refreshBlockNumbers();
+  });
 
   return el;
+}
+
+function refreshBlockNumbers() {
+  document.querySelectorAll(".block-card").forEach((card, idx) => {
+    card.dataset.index = idx;
+    const label = card.querySelector(".block-label");
+    if (label) {
+      const isImage = card.querySelector(".b-mediaId") !== null;
+      const isVideo = card.querySelector(".b-url") !== null;
+      if (isImage) label.textContent = `Image ${idx + 1}`;
+      if (isVideo) label.textContent = `Video ${idx + 1}`;
+    }
+  });
 }
 
 function extractBlock(card) {
   const t = card.querySelector(".block-type").value;
   const b = { type: t };
   const body = card.querySelector(".block-body");
+
   if (t === "heading") {
     b.level = parseInt(body.querySelector(".b-level").value || "2", 10);
     b.text = body.querySelector(".b-text").value || "";
@@ -923,16 +1055,26 @@ function extractBlock(card) {
   }
   if (t === "video") {
     b.url = body.querySelector(".b-url").value || "";
+    b.alt = body.querySelector(".b-alt").value || "";
     b.caption = body.querySelector(".b-caption").value || "";
+    const w = body.querySelector(".b-width").value;
+    if (w) b.width = +w;
   }
   if (t === "faq") {
     b.items = Array.from(body.querySelectorAll(".faq-items .row")).map(r => ({
-      q: r.querySelector(".q").value, a: r.querySelector(".a").value
+      q: r.querySelector(".q").value,
+      a: r.querySelector(".a").value
     }));
   }
   if (t === "comparisonTable") {
-    b.columns = (body.querySelector(".b-cols").value || "").split(",").map(s=>s.trim()).filter(Boolean);
-    b.rows = (body.querySelector(".b-rows").value || "").split("\n").map(line => line.split("|").map(s=>s.trim())).filter(r => r.some(Boolean));
+    b.columns = (body.querySelector(".b-cols").value || "")
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
+    b.rows = (body.querySelector(".b-rows").value || "")
+      .split("\n")
+      .map(line => line.split("|").map(s => s.trim()))
+      .filter(r => r.some(Boolean));
   }
   if (t === "ad") {
     b.slot = body.querySelector(".b-slot").value || "top";
@@ -947,7 +1089,7 @@ function extractBlock(card) {
   return b;
 }
 
-function initBlockDnD(card) {
+function initBlockDnD() {
   const list = $("#blocksList");
   list.addEventListener("dragover", (e) => {
     e.preventDefault();
@@ -958,29 +1100,37 @@ function initBlockDnD(card) {
     else list.insertBefore(dragging, after);
   });
 }
+
 function getDragAfterElement(container, y) {
   const els = [...container.querySelectorAll(".block-card:not(.dragging)")];
-  return els.reduce((closest, child) => {
-    const box = child.getBoundingClientRect();
-    const offset = y - box.top - box.height/2;
-    if (offset < 0 && offset > closest.offset) return { offset, element: child };
-    else return closest;
-  }, { offset: Number.NEGATIVE_INFINITY }).element;
+  return els.reduce(
+    (closest, child) => {
+      const box = child.getBoundingClientRect();
+      const offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closest.offset) return { offset, element: child };
+      else return closest;
+    },
+    { offset: Number.NEGATIVE_INFINITY }
+  ).element;
 }
+
 function serializeBlocks() {
   const list = $("#blocksList");
   const blocks = Array.from(list.children).map(extractBlock);
   $("#blocksJSON").value = toJSON(blocks);
+  refreshBlockNumbers();
   return blocks;
 }
 
-function addBlock(block = { type:"paragraph", html:"" }) {
+function addBlock(block = { type: "paragraph", html: "" }) {
   const list = $("#blocksList");
   const card = makeBlockCard(block, list.children.length);
   list.appendChild(card);
-  initBlockDnD(card);
   serializeBlocks();
+  refreshBlockNumbers();
 }
+
+// Initialize drag and drop
 
 /* ---------------- FAQ & HowTo UI ---------------- */
 function addFaqItem(item = {q:'', a:''}) {
