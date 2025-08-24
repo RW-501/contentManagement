@@ -72,26 +72,18 @@
   main { margin-bottom: 2rem;}
   .hidden { display: none;}
 
-  .page-preview {
-  border: 2px dashed #ddd;
-  padding: 10px;
-  margin-top: 1rem;
-  background: #fafafa;
+  .page-preview { border: 2px dashed #ddd; padding: 12px; margin-top: 12px; background:#fafafa; }
+.preview-row { display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 12px; }
+.preview-top, .preview-bottom, .preview-left, .preview-in-article, .preview-right {
+  border: 1px dashed #ccc; padding: 8px; min-height: 40px; background:#fff;
 }
-.preview-block {
-  border: 1px solid #aaa;
-  margin: 5px 0;
-  padding: 5px;
-  background: white;
-}
-.preview-top, .preview-in-article, .preview-bottom {
-  margin: 10px 0;
-  padding: 10px;
-  border: 1px dashed #ccc;
-}
-.preview-top::before { content: "🔝 Top Section"; display: block; font-size: 12px; color: #888; }
-.preview-in-article::before { content: "📄 In Article"; display: block; font-size: 12px; color: #888; }
-.preview-bottom::before { content: "🔚 Bottom Section"; display: block; font-size: 12px; color: #888; }
+.preview-top::before { content: "🔝 Top"; display:block; color:#888; font-size:12px; }
+.preview-left::before { content: "⬅️ Left"; display:block; color:#888; font-size:12px; }
+.preview-in-article::before { content: "📄 In-article"; display:block; color:#888; font-size:12px; }
+.preview-right::before { content: "➡️ Right"; display:block; color:#888; font-size:12px; }
+.preview-bottom::before { content: "🔚 Bottom"; display:block; color:#888; font-size:12px; }
+
+.preview-block { border:1px solid #aaa; padding:6px; margin:6px 0; background:#fff; }
 
 </style>
 
@@ -338,10 +330,19 @@ window.addEventListener('resize', () => {
 
 <div id="pagePreview" class="page-preview">
   <h3>Live Page Preview</h3>
+
   <div class="preview-top"></div>
-  <div class="preview-in-article"></div>
+
+  <!-- 3-column row for left / main / right -->
+  <div class="preview-row">
+    <div class="preview-left"></div>
+    <div class="preview-in-article"></div>
+    <div class="preview-right"></div>
+  </div>
+
   <div class="preview-bottom"></div>
 </div>
+
 
 
     <!-- Blocks Builder -->
@@ -837,6 +838,18 @@ const BLOCK_TYPES = [
   "comparisonTable", "ad", "cta", "button", "rawHtml"
 ];
 
+
+function rebuildPreview() {
+  const preview = document.getElementById("pagePreview");
+  if (!preview) return;
+  preview.querySelectorAll(".preview-block").forEach(n => n.remove());
+  document.querySelectorAll(".block-card").forEach(card => {
+    if (typeof card._renderPreview === "function") card._renderPreview();
+  });
+}
+
+
+
 function makeBlockCard(block, idx) {
   const el = document.createElement("div");
   el.className = "block-card";
@@ -1138,53 +1151,55 @@ positionSel.onchange = () => {
 console.log("????????????");
 console.log("typeSel.value ",typeSel.value);
   
-function renderPreview() {
-  const preview = document.getElementById("pagePreview");
-  if (!preview) return;
+// 👇 Add this INSIDE makeBlockCard, after renderFields is declared:
+  function renderPreview() {
+    const preview = document.getElementById("pagePreview");
+    if (!preview) return;
 
-  // remove old preview
-  const oldPreview = preview.querySelector(`[data-preview-id="${el.dataset.index}"]`);
-  if (oldPreview) oldPreview.remove();
+    // remove old preview for this card
+    preview.querySelectorAll(`[data-preview-id="${el.dataset.index}"]`).forEach(n => n.remove());
 
-  // create new preview
-  const previewBlock = document.createElement("div");
-  previewBlock.className = `preview-block preview-${typeSel.value}`;
-  previewBlock.dataset.previewId = el.dataset.index;
+    // build preview block
+    const previewBlock = document.createElement("div");
+    previewBlock.className = `preview-block preview-${typeSel.value}`;
+    previewBlock.dataset.previewId = el.dataset.index;
 
-  // simple representations for each type
-  if (typeSel.value === "heading") {
-    previewBlock.textContent = body.querySelector(".b-text")?.value || "Heading Preview";
-  }
-  if (typeSel.value === "paragraph") {
-    previewBlock.textContent = el._te?.getValue().slice(0, 80) + "...";
-  }
-  if (typeSel.value === "image") {
-    const src = body.querySelector(".b-mediaId")?.value;
-    previewBlock.innerHTML = src ? `<img src="${src}" alt="preview" style="max-width:150px;">` : "[Image block]";
-  }
-  if (typeSel.value === "video") {
-    previewBlock.textContent = "[Video block]";
-  }
-  if (typeSel.value === "faq") {
-    previewBlock.textContent = "[FAQ block]";
-  }
-  if (typeSel.value === "comparisonTable") {
-    previewBlock.textContent = "[Comparison Table]";
-  }
-  if (typeSel.value === "cta" || typeSel.value === "button") {
-    previewBlock.innerHTML = `<button>${body.querySelector(".b-text")?.value || "CTA"}</button>`;
-  }
-  if (typeSel.value === "ad") {
-    previewBlock.textContent = "[Ad Slot]";
-  }
-  if (typeSel.value === "rawHtml") {
-    previewBlock.textContent = "[Raw HTML]";
+    // simple representations for each type
+    if (typeSel.value === "heading") {
+      previewBlock.textContent = body.querySelector(".b-text")?.value || "Heading Preview";
+    } else if (typeSel.value === "paragraph") {
+      const text = el._te?.getValue?.() || el._te?.getHTML?.() || body.textContent || "";
+      previewBlock.textContent = (text.replace(/<[^>]+>/g, "").slice(0, 80) || "Paragraph") + "…";
+    } else if (typeSel.value === "image") {
+      const src = body.querySelector(".b-mediaId")?.value;
+      previewBlock.innerHTML = src ? `<img src="${src}" alt="preview" style="max-width:150px;">` : "[Image block]";
+    } else if (typeSel.value === "video") {
+      previewBlock.textContent = "[Video block]";
+    } else if (typeSel.value === "faq") {
+      previewBlock.textContent = "[FAQ block]";
+    } else if (typeSel.value === "comparisonTable") {
+      previewBlock.textContent = "[Comparison Table]";
+    } else if (typeSel.value === "cta" || typeSel.value === "button") {
+      previewBlock.innerHTML = `<button>${body.querySelector(".b-text")?.value || "CTA"}</button>`;
+    } else if (typeSel.value === "ad") {
+      previewBlock.textContent = "[Ad Slot]";
+    } else if (typeSel.value === "rawHtml") {
+      previewBlock.textContent = "[Raw HTML]";
+    }
+
+    // choose target area (includes left/right!)
+    const position = el.querySelector(".block-position").value;
+    const map = {
+      top: ".preview-top",
+      "in-article": ".preview-in-article",
+      left: ".preview-left",
+      right: ".preview-right",
+      bottom: ".preview-bottom"
+    };
+    const target = preview.querySelector(map[position] || ".preview-in-article");
+    if (target) target.appendChild(previewBlock);
   }
 
-  // insert into correct preview position
-  const position = el.querySelector(".block-position").value;
-  preview.querySelector(`.preview-${position}`)?.appendChild(previewBlock);
-}
 
 
   renderFields();
@@ -1240,12 +1255,17 @@ body.addEventListener("input", () => {
     e.dataTransfer.setData("text/plain", el.dataset.index);
     el.classList.add("dragging");
   });
-  el.addEventListener("dragend", () => {
-    el.classList.remove("dragging");
-    Array.from(el.parentElement.children).forEach((c, i) => (c.dataset.index = i));
-    serializeBlocks();
-    refreshBlockNumbers();
-  });
+el.addEventListener("dragend", () => {
+  el.classList.remove("dragging");
+  Array.from(el.parentElement.children).forEach((c, i) => (c.dataset.index = i));
+  serializeBlocks();
+  refreshBlockNumbers();
+  rebuildPreview(); // 🔥 needed
+});
+
+el._renderPreview = renderPreview; // make rebuildPreview work
+renderPreview(); // initial preview render
+
 
   return el;
 }
@@ -1926,6 +1946,8 @@ ${JSON.stringify(articleData.customCSS)}
       ${topBlocksHTML}
     </section>
 
+ <div class='flex'>
+
 <!-- Left sidebar -->
 <aside id="left-sidebar" class="lg:col-span-3 space-y-6 order-4 lg:order-2">
   ${leftBlocksHTML}
@@ -1942,7 +1964,7 @@ ${JSON.stringify(articleData.customCSS)}
   ${rightBlocksHTML}
 </aside>
 
-
+</div>
 
     <!-- Bottom banner -->
     <section id="bottom-banner-container" class="lg:col-span-12 order-6">
