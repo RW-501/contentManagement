@@ -1136,6 +1136,56 @@ positionSel.onchange = () => {
     }
   };
 
+  
+function renderPreview() {
+  const preview = document.getElementById("pagePreview");
+  if (!preview) return;
+
+  // remove old preview
+  const oldPreview = preview.querySelector(`[data-preview-id="${el.dataset.index}"]`);
+  if (oldPreview) oldPreview.remove();
+
+  // create new preview
+  const previewBlock = document.createElement("div");
+  previewBlock.className = `preview-block preview-${typeSel.value}`;
+  previewBlock.dataset.previewId = el.dataset.index;
+
+  // simple representations for each type
+  if (typeSel.value === "heading") {
+    previewBlock.textContent = body.querySelector(".b-text")?.value || "Heading Preview";
+  }
+  if (typeSel.value === "paragraph") {
+    previewBlock.textContent = el._te?.getValue().slice(0, 80) + "...";
+  }
+  if (typeSel.value === "image") {
+    const src = body.querySelector(".b-mediaId")?.value;
+    previewBlock.innerHTML = src ? `<img src="${src}" alt="preview" style="max-width:150px;">` : "[Image block]";
+  }
+  if (typeSel.value === "video") {
+    previewBlock.textContent = "[Video block]";
+  }
+  if (typeSel.value === "faq") {
+    previewBlock.textContent = "[FAQ block]";
+  }
+  if (typeSel.value === "comparisonTable") {
+    previewBlock.textContent = "[Comparison Table]";
+  }
+  if (typeSel.value === "cta" || typeSel.value === "button") {
+    previewBlock.innerHTML = `<button>${body.querySelector(".b-text")?.value || "CTA"}</button>`;
+  }
+  if (typeSel.value === "ad") {
+    previewBlock.textContent = "[Ad Slot]";
+  }
+  if (typeSel.value === "rawHtml") {
+    previewBlock.textContent = "[Raw HTML]";
+  }
+
+  // insert into correct preview position
+  const position = el.querySelector(".block-position").value;
+  preview.querySelector(`.preview-${position}`)?.appendChild(previewBlock);
+}
+
+
   renderFields();
 
   // actions
@@ -1575,54 +1625,6 @@ function getVideo(videoUrl) {
   return "";
 }
 
-
-function renderPreview() {
-  const preview = document.getElementById("pagePreview");
-  if (!preview) return;
-
-  // remove old preview
-  const oldPreview = preview.querySelector(`[data-preview-id="${el.dataset.index}"]`);
-  if (oldPreview) oldPreview.remove();
-
-  // create new preview
-  const previewBlock = document.createElement("div");
-  previewBlock.className = `preview-block preview-${typeSel.value}`;
-  previewBlock.dataset.previewId = el.dataset.index;
-
-  // simple representations for each type
-  if (typeSel.value === "heading") {
-    previewBlock.textContent = body.querySelector(".b-text")?.value || "Heading Preview";
-  }
-  if (typeSel.value === "paragraph") {
-    previewBlock.textContent = el._te?.getValue().slice(0, 80) + "...";
-  }
-  if (typeSel.value === "image") {
-    const src = body.querySelector(".b-mediaId")?.value;
-    previewBlock.innerHTML = src ? `<img src="${src}" alt="preview" style="max-width:150px;">` : "[Image block]";
-  }
-  if (typeSel.value === "video") {
-    previewBlock.textContent = "[Video block]";
-  }
-  if (typeSel.value === "faq") {
-    previewBlock.textContent = "[FAQ block]";
-  }
-  if (typeSel.value === "comparisonTable") {
-    previewBlock.textContent = "[Comparison Table]";
-  }
-  if (typeSel.value === "cta" || typeSel.value === "button") {
-    previewBlock.innerHTML = `<button>${body.querySelector(".b-text")?.value || "CTA"}</button>`;
-  }
-  if (typeSel.value === "ad") {
-    previewBlock.textContent = "[Ad Slot]";
-  }
-  if (typeSel.value === "rawHtml") {
-    previewBlock.textContent = "[Raw HTML]";
-  }
-
-  // insert into correct preview position
-  const position = el.querySelector(".block-position").value;
-  preview.querySelector(`.preview-${position}`)?.appendChild(previewBlock);
-}
 
 
   // Load existing image when editing
