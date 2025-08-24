@@ -1224,6 +1224,7 @@ onAuthStateChanged(auth, async (user) => {
     $("#description").value = data.description || "";
     $("#keywords").value = (data.keywords || []).join(",");
     $("#domain").value = data.domain || "";
+    $("#category").value = data.category || "";
     $("#schemaType").value = data.schemaTypes?.[0] || "Article";
     toggleSchemaSections($("#schemaType").value);
 
