@@ -904,11 +904,12 @@ function makePreviewClickable(previewBlock, card) {
   previewBlock.style.cursor = "pointer";
   previewBlock.title = "Click to edit block";
   previewBlock.onclick = () => {
-    stick();
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.classList.add("highlight"); // optional highlight
-    setTimeout(() => card.classList.remove("highlight"), 1500);
-    // optionally focus first input in block body
+    setTimeout(() => card.classList.remove("highlight"), 1500);   
+    setTimeout(() => stick(), 200);   
+                                        
+    // optionally focus first input in block body 
     const firstInput = card.querySelector("input, textarea, select");
     if (firstInput) firstInput.focus();
   };
@@ -1353,7 +1354,7 @@ positionSel.onchange = () => {
   renderPreview();   // 🔥 add preview refresh
   serializeBlocks();
 
-    unstick();
+  setTimeout(() => unstick(), 200);   
 
 };
 
