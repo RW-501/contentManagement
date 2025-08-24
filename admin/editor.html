@@ -181,17 +181,10 @@
 </div>
 
 <script>
-
-
-
 const seoContainer = document.getElementById('seoContainer');
 const placeholder = document.createElement('div');
 placeholder.style.height = seoContainer.offsetHeight + 'px';
 let isSticky = false;
-
-let lastCheck = 0;
-const throttle = 50; // milliseconds
-
 
 const observer = new IntersectionObserver(
   ([entry]) => {
@@ -205,24 +198,6 @@ const observer = new IntersectionObserver(
 );
 
 observer.observe(seoContainer);
-window.addEventListener('scroll', () => {
-  const now = Date.now();
-  if (now - lastCheck < throttle) return; // skip if too soon
-  lastCheck = now;
-
-  handleSticky();
-});
-
-function handleSticky() {
-  const rect = seoContainer.getBoundingClientRect();
-  const parent = seoContainer.parentNode;
-
-  if (rect.top <= 0 && !isSticky) {
-    stick();
-  } else if (rect.top > 0 && isSticky) {
-    unstick();
-  }
-}
 
 function stick() {
   const rect = seoContainer.getBoundingClientRect();
@@ -257,11 +232,7 @@ function unstick() {
   if (placeholder.parentElement) placeholder.remove();
   isSticky = false;
 }
-
-
-
 </script>
-
 
 
 </div>
