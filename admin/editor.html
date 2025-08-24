@@ -329,6 +329,7 @@ function unstick() {
   isSticky = false;
 }
 
+let isStickyPreview = false;
 
 function unstickPreview(){
 
@@ -343,7 +344,7 @@ function unstickPreview(){
   pagePreview.style.zIndex = '';
   pagePreview.style.padding = '';
 
-
+isStickyPreview = false;
 }
 
 function stickPreview(){
@@ -366,6 +367,8 @@ function stickPreview(){
     pagePreview.style.transform = 'translateY(0)';
     pagePreview.style.opacity = '1';
   });
+
+  isStickyPreview = true;
 }
 
 window.addEventListener('scroll', () => {
@@ -403,7 +406,7 @@ window.addEventListener('resize', () => {
 const toggleBtn = document.getElementById('toggle-preview-btn');
 
 function toggleSticky() { 
-  if (isSticky) {
+  if (isStickyPreview) {
     unstickPreview();
   } else {
     stickPreview();
@@ -412,7 +415,7 @@ function toggleSticky() {
 
 function updateToggleBtnText() {
   if (!toggleBtn) return;
-  toggleBtn.textContent = isSticky ? 'Show' : 'Hide';
+  toggleBtn.textContent = isStickyPreview ? 'Show' : 'Hide';
 }
 
 if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
