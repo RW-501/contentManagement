@@ -921,7 +921,7 @@ function makePreviewClickable(previewBlock, card) {
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.classList.add("highlight"); // optional highlight
     setTimeout(() => card.classList.remove("highlight"), 1500);   
-    setTimeout(() => stickPreview(), 200);   
+    setTimeout(() => unstickPreview(), 200);   
                                         
     // optionally focus first input in block body 
     const firstInput = card.querySelector("input, textarea, select");
@@ -1368,7 +1368,7 @@ positionSel.onchange = () => {
   renderPreview();   // 🔥 add preview refresh
   serializeBlocks();
 
-  setTimeout(() => unstickPreview(), 200);   
+  setTimeout(() => stickPreview(), 200);   
 
 };
 
