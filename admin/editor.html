@@ -4,6 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Page Editor</title>
+
+<!-- Favicons -->
+<link rel="apple-touch-icon" sizes="180x180" href="https://contenthub.guru/images/favicons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://contenthub.guru/images/favicons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="https://contenthub.guru/images/favicons/favicon-16x16.png">
+<link rel="manifest" href="https://contenthub.guru/images/favicons/site.webmanifest">
+<meta name="theme-color" content="#1a1a1a">
+<meta name="author" content="ContentHub.guru">
+
 <style>
   :root { --card:#fff; --ink:#222; --muted:#666; --bg:#f7f7f9; --border:#e6e6ea; --accent:#4f46e5; }
   * { box-sizing: border-box; }
@@ -197,11 +206,12 @@ function stick() {
 
   seoContainer.style.position = 'fixed';
   seoContainer.style.top = '0';
-  seoContainer.style.left = rect.left + 'px';
+  seoContainer.style.left = '0'; rect.left + 'px';
   seoContainer.style.width = 100 + "%"; // rect.width + 'px';
   seoContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
   seoContainer.style.transform = 'translateY(-20px)';
   seoContainer.style.opacity = '0';
+  seoContainer.style.marginTop = '0';
 
   requestAnimationFrame(() => {
     seoContainer.style.transform = 'translateY(0)';
@@ -215,6 +225,7 @@ function stick() {
 function unstick() {
   if (!isSticky) return;
 
+  seoContainer.style.marginTop = '10' + 'px';
   seoContainer.style.position = '';
   seoContainer.style.top = '';
   seoContainer.style.left = '';
