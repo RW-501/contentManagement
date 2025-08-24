@@ -282,6 +282,18 @@ function stick() {
   placeholder.style.height = rect.height + 'px';
   parent.insertBefore(placeholder, seoContainer);
 
+  pagePreview.style.position = '';
+  pagePreview.style.top = '';
+  pagePreview.style.left = '';
+  pagePreview.style.width = '';
+  pagePreview.style.boxShadow = '';
+  pagePreview.style.transform = '';
+  pagePreview.style.opacity = '';
+  pagePreview.style.marginTop = '';
+  pagePreview.style.zIndex = '';
+  pagePreview.style.padding = '';
+
+
   seoContainer.style.position = 'fixed';
   seoContainer.style.top = '0';
   seoContainer.style.left = rect.left + 'px';
@@ -330,7 +342,7 @@ function unstick() {
     pagePreview.style.opacity = '1';
   });
 
-  
+
   if (placeholder.parentElement) placeholder.remove();
   isSticky = false;
 }
