@@ -401,7 +401,7 @@ function toggleSticky() {
 
 function updateToggleBtnText() {
   if (!toggleBtn) return;
-  toggleBtn.textContent = isSticky ? 'Unstick SEO' : 'Stick SEO';
+  toggleBtn.textContent = isSticky ? 'Show' : 'Hide';
 }
 
 if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
