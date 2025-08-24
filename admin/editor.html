@@ -170,13 +170,54 @@
         <small>Tip: Pick the category closest to your content.</small>
       </div>
 
-<div style="margin-top:10px; position: sticky; top: 0; background: white; z-index: 1000; padding: 5px 0;">
+<div id="seoContainer" style="margin-top:10px; background: white; padding: 5px 0; transition: all 0.3s ease;">
   <div style="font-weight:bold;">SEO Score:</div>
   <div style="width:100%; background:#eee; height:20px; border-radius:4px;">
     <div id="seoScoreBar" style="width:0%; height:100%; background:green; border-radius:4px;"></div>
   </div>
   <div id="seoScoreText" style="font-size:12px; font-weight:bold; margin-top:2px;"></div>
 </div>
+
+<script>
+const seoContainer = document.getElementById('seoContainer');
+const placeholder = document.createElement('div');
+placeholder.style.height = seoContainer.offsetHeight + 'px';
+let isSticky = false;
+
+window.addEventListener('scroll', () => {
+  const rect = seoContainer.getBoundingClientRect();
+  if (rect.top <= 0 && !isSticky) {
+    // Stick it
+    seoContainer.style.position = 'fixed';
+    seoContainer.style.top = '0';
+    seoContainer.style.left = rect.left + 'px';
+    seoContainer.style.width = rect.width + 'px';
+    seoContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+    seoContainer.style.transform = 'translateY(-20px)';
+    seoContainer.style.opacity = '0';
+    document.body.insertBefore(placeholder, seoContainer);
+    
+    // Animate in
+    requestAnimationFrame(() => {
+      seoContainer.style.transform = 'translateY(0)';
+      seoContainer.style.opacity = '1';
+    });
+
+    isSticky = true;
+  } else if (rect.top > 0 && isSticky) {
+    // Unstick it
+    seoContainer.style.position = '';
+    seoContainer.style.top = '';
+    seoContainer.style.left = '';
+    seoContainer.style.width = '';
+    seoContainer.style.boxShadow = '';
+    seoContainer.style.transform = '';
+    seoContainer.style.opacity = '';
+    if (placeholder.parentElement) placeholder.remove();
+    isSticky = false;
+  }
+});
+</script>
 
 
 </div>
