@@ -1694,27 +1694,37 @@ ${scriptTag}
     </div>
   </header>
 
-  <main class="container" id="main-content" role="main">
-    ${articleData.image ? `
-      <figure>
-        <img src="${articleData.image}" 
-             alt="${articleData.alt || articleData.title}" 
-             class="hero-img" 
-             role="img"
-             aria-describedby="page-title"/>
-        ${articleData.caption ? `<figcaption>${articleData.caption}</figcaption>` : ""}
-      </figure>` : ""}
+<main class="container" id="main-content" role="main">
 
-    <article  id="main-body" role="article" aria-labelledby="page-title">
-      ${articleData.body || ""}
-    </article>
+  <!-- Hero / Featured image -->
+  ${articleData.image ? `
+  <section class="hero">
+    <figure>
+      <img src="${articleData.image}" 
+           alt="${articleData.alt || articleData.title}" 
+           class="hero-img" 
+           role="img"
+           aria-describedby="page-title"/>
+      ${articleData.caption ? `<figcaption>${articleData.caption}</figcaption>` : ""}
+    </figure>
+  </section>` : ""}
 
-    ${articleData.blocks?.map((b, i) => `
-      <section id="block-${i}" class="block block-${b.type}" role="region" aria-label="Content block: ${b.type}">
+  <!-- Main article text -->
+  <section class="article-content" role="article" aria-labelledby="page-title">
+    ${articleData.body || ""}
+  </section>
+
+  <!-- Blocks / Custom content -->
+  ${articleData.blocks?.length ? `
+  <section class="content-blocks">
+    ${articleData.blocks.map((b, i) => `
+      <div id="block-${i}" class="block block-${b.type}" role="region" aria-label="Content block: ${b.type}">
         ${renderBlockHTML(b)}
-      </section>
-    `).join("") || ""}
-  </main>
+      </div>
+    `).join("")}
+  </section>` : ""}
+</main>
+
 
   <footer class="site-footer" role="contentinfo">
     <p>© ${new Date().getFullYear()} ${articleData.slug || "Untitled Site"} | 
