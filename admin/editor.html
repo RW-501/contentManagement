@@ -71,6 +71,28 @@
 
   main { margin-bottom: 2rem;}
   .hidden { display: none;}
+
+  .page-preview {
+  border: 2px dashed #ddd;
+  padding: 10px;
+  margin-top: 1rem;
+  background: #fafafa;
+}
+.preview-block {
+  border: 1px solid #aaa;
+  margin: 5px 0;
+  padding: 5px;
+  background: white;
+}
+.preview-top, .preview-in-article, .preview-bottom {
+  margin: 10px 0;
+  padding: 10px;
+  border: 1px dashed #ccc;
+}
+.preview-top::before { content: "🔝 Top Section"; display: block; font-size: 12px; color: #888; }
+.preview-in-article::before { content: "📄 In Article"; display: block; font-size: 12px; color: #888; }
+.preview-bottom::before { content: "🔚 Bottom Section"; display: block; font-size: 12px; color: #888; }
+
 </style>
 
 
@@ -311,6 +333,15 @@ window.addEventListener('resize', () => {
     <input type="hidden" id="imageUrl">
   </div>
 </section>
+
+
+
+<div id="pagePreview" class="page-preview">
+  <h3>Live Page Preview</h3>
+  <div class="preview-top"></div>
+  <div class="preview-in-article"></div>
+  <div class="preview-bottom"></div>
+</div>
 
 
     <!-- Blocks Builder -->
@@ -1130,6 +1161,29 @@ positionSel.onchange = () => {
     refreshBlockNumbers();
   };
 
+
+  // when block type changes
+typeSel.onchange = () => {
+  renderFields();
+  renderPreview();   // 🔥 add preview refresh
+  serializeBlocks();
+  refreshBlockNumbers();
+};
+
+// when block position changes
+positionSel.onchange = () => {
+  pill.textContent = positionSel.value;
+  renderPreview();   // 🔥 add preview refresh
+  serializeBlocks();
+};
+
+// also trigger preview on text/content changes
+body.addEventListener("input", () => {
+  renderPreview();
+  serializeBlocks();
+});
+
+
   // DnD
   el.addEventListener("dragstart", (e) => {
     e.dataTransfer.setData("text/plain", el.dataset.index);
@@ -1521,6 +1575,54 @@ function getVideo(videoUrl) {
   return "";
 }
 
+
+function renderPreview() {
+  const preview = document.getElementById("pagePreview");
+  if (!preview) return;
+
+  // remove old preview
+  const oldPreview = preview.querySelector(`[data-preview-id="${el.dataset.index}"]`);
+  if (oldPreview) oldPreview.remove();
+
+  // create new preview
+  const previewBlock = document.createElement("div");
+  previewBlock.className = `preview-block preview-${typeSel.value}`;
+  previewBlock.dataset.previewId = el.dataset.index;
+
+  // simple representations for each type
+  if (typeSel.value === "heading") {
+    previewBlock.textContent = body.querySelector(".b-text")?.value || "Heading Preview";
+  }
+  if (typeSel.value === "paragraph") {
+    previewBlock.textContent = el._te?.getValue().slice(0, 80) + "...";
+  }
+  if (typeSel.value === "image") {
+    const src = body.querySelector(".b-mediaId")?.value;
+    previewBlock.innerHTML = src ? `<img src="${src}" alt="preview" style="max-width:150px;">` : "[Image block]";
+  }
+  if (typeSel.value === "video") {
+    previewBlock.textContent = "[Video block]";
+  }
+  if (typeSel.value === "faq") {
+    previewBlock.textContent = "[FAQ block]";
+  }
+  if (typeSel.value === "comparisonTable") {
+    previewBlock.textContent = "[Comparison Table]";
+  }
+  if (typeSel.value === "cta" || typeSel.value === "button") {
+    previewBlock.innerHTML = `<button>${body.querySelector(".b-text")?.value || "CTA"}</button>`;
+  }
+  if (typeSel.value === "ad") {
+    previewBlock.textContent = "[Ad Slot]";
+  }
+  if (typeSel.value === "rawHtml") {
+    previewBlock.textContent = "[Raw HTML]";
+  }
+
+  // insert into correct preview position
+  const position = el.querySelector(".block-position").value;
+  preview.querySelector(`.preview-${position}`)?.appendChild(previewBlock);
+}
 
 
   // Load existing image when editing
