@@ -183,8 +183,10 @@
 <script>
 const seoContainer = document.getElementById('seoContainer');
 const placeholder = document.createElement('div');
-placeholder.style.height = seoContainer.offsetHeight + 'px';
 let isSticky = false;
+
+// Set initial placeholder height
+placeholder.style.height = seoContainer.offsetHeight + 'px';
 
 const observer = new IntersectionObserver(
   ([entry]) => {
@@ -203,6 +205,10 @@ function stick() {
   const rect = seoContainer.getBoundingClientRect();
   const parent = seoContainer.parentNode;
 
+  // Update placeholder height in case content changed
+  placeholder.style.height = rect.height + 'px';
+  parent.insertBefore(placeholder, seoContainer);
+
   seoContainer.style.position = 'fixed';
   seoContainer.style.top = '0';
   seoContainer.style.left = rect.left + 'px';
@@ -210,8 +216,6 @@ function stick() {
   seoContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
   seoContainer.style.transform = 'translateY(-20px)';
   seoContainer.style.opacity = '0';
-
-  parent.insertBefore(placeholder, seoContainer);
 
   requestAnimationFrame(() => {
     seoContainer.style.transform = 'translateY(0)';
@@ -232,7 +236,16 @@ function unstick() {
   if (placeholder.parentElement) placeholder.remove();
   isSticky = false;
 }
+
+// Recalculate left & width on resize to stay aligned
+window.addEventListener('resize', () => {
+  if (!isSticky) return;
+  const rect = placeholder.getBoundingClientRect();
+  seoContainer.style.left = rect.left + 'px';
+  seoContainer.style.width = rect.width + 'px';
+});
 </script>
+
 
 
 </div>
