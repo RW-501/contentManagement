@@ -1755,7 +1755,7 @@ const Content = `
   <\/script>
 
   <!-- Favicon -->
-  <link rel="icon" type="image/x-icon" href="contenthub.guru/images/favicons/favicon.ico">
+  <link rel="icon" type="image/x-icon" href="https://contenthub.guru/images/favicons/favicon.ico">
 
 <meta name="google-adsense-account" content="${articleData.adsense}">
 
@@ -1793,7 +1793,8 @@ ${scriptTag}
     </div>
   </header>
 
-<main class="container" id="main-content" role="main">
+<main class="container mx-auto px-4" id="main-content" role="main">
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
   <!-- Hero / Featured image -->
   ${articleData.image ? `
@@ -1803,7 +1804,7 @@ ${scriptTag}
            alt="${articleData.alt || articleData.title}" 
            class="hero-img" 
            role="img"
-           aria-describedby="page-title"/>
+           aria-describedby="page-title"  loading="lazy"/>
       ${articleData.caption ? `<figcaption>${articleData.caption}</figcaption>` : ""}
     </figure>
   </section>` : ""}
@@ -1815,17 +1816,17 @@ ${scriptTag}
 </section>
 
 <!-- Left sidebar -->
-<aside id="left-sidebar" class="w-1/4">
+<aside id="left-sidebar" class="lg:col-span-3 space-y-6">
   ${leftBlocksHTML}
 </aside>
 
 <!-- Right sidebar -->
-<aside id="right-sidebar" class="w-1/4">
+<aside id="right-sidebar" class="lg:col-span-3 space-y-6">
   ${rightBlocksHTML}
 </aside>
 
 <!-- In-article blocks -->
-<section id="in-article-blocks">
+<section id="in-article-blocks" class="lg:col-span-6 space-y-6">
   ${inArticleBlocksHTML}
 </section>
 
@@ -1834,7 +1835,7 @@ ${scriptTag}
   ${bottomBlocksHTML}
 </section>
 
-
+  </div>
 </main>
 
 
