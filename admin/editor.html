@@ -801,6 +801,29 @@ function makeBlockCard(block, idx) {
     <div class="block-body"></div>
   `;
 
+  const positionSel = document.createElement("select");
+positionSel.className = "block-position";
+["top", "bottom", "left", "right", "in-article"].forEach(pos => {
+  const opt = document.createElement("option");
+  opt.value = pos;
+  opt.textContent = pos.charAt(0).toUpperCase() + pos.slice(1);
+  positionSel.appendChild(opt);
+});
+positionSel.value = block.position || "in-article"; // default
+el.querySelector(".block-head-left").appendChild(positionSel);
+
+
+const pill = document.createElement("span");
+pill.className = "pill position-pill";
+pill.textContent = positionSel.value;
+el.querySelector(".block-head-left").appendChild(pill);
+
+// update pill when position changes
+positionSel.onchange = () => {
+  pill.textContent = positionSel.value;
+  serializeBlocks();
+};
+
   // populate type select
   const typeSel = el.querySelector(".block-type");
   BLOCK_TYPES.forEach(t => {
@@ -1112,8 +1135,13 @@ function refreshBlockNumbers() {
 function extractBlock(card) {
   const t = card.querySelector(".block-type").value;
   const b = { type: t };
-  const body = card.querySelector(".block-body");
 
+  // grab position
+  const posSel = card.querySelector(".block-position");
+  if (posSel) b.position = posSel.value || "in-article";
+
+  const body = card.querySelector(".block-body");
+  
   if (t === "heading") {
     b.level = parseInt(body.querySelector(".b-level").value || "2", 10);
     b.text = body.querySelector(".b-text").value || "";
@@ -1144,26 +1172,21 @@ function extractBlock(card) {
   }
   if (t === "comparisonTable") {
     b.columns = (body.querySelector(".b-cols").value || "")
-      .split(",")
-      .map(s => s.trim())
-      .filter(Boolean);
+      .split(",").map(s => s.trim()).filter(Boolean);
     b.rows = (body.querySelector(".b-rows").value || "")
-      .split("\n")
-      .map(line => line.split("|").map(s => s.trim()))
+      .split("\n").map(line => line.split("|").map(s => s.trim()))
       .filter(r => r.some(Boolean));
   }
-  if (t === "ad") {
-    b.slot = body.querySelector(".b-slot").value || "top";
-  }
+  if (t === "ad") b.slot = body.querySelector(".b-slot").value || "top";
   if (t === "cta" || t === "button") {
     b.text = body.querySelector(".b-text").value || "";
     b.href = body.querySelector(".b-href").value || "";
   }
-  if (t === "rawHtml") {
-    b.html = body.querySelector(".b-html").value || "";
-  }
+  if (t === "rawHtml") b.html = body.querySelector(".b-html").value || "";
+
   return b;
 }
+
 
 function initBlockDnD() {
   const list = $("#blocksList");
@@ -1631,6 +1654,34 @@ async function updatePage(pageId, currentUser) {
     monetization: articleData.monetization || { adPlaceholders: ["top", "in-article-1"] }
   };
 
+
+  // Prepare containers with block HTML
+const topBlocksHTML = articleData.blocks
+  .filter(b => b.position === "top")
+  .map((b, i) => `<div id="block-top-${i}" class="block block-${b.type}">${renderBlockHTML(b)}</div>`)
+  .join("");
+
+const leftBlocksHTML = articleData.blocks
+  .filter(b => b.position === "left")
+  .map((b, i) => `<div id="block-left-${i}" class="block block-${b.type}">${renderBlockHTML(b)}</div>`)
+  .join("");
+
+const rightBlocksHTML = articleData.blocks
+  .filter(b => b.position === "right")
+  .map((b, i) => `<div id="block-right-${i}" class="block block-${b.type}">${renderBlockHTML(b)}</div>`)
+  .join("");
+
+const inArticleBlocksHTML = articleData.blocks
+  .filter(b => b.position === "in-article" || !b.position)
+  .map((b, i) => `<div id="block-article-${i}" class="block block-${b.type}">${renderBlockHTML(b)}</div>`)
+  .join("");
+
+const bottomBlocksHTML = articleData.blocks
+  .filter(b => b.position === "bottom")
+  .map((b, i) => `<div id="block-bottom-${i}" class="block block-${b.type}">${renderBlockHTML(b)}</div>`)
+  .join("");
+
+
   // Modern Layout HTML
 const Content = `
 <!DOCTYPE html>
@@ -1736,20 +1787,33 @@ ${scriptTag}
     </figure>
   </section>` : ""}
 
-  <!-- Main article text -->
-  <section class="article-content" role="article" aria-labelledby="page-title">
-    ${articleData.body || ""}
-  </section>
+  
+<!-- Top banner -->
+<section id="top-banner-container">
+  ${topBlocksHTML}
+</section>
 
-  <!-- Blocks / Custom content -->
-  ${articleData.blocks?.length ? `
-  <section class="content-blocks">
-    ${articleData.blocks.map((b, i) => `
-      <div id="block-${i}" class="block block-${b.type}" role="region" aria-label="Content block: ${b.type}">
-        ${renderBlockHTML(b)}
-      </div>
-    `).join("")}
-  </section>` : ""}
+<!-- Left sidebar -->
+<aside id="left-sidebar" class="w-1/4">
+  ${leftBlocksHTML}
+</aside>
+
+<!-- Right sidebar -->
+<aside id="right-sidebar" class="w-1/4">
+  ${rightBlocksHTML}
+</aside>
+
+<!-- In-article blocks -->
+<section id="in-article-blocks">
+  ${inArticleBlocksHTML}
+</section>
+
+<!-- Bottom banner -->
+<section id="bottom-banner-container">
+  ${bottomBlocksHTML}
+</section>
+
+
 </main>
 
 
@@ -1769,6 +1833,7 @@ ${scriptTag}
 </body>
 </html>
 `;
+
 
 
 // Randomized or complex approach
