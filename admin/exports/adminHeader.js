@@ -127,52 +127,77 @@ export function loadAdminHeader(targetId = "admin-header") {
   btnContainer.style.display = "flex";
   btnContainer.style.alignItems = "center";
   btnContainer.style.gap = "10px";
+// Helper to add hover effect
+function addHoverEffect(btn) {
+  btn.addEventListener("mouseenter", () => btn.style.opacity = "0.8");
+  btn.addEventListener("mouseleave", () => btn.style.opacity = "1");
+}
 
-  // Home button
-  const homeBtn = document.createElement("button");
-  homeBtn.textContent = "Home";
-  homeBtn.className = "btn-dashboard";
-  homeBtn.style.background = "#4f46e5";
-  homeBtn.style.color = "#fff";
-  homeBtn.style.border = "none";
-  homeBtn.style.padding = "6px 12px";
-  homeBtn.style.borderRadius = "5px";
-  homeBtn.style.cursor = "pointer";
-  homeBtn.addEventListener("click", () => {
-    window.location.href = "https://contenthub.guru";
-  });
-  btnContainer.appendChild(homeBtn);
+// Home button
+const homeBtn = document.createElement("button");
+homeBtn.textContent = "Home";
+homeBtn.className = "btn-dashboard";
+homeBtn.style.background = "#4f46e5";
+homeBtn.style.color = "#fff";
+homeBtn.style.border = "none";
+homeBtn.style.padding = "6px 12px";
+homeBtn.style.borderRadius = "5px";
+homeBtn.style.cursor = "pointer";
+homeBtn.addEventListener("click", () => {
+  window.location.href = "https://contenthub.guru";
+});
+addHoverEffect(homeBtn);
+btnContainer.appendChild(homeBtn);
 
-  // Show Analytics button
-  const analyticsBtn = document.createElement("button");
-  analyticsBtn.textContent = "Show Analytics";
-  analyticsBtn.id = "showAnalytics";
-  analyticsBtn.className = "btn-dashboard";
-  analyticsBtn.style.background = "#10b981";
-  analyticsBtn.style.color = "#fff";
-  analyticsBtn.style.border = "none";
-  analyticsBtn.style.padding = "6px 12px";
-  analyticsBtn.style.borderRadius = "5px";
-  analyticsBtn.style.cursor = "pointer";
-  btnContainer.appendChild(analyticsBtn);
+// Admin Home button
+const adminHomeBtn = document.createElement("button");
+adminHomeBtn.textContent = "Admin Home";
+adminHomeBtn.className = "btn-dashboard";
+adminHomeBtn.style.background = "#4f46e5";
+adminHomeBtn.style.color = "#fff";
+adminHomeBtn.style.border = "none";
+adminHomeBtn.style.padding = "6px 12px";
+adminHomeBtn.style.borderRadius = "5px";
+adminHomeBtn.style.cursor = "pointer";
+adminHomeBtn.addEventListener("click", () => {
+  window.location.href = "https://contenthub.guru/admin";
+});
+addHoverEffect(adminHomeBtn);
+btnContainer.appendChild(adminHomeBtn);
 
-  // Logout button
-  const logoutBtn = document.createElement("button");
-  logoutBtn.textContent = "Logout";
-  logoutBtn.id = "logoutBtn";
-  logoutBtn.style.background = "#ef4444";
-  logoutBtn.style.color = "#fff";
-  logoutBtn.style.border = "none";
-  logoutBtn.style.padding = "6px 12px";
-  logoutBtn.style.borderRadius = "5px";
-  logoutBtn.style.cursor = "pointer";
-  logoutBtn.addEventListener("click", async () => {
-    if (window.firebase && firebase.auth) {
-      await firebase.auth().signOut();
-      window.location.reload();
-    }
-  });
-  btnContainer.appendChild(logoutBtn);
+// Show Analytics button
+const analyticsBtn = document.createElement("button");
+analyticsBtn.textContent = "Show Analytics";
+analyticsBtn.id = "showAnalytics";
+analyticsBtn.className = "btn-dashboard";
+analyticsBtn.style.background = "#10b981";
+analyticsBtn.style.color = "#fff";
+analyticsBtn.style.border = "none";
+analyticsBtn.style.padding = "6px 12px";
+analyticsBtn.style.borderRadius = "5px";
+analyticsBtn.style.cursor = "pointer";
+addHoverEffect(analyticsBtn);
+btnContainer.appendChild(analyticsBtn);
+
+// Logout button
+const logoutBtn = document.createElement("button");
+logoutBtn.textContent = "Logout";
+logoutBtn.id = "logoutBtn";
+logoutBtn.style.background = "#ef4444";
+logoutBtn.style.color = "#fff";
+logoutBtn.style.border = "none";
+logoutBtn.style.padding = "6px 12px";
+logoutBtn.style.borderRadius = "5px";
+logoutBtn.style.cursor = "pointer";
+logoutBtn.addEventListener("click", async () => {
+  if (window.firebase && firebase.auth) {
+    await firebase.auth().signOut();
+    window.location.reload();
+  }
+});
+addHoverEffect(logoutBtn);
+btnContainer.appendChild(logoutBtn);
+
 
   header.appendChild(btnContainer);
   container.appendChild(header);

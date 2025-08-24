@@ -107,7 +107,12 @@
 
 <div>
   <label>Domain:</label>
-  <input id="domain" type="text" placeholder="Page Domain (example.com)" />
+  <input id="domain" type="text" value="contenthub.guru" placeholder="Page Domain (example.com)" />
+</div>
+
+<div>
+  <label>Slug:</label>
+  <input id="slug" type="text" placeholder="Page Domain (example.com)" />
 </div>
 
 <div style="margin-top:10px;">
@@ -481,7 +486,7 @@ ${articleData.customCSS || ""}   /* 🔹 custom CSS injection */
 <div hidden>
   <div id="pageID">${pageID}</div>
   <div id="pageOwnerUserID">${articleData.userID}</div>
-  <div id="pageDomain">${articleData.domain}</div>
+  <div id="pageSlug">${articleData.slug}</div>
 </div>
 </body>
 </html>
@@ -575,30 +580,32 @@ document.getElementById("createBtn").addEventListener("click", async () => {
   const title = document.getElementById("title").value.trim();
   const description = document.getElementById("description").value.trim();
   const domain = document.getElementById("domain").value.trim();
+  const slug = document.getElementById("slug").value.trim();
   const image = document.getElementById("imageUrl").value.trim();
   const schemaType = document.getElementById("schemaType").value;
   const keywords = document.getElementById("keywords").value
     .split(",")
     .map(k => k.trim())
     .filter(k => k);
+
 const categorySelect = document.getElementById("category").value;
 
 
-  if (!title || !domain) return showToast("Title and domain are required.");
+  if (!title || !slug) return showToast("Title and domain are required.");
 
   // Check if domain already exists in Firestore
-  const pagesSnapshot = await getDoc(doc(db, "pages", domain));
+  const pagesSnapshot = await getDoc(doc(db, "pages", slug));
   if (pagesSnapshot.exists()) {
     return showToast("error", "Domain already exists. Choose a different one.");
   }
 
   // Ping the domain to check if live
-  const isLive = await pingSite(domain);
+  const isLive = await pingSite(slug);
   if (!isLive) {
     showToast("warning", "Domain seems offline or unreachable. You can still create it.");
   }
 
-  const pageName = Date.now().toString();
+  const pageName = slug; Date.now().toString();
   const jsTimestamp = Date.now(); // numeric timestamp for users.createdPages
 
   // Build page object for Firestore
@@ -606,6 +613,7 @@ const categorySelect = document.getElementById("category").value;
     title,
     description,
     domain,
+    slug,
     image,
     schemaType,
     keywords,
@@ -621,7 +629,6 @@ const categorySelect = document.getElementById("category").value;
     adsense: "ca-pub-2001518155292747",
     type: "page",
     status: "draft",
-    analytics: { views: 0, uniqueViews: 0 },
     createdAt: serverTimestamp(), // Firestore timestamp
     updatedAt: serverTimestamp(),
     publishedCount: 0,
@@ -641,6 +648,7 @@ const categorySelect = document.getElementById("category").value;
       id: docRef.id,
       title,
       domain,
+      slug,
       pageName,
       category: selectedCategory,
       createdAt: jsTimestamp, // numeric timestamp for sorting/filtering
@@ -652,11 +660,14 @@ const categorySelect = document.getElementById("category").value;
       createdPages: arrayUnion(userPageData)
     }, { merge: true });
 
-    // Create static HTML page
-    await createPage(newPage, docRef.id);
+  
+    showToast("info", "Ready...");
+    
+setTimeout(() => {
+  window.location = `https://contenthub.guru/admin/editor?id=${docRef.id}`;
+}, 2000);
 
-    showToast("info", "Page created successfully!");
-
+    
     // Reload dashboard
     await loadDashboard(true);
 
