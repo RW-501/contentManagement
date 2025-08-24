@@ -1782,8 +1782,10 @@ ${scriptTag}
 <link rel="stylesheet" href="https://contenthub.guru/exports/default.css" id="theme-css">
 <style id="dynamic-style">
   ${articleData.styles || ""}
-  ${articleData.customCSS || ""}
 </style>
+${JSON.stringify(articleData.styles)}
+<div>  ${articleData.customCSS || ""}
+</div>
 </head>
 <body>
   <!-- 🔹 Skip to main content (screen readers & keyboard users) -->
