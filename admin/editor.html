@@ -316,6 +316,12 @@ function stick() {
 function unstick() {
   if (!isSticky) return;
 
+  const rect = seoContainer.getBoundingClientRect();
+  const parent = seoContainer.parentNode;
+
+  placeholder.style.height = rect.height + 'px';
+  parent.insertBefore(placeholder, seoContainer);
+
   seoContainer.style.position = '';
   seoContainer.style.top = '';
   seoContainer.style.left = '';
