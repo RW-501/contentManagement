@@ -263,6 +263,10 @@
   </div>
 
   <div class="preview-bottom"></div>
+
+  <div>
+  <button id="toggle-preview-btn">Show/Hide</button>
+  </div>
 </div>
 
 
@@ -380,6 +384,28 @@ window.addEventListener('resize', () => {
     seoContainer.style.width = rect.width + 'px';
   }
 });
+
+
+
+
+
+const toggleBtn = document.getElementById('toggle-preview-btn');
+
+function toggleSticky() { 
+  if (isSticky) {
+    unstick();
+  } else {
+    stick();
+  }
+}
+
+function updateToggleBtnText() {
+  if (!toggleBtn) return;
+  toggleBtn.textContent = isSticky ? 'Unstick SEO' : 'Stick SEO';
+}
+
+if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
+
 </script>
 
 
