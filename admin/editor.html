@@ -420,7 +420,7 @@ async function pingSite(domain) {
   try {
     const url = domain.startsWith("http") 
       ? domain 
-      : `https://contenthub.guru/site/${domain}.html`;
+      : `https://contenthub.guru/site/${slug}.html`;
 
     const resp = await fetch(url, { method: "GET", cache: "no-store" });
     const status = resp.ok ? "✅ Online" : "❌ Offline";
@@ -500,13 +500,13 @@ if (schema === "HowTo") $("#howtoSection").classList.remove("hidden");
 
 
     // ✅ Analytics stats
-$("#viewsCount").textContent = pageData.analytics?.views ?? 0;
-$("#uniqueViews").textContent = pageData.analytics?.uniqueViews ?? 0;
+$("#viewsCount").textContent = pageData.views ?? 0;
+$("#uniqueViews").textContent = pageData.uniqueViews ?? 0;
 $("#lastUpdated").textContent = pageData.updatedAt?.toDate?.().toLocaleString?.() || "-";
 
 // ✅ Site ping
-if (pageData.domain) {
-  $("#sitePing").textContent = await pingSite(pageData.domain);
+if (pageData.slug) {
+  $("#sitePing").textContent = await pingSite(pageData.slug);
 }
 
 
@@ -1109,7 +1109,7 @@ const today = new Date().toISOString().split("T")[0]; // "2025-08-23"
 $("#dailyViews").textContent = data.dailyViews?.[today] || 0;
 
     $("#lastUpdated").textContent = data.updatedAt?.toDate ? data.updatedAt.toDate().toLocaleString() : "-";
-    if (data.domain) $("#sitePing").textContent = await pingSite(`https://contenthub.guru/site/${data.domain}.html`);
+    if (data.slug) $("#sitePing").textContent = await pingSite(`https://contenthub.guru/site/${data.slug}.html`);
   }
 
     updateSEOIndicators();
@@ -1412,12 +1412,12 @@ const Content = `
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>${articleData.title} | ${articleData.domain || "Untitled"}</title>
+<title>${articleData.title} ${articleData.domain} | ${articleData.slug || "Untitled"}</title>
 <meta name="description" content="${articleData.description}">
 <meta name="keywords" content="${articleData.keywords?.join(', ') || ''}">
 
 <!-- Canonical URL -->
-<link rel="canonical" href="https://contenthub.guru/site/${articleData.domain}">
+<link rel="canonical" href="https://contenthub.guru/site/${articleData.slug}">
 
   <meta name="author" content="ReelCareer">
   <meta name="robots" content="index, follow">
@@ -1427,7 +1427,7 @@ const Content = `
   <meta property="og:title" content="${articleData.title}">
   <meta property="og:description" content="${articleData.description}">
   <meta property="og:image" content="${articleData.image}">
-  <meta property="og:url" content="https://contenthub.guru/site/${articleData.domain}">
+  <meta property="og:url" content="https://contenthub.guru/site/${articleData.slug}">
   <meta property="og:site_name" content="ContentHub.guru">
   <meta property="og:locale" content="en_US">
   <meta property="article:author" content="https://contenthub.guru">
@@ -1447,12 +1447,12 @@ const Content = `
     "@type":"Article",
     "headline":"${articleData.title}",
     "description":"${articleData.description}",
-    "image":["https://contenthub.guru/site/${articleData.domain}"],
+    "image":["https://contenthub.guru/site/${articleData.slug}"],
     "author":{"@type":"Organization","name":"ContentHub"},
     "publisher":{"@type":"Organization","name":"ContentHub","logo":{"@type":"ImageObject","url":"${articleData.image}"}},
     "datePublished":"${articleData.publishedAt}",
     "dateModified":"${articleData.updatedAt}",
-    "mainEntityOfPage":{"@type":"WebPage","@id":"https://contenthub.guru/site/${articleData.domain}"}
+    "mainEntityOfPage":{"@type":"WebPage","@id":"https://contenthub.guru/site/${articleData.slug}"}
   }
   <\/script>
 
@@ -1518,7 +1518,7 @@ ${scriptTag}
   </main>
 
   <footer class="site-footer" role="contentinfo">
-    <p>© ${new Date().getFullYear()} ${articleData.domain || "Untitled Site"} | 
+    <p>© ${new Date().getFullYear()} ${articleData.slug || "Untitled Site"} | 
       <a href="https://contenthub.guru/" target="_blank">ContentHub.guru</a> |
       <a href="https://rw-501.github.io/Portfolio" target="_blank" hidden>Created by Ron W.</a></div>
 </p>
@@ -1528,7 +1528,7 @@ ${scriptTag}
   <div hidden>
     <div id="pageID">${articleData.siteId}</div>
     <div id="pageOwnerUserID">${articleData.userID}</div>
-    <div id="pageDomain">${articleData.domain}</div>
+    <div id="pageSlug">${articleData.slug}</div>
   </div>
 </body>
 </html>
@@ -1550,7 +1550,7 @@ const GITHUB_TOKEN = part_1 + part_2 + part_3 + part_4;
 
 
   // Upload to GitHub
-  const owner = "RW-501", repo = "contentManagement", filePath = `site/${articleData.domain}.html`, branch = "main";
+  const owner = "RW-501", repo = "contentManagement", filePath = `site/${articleData.slug}.html`, branch = "main";
   const url = `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}`;
   const encodedContent = btoa(unescape(encodeURIComponent(Content)));
 
@@ -1695,12 +1695,7 @@ function keywordMatchSuggestion(matches, minRequired, fieldName) {
       .join(", ");
   }
 
-  function generateDomain(text) {
-    return text
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^a-z0-9\-]/g, "");
-  }
+
 
   function generateSlug(text) {
     return text
@@ -1768,7 +1763,6 @@ function updateSEOIndicators() {
 
 
   titleInput.addEventListener("input", () => {
-    if (!domainInput.value.trim()) domainInput.value = generateDomain(titleInput.value);
     if (!keywordsInput.value.trim()) keywordsInput.value = generateKeywords(titleInput.value);
     if (!slugInput.value.trim()) slugInput.value = generateSlug(titleInput.value);
     updateSEOIndicators();

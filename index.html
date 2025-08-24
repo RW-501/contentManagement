@@ -215,7 +215,7 @@ function renderSites(){
   const queryText = searchInput.value.toLowerCase();
   filteredSites = sitesData.filter(site =>
     site.title.toLowerCase().includes(queryText) ||
-    site.domain.toLowerCase().includes(queryText) ||
+    site.slug.toLowerCase().includes(queryText) ||
     (site.tags || []).some(t=>t.toLowerCase().includes(queryText))
   );
 
@@ -248,12 +248,14 @@ function renderSites(){
     card.innerHTML=`
       <div class="views">${data.views || 0} views</div>
       <h3>${data.title}</h3>
-<p><img src="${data.image||''}" alt="preview" width="300" height="200"></p>
+      <p><img src="${data.image||''}" alt="preview" width="300" height="200"></p>
+      <p>Category: ${data.category}</p>
       <p>Domain: ${data.domain}</p>
+      <p>Slug: ${data.slug}</p>
       <p>Pages: ${data.pageCount || 0} | Published: ${data.publishedCount || 0}</p>
       <div class="tags">${(data.tags||[]).map(tag=>`<span class="tag">${tag}</span>`).join('')}</div>
     `;
-    card.addEventListener("click",()=>{window.location.href=`https://contenthub.guru/site/${data.domain}`});
+    card.addEventListener("click",()=>{window.location.href=`https://contenthub.guru/site/${data.slug}`});
     sitesList.appendChild(card);
   });
 
@@ -305,6 +307,8 @@ async function loadSites(){
         id: doc.id,
         title: d.name||d.title||"Untitled Site",
         domain: d.domain||"N/A",
+        slug: d.slug || "N/A",
+        category: d.category || 'N/A',
         pageCount: d.pageCount||0,
         publishedCount: d.publishedCount||0,
         views: d.views||0,
