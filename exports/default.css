@@ -409,7 +409,9 @@ main article:hover {
 
 
 
-
+.flex {
+  display: flex;
+}
 
 /* Content blocks (cards inside sidebars or article body) */
 .content-blocks {
