@@ -169,7 +169,6 @@
         <div id="categoryFeedback" class="seo-feedback"></div>
         <small>Tip: Pick the category closest to your content.</small>
       </div>
-
 <div id="seoContainer" style="margin-top:10px; background: white; padding: 5px 0; transition: all 0.3s ease;">
   <div style="font-weight:bold;">SEO Score:</div>
   <div style="width:100%; background:#eee; height:20px; border-radius:4px;">
@@ -186,6 +185,8 @@ let isSticky = false;
 
 window.addEventListener('scroll', () => {
   const rect = seoContainer.getBoundingClientRect();
+  const parent = seoContainer.parentNode;
+
   if (rect.top <= 0 && !isSticky) {
     // Stick it
     seoContainer.style.position = 'fixed';
@@ -195,8 +196,10 @@ window.addEventListener('scroll', () => {
     seoContainer.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
     seoContainer.style.transform = 'translateY(-20px)';
     seoContainer.style.opacity = '0';
-    document.body.insertBefore(placeholder, seoContainer);
-    
+
+    // Insert placeholder in the same parent
+    parent.insertBefore(placeholder, seoContainer);
+
     // Animate in
     requestAnimationFrame(() => {
       seoContainer.style.transform = 'translateY(0)';
@@ -217,7 +220,17 @@ window.addEventListener('scroll', () => {
     isSticky = false;
   }
 });
+
+// Optional: adjust width if window resizes
+window.addEventListener('resize', () => {
+  if (isSticky) {
+    const rect = placeholder.getBoundingClientRect();
+    seoContainer.style.width = rect.width + 'px';
+    seoContainer.style.left = rect.left + 'px';
+  }
+});
 </script>
+
 
 
 </div>
