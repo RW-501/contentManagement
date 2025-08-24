@@ -455,3 +455,27 @@ main article:hover {
 .btn-primary:hover {
   background-color: #1d4ed8;
 }
+
+
+.flex {
+ display:flex; gap:.4rem;
+}
+
+
+@media (min-width: 1024px) {
+  .lg\:col-span-3 {
+    grid-column: span 3 / span 3;
+  }
+}
+
+
+@media (min-width: 1024px) {
+  .lg\:col-span-6 {
+    grid-column: span 6 / span 6;
+  }
+}
+
+.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  margin-top: 1.5rem; /* 24px */
+}
+
