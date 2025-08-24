@@ -286,18 +286,6 @@ function stick() {
   placeholder.style.height = rect.height + 'px';
   parent.insertBefore(placeholder, seoContainer);
 
-  pagePreview.style.position = '';
-  pagePreview.style.top = '';
-  pagePreview.style.left = '';
-  pagePreview.style.width = '';
-  pagePreview.style.boxShadow = '';
-  pagePreview.style.transform = '';
-  pagePreview.style.opacity = '';
-  pagePreview.style.marginTop = '';
-  pagePreview.style.zIndex = '';
-  pagePreview.style.padding = '';
-
-
   seoContainer.style.position = 'fixed';
   seoContainer.style.top = '0';
   seoContainer.style.left = rect.left + 'px';
@@ -336,6 +324,33 @@ function unstick() {
   seoContainer.style.zIndex = '';
   seoContainer.style.padding = '';
 
+
+  if (placeholder.parentElement) placeholder.remove();
+  isSticky = false;
+}
+
+
+function unstickPreview(){
+
+  pagePreview.style.position = '';
+  pagePreview.style.top = '';
+  pagePreview.style.left = '';
+  pagePreview.style.width = '';
+  pagePreview.style.boxShadow = '';
+  pagePreview.style.transform = '';
+  pagePreview.style.opacity = '';
+  pagePreview.style.marginTop = '';
+  pagePreview.style.zIndex = '';
+  pagePreview.style.padding = '';
+
+
+}
+
+function stickPreview(){
+  const rect = seoContainer.getBoundingClientRect();
+  const parent = seoContainer.parentNode;
+
+
   pagePreview.style.position = 'fixed';
   pagePreview.style.top = '0';
   pagePreview.style.left = rect.left + 'px';
@@ -351,10 +366,6 @@ function unstick() {
     pagePreview.style.transform = 'translateY(0)';
     pagePreview.style.opacity = '1';
   });
-
-
-  if (placeholder.parentElement) placeholder.remove();
-  isSticky = false;
 }
 
 window.addEventListener('scroll', () => {
@@ -907,7 +918,7 @@ function makePreviewClickable(previewBlock, card) {
     card.scrollIntoView({ behavior: "smooth", block: "center" });
     card.classList.add("highlight"); // optional highlight
     setTimeout(() => card.classList.remove("highlight"), 1500);   
-    setTimeout(() => stick(), 200);   
+    setTimeout(() => stickPreview(), 200);   
                                         
     // optionally focus first input in block body 
     const firstInput = card.querySelector("input, textarea, select");
@@ -1354,7 +1365,7 @@ positionSel.onchange = () => {
   renderPreview();   // 🔥 add preview refresh
   serializeBlocks();
 
-  setTimeout(() => unstick(), 200);   
+  setTimeout(() => unstickPreview(), 200);   
 
 };
 
