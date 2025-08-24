@@ -1797,53 +1797,48 @@ ${JSON.stringify(articleData.customCSS)}
       <p class="subtitle">${articleData.subtitle || ""}</p>
     </div>
   </header>
-
 <main class="container mx-auto px-4" id="main-content" role="main">
   <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-  <!-- Hero / Featured image -->
-  ${articleData.image ? `
-  <section class="hero">
-    <figure>
-      <img src="${articleData.image}" 
-           alt="${articleData.alt || articleData.title}" 
-           class="hero-img" 
-           role="img"
-           aria-describedby="page-title"  loading="lazy"/>
-      ${articleData.caption ? `<figcaption>${articleData.caption}</figcaption>` : ""}
-    </figure>
-  </section>` : ""}
+    <!-- Hero / Featured image -->
+    ${articleData.image ? `
+    <section class="hero lg:col-span-12">
+      <figure>
+        <img src="${articleData.image}" 
+             alt="${articleData.alt || articleData.title}" 
+             class="hero-img" 
+             role="img"
+             aria-describedby="page-title"  
+             loading="lazy"/>
+        ${articleData.caption ? `<figcaption>${articleData.caption}</figcaption>` : ""}
+      </figure>
+    </section>` : ""}
 
-  
-<!-- Top banner -->
-<section id="top-banner-container">
-  ${topBlocksHTML}
-</section>
+    <!-- Top banner -->
+    <section id="top-banner-container" class="lg:col-span-12">
+      ${topBlocksHTML}
+    </section>
 
-<div id='body-container' class='flex' >
+    <!-- Left sidebar -->
+    <aside id="left-sidebar" class="lg:col-span-3 space-y-6">
+      ${leftBlocksHTML}
+    </aside>
 
-<!-- Left sidebar -->
-<aside id="left-sidebar" class="lg:col-span-3 space-y-6">
-  ${leftBlocksHTML}
-</aside>
+    <!-- In-article blocks -->
+    <section id="in-article-blocks" class="lg:col-span-6 space-y-6">
+      ${articleData.body}
+      ${inArticleBlocksHTML}
+    </section>
 
-<!-- In-article blocks -->
-<section id="in-article-blocks" class="lg:col-span-6 space-y-6">
-  ${articleData.body}
-  ${inArticleBlocksHTML}
-</section>
+    <!-- Right sidebar -->
+    <aside id="right-sidebar" class="lg:col-span-3 space-y-6">
+      ${rightBlocksHTML}
+    </aside>
 
-<!-- Right sidebar -->
-<aside id="right-sidebar" class="lg:col-span-3 space-y-6">
-  ${rightBlocksHTML}
-</aside>
-
-</div>
-
-<!-- Bottom banner -->
-<section id="bottom-banner-container">
-  ${bottomBlocksHTML}
-</section>
+    <!-- Bottom banner -->
+    <section id="bottom-banner-container" class="lg:col-span-12">
+      ${bottomBlocksHTML}
+    </section>
 
   </div>
 </main>
