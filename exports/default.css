@@ -442,6 +442,11 @@ main article:hover {
     border: none;
 }
 
+
+
+
+
+
 .comments {
   margin-top: 2rem;
 }
@@ -484,6 +489,117 @@ main article:hover {
   background: #ddd;
 }
 
+/* 🔹 Comments Form Container */
+.comments.form {
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  font-family: "Inter", system-ui, sans-serif;
+}
+
+/* Title */
+.comments.form h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #222;
+  border-left: 4px solid #007BFF;
+  padding-left: 0.5rem;
+}
+
+/* Inputs & Textarea */
+#commentForm input[type="text"],
+#commentForm textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+#commentForm input:focus,
+#commentForm textarea:focus {
+  border-color: #007BFF;
+  box-shadow: 0 0 0 3px rgba(0,123,255,0.15);
+  outline: none;
+}
+
+/* Checkbox Area */
+#checkBoxArea {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+}
+
+#checkBoxArea label {
+  font-size: 0.9rem;
+  color: #444;
+  cursor: pointer;
+}
+
+/* Button */
+#comment-submit-btn {
+  background: #007BFF;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+#comment-submit-btn:hover {
+  background: #0056b3;
+  transform: translateY(-2px);
+}
+
+#comment-submit-btn:active {
+  transform: translateY(0);
+}
+
+/* 🔹 Comments List */
+.comments-list {
+  margin-top: 2rem;
+}
+
+.comments-list .comment {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  background: #fafafa;
+  transition: background 0.2s ease;
+}
+
+.comments-list .comment:hover {
+  background: #f1f7ff;
+}
+
+.comments-list .comment .author {
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+  color: #222;
+}
+
+.comments-list .comment .meta {
+  font-size: 0.8rem;
+  color: #777;
+  margin-bottom: 0.5rem;
+}
+
+.comments-list .comment .message {
+  font-size: 0.95rem;
+  line-height: 1.4;
+  color: #333;
+}
 
 
 
