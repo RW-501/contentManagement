@@ -543,9 +543,8 @@ if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
 <div id="previewWrap" style="border:1px solid #ccc; padding:1rem; margin-top:1rem; border-radius:8px; background:#f9f9f9;">
   
   <!-- Header Preview -->
-  <header style="padding:1rem; margin-bottom:1rem; text-align:center;">
+  <header  id="previewHeader" style="padding:1rem; margin-bottom:1rem; text-align:center;">
     <h1>Header Preview</h1>
-    <p>Subheader text goes here</p>
   </header>
 
   <!-- Horizontal Rule Preview -->
@@ -870,7 +869,7 @@ function applyPageStyles(styles) {
   if (!styles) return;
 
   // 🔹 Header Preview
-  const headerPreview = document.querySelector("header");
+  const headerPreview = document.getElementById("previewHeader");
   if (headerPreview) {
     headerPreview.style.backgroundColor = styles.headerBg || "#ffffff";
     headerPreview.style.color = styles.headerText || "#222222";
