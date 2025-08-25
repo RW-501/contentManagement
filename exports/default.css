@@ -421,13 +421,17 @@ main article:hover {
   background: #fff;
   border-radius: 6px;
   padding: 1rem;
+  /*
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  */
 }
 
 .block:hover {
+  /*
   transform: translateY(-4px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  */
 }
 
 /* Hero section */
