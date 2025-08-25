@@ -538,7 +538,7 @@ if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
 
     <!-- Button Preview -->
     <div style="margin-top:1rem;">
-      
+
 <!-- 🔹 Preview Area -->
 <div id="previewWrap" style="border:1px solid #ccc; padding:1rem; margin-top:1rem; border-radius:8px; background:#f9f9f9;">
   
@@ -778,16 +778,33 @@ if (pageData.slug) {
 
 
     // ✅ Apply stored styles
-    if (pageData.styles) {
-      applyPageStyles(pageData.styles);
-      $("#styleBg").value = pageData.styles.bg || "#f7f7f9";
-      $("#styleInk").value = pageData.styles.ink || "#222";
-      $("#stylePrimary").value = pageData.styles.primary || "#4f46e5";
-      $("#styleSecondary").value = pageData.styles.secondary || "#22c55e";
-      $("#styleRadius").value = pageData.styles.radius || 8;
-      $("#styleOutline").value = pageData.styles.outline || "#e6e6ea";
-      $("#customCSS").value = pageData.styles.extra || "";
-    }
+if (pageData.styles) {
+  applyPageStyles(pageData.styles);
+
+  // 🔹 Header
+  document.getElementById("headerBg").value = pageData.styles.headerBg || "#ffffff";
+  document.getElementById("headerText").value = pageData.styles.headerText || "#222222";
+  document.getElementById("headerBorder").value = pageData.styles.headerBorder || "#e6e6ea";
+
+  // 🔹 Horizontal Rule
+  document.getElementById("hrColor").value = pageData.styles.hrColor || "#d1d5db";
+
+  // 🔹 CTA Button
+  document.getElementById("ctaBg").value = pageData.styles.ctaBg || "#4f46e5";
+  document.getElementById("ctaText").value = pageData.styles.ctaText || "#ffffff";
+  document.getElementById("ctaHover").value = pageData.styles.ctaHover || "#3730a3";
+  document.getElementById("ctaRadius").value = pageData.styles.ctaRadius || 8;
+  document.getElementById("ctaOutline").value = pageData.styles.ctaOutline || "#e6e6ea";
+
+  // 🔹 Regular Button
+  document.getElementById("btnBg").value = pageData.styles.btnBg || "#22c55e";
+  document.getElementById("btnText").value = pageData.styles.btnText || "#ffffff";
+  document.getElementById("btnHover").value = pageData.styles.btnHover || "#16a34a";
+
+  // 🔹 Extra CSS
+  document.getElementById("customCSS").value = pageData.styles.extra || "";
+}
+
 
     if ($("#bodyEditor") && !$("#bodyEditor")._te) {
   $("#bodyEditor")._te = TextEditor($("#bodyEditor"), { value: pageData.body || "" });
@@ -821,6 +838,7 @@ $("#schemaType").addEventListener("change", e => {
       const wrap = document.querySelector(btn.dataset.toggle);
       wrap.style.display = wrap.style.display === "none" ? "block" : "none";
     });
+    console.log("toggle  ",wrap.style.display,"btn.dataset.toggle ? ",btn.dataset.toggle )
   });
 
   // Initialize color buttons
@@ -838,7 +856,7 @@ $("#schemaType").addEventListener("change", e => {
   });
 
   // Apply styles on slider/input change
-  document.getElementById("styleRadius").addEventListener("input", () => {
+  document.getElementById("ctaRadius").addEventListener("input", () => {
     applyPageStyles(collectPageStyles());
   });
   document.getElementById("customCSS").addEventListener("input", () => {
