@@ -16,6 +16,7 @@ export function showToast(type, message, duration = 3000) {
       display: "flex",
       flexDirection: "column",
       gap: "10px",
+      height: "fit-content",
     });
   }
 
