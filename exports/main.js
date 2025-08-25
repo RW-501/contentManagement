@@ -1,7 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection, 
-    addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-auth.js";
+    addDoc, serverTimestamp, query, orderBy, onSnapshot, deleteDoc } 
+    from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
 // 🔹 Firebase config
 const firebaseConfig = {
