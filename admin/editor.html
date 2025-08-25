@@ -2516,9 +2516,19 @@ function keywordMatchSuggestion(matches, minRequired, fieldName) {
 // 🔹 Count keyword matches in a string
 function countKeywordMatches(text, keywords) {
   if (!text || !keywords) return 0;
-  const words = text.toLowerCase().split(/\s+/);
+
+  const lowerText = text.toLowerCase();
   const keyList = keywords.toLowerCase().split(/\s*,\s*/);
-  return words.reduce((acc, word) => acc + (keyList.includes(word) ? 1 : 0), 0);
+
+  let count = 0;
+  for (const key of keyList) {
+    // Use a global regex to count occurrences
+    const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'); // escape special chars
+    const matches = lowerText.match(regex);
+    if (matches) count += matches.length;
+  }
+
+  return count;
 }
 
 // 🔹 Get all text content from blocks
@@ -2551,8 +2561,8 @@ function getAllBlockText() {
 
 // 🔹 Count keyword matches across all blocks
 function getTotalKeywordMatches(keywords) {
-  const allText = getAllBlockText();
-    console.log("keywords:", keywords);
+  const allText = getAllBlockText(); // your function to get all text
+  console.log("keywords:", keywords);
   console.log("allText:", allText);
 
   return countKeywordMatches(allText, keywords);
