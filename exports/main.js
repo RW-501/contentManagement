@@ -4,6 +4,8 @@ import { getFirestore, doc, getDoc, setDoc, updateDoc, increment, collection,
     from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
+import { showToast } from "https://contenthub.guru/exports/showToast.js";
+
 // 🔹 Firebase config
 const firebaseConfig = {
   apiKey: "AIzaSyBXZcSYdspfi2jBipwUFeNmKZgU02ksg8c",
@@ -208,7 +210,7 @@ document.addEventListener('DOMContentLoaded', loadPageScripts);
             files: [file], // Share the image file
           });
     
-          console.log("Shared successfully!");
+          showToast("info", "Shared successfully!");
         } catch (error) {
           console.error('Error sharing:', error);
         }
@@ -377,10 +379,10 @@ submitBtn.addEventListener("click", async () => {
     anonymousCheckbox.checked = false;
     privateCheckbox.checked = false;
 
-    alert("Comment posted!");
+    showToast("info", "Comment posted!");
   } catch (err) {
     console.error("Error adding comment: ", err);
-    alert("Failed to post comment.");
+    showToast("error", "Failed to post comment.");
   }
 });
 
@@ -436,6 +438,7 @@ onSnapshot(q, (snapshot) => {
         await updateDoc(doc(db, "pages", pageID, "comments", btn.dataset.id), { 
           status: "removed"
         });
+        showToast("info", "Comment Removed");
       }
     });
   });
@@ -453,102 +456,112 @@ onAuthStateChanged(auth, (user) => {
 
 
 
-// 🔹 Page data
-const pageData = {
-  id: document.getElementById("pageID").innerText,
-  ownerId: document.getElementById("pageOwnerUserID").innerText,
-  slug: document.getElementById("pageSlug").innerText,
-  title: document.getElementById("pageTitle").innerText,
-  description: document.getElementById("pageDescription").innerText,
-  url: document.getElementById("pageURL").innerText
-};
+  // 🔹 Page data
+  const pageData = {
+    id: document.getElementById("pageID").innerText,
+    ownerId: document.getElementById("pageOwnerUserID").innerText,
+    slug: document.getElementById("pageSlug").innerText,
+    title: document.getElementById("pageTitle").innerText,
+    description: document.getElementById("pageDescription").innerText,
+    url: document.getElementById("pageURL").innerText
+  };
 
+  // 🔹 Create Report Popup
+  const reportPopup = document.createElement("div");
+  reportPopup.id = "reportPopup";
+  Object.assign(reportPopup.style, {
+    display: "none",
+    position: "fixed",
+    top: "0",
+    left: "0",
+    width: "100%",
+    height: "100%",
+    background: "rgba(0,0,0,0.5)",
+    zIndex: "9999",
+    justifyContent: "center",
+    alignItems: "center"
+  });
 
+  const popupContent = document.createElement("div");
+  Object.assign(popupContent.style, {
+    background: "#fff",
+    padding: "2rem",
+    borderRadius: "8px",
+    maxWidth: "500px",
+    width: "90%",
+    position: "relative"
+  });
 
-// 🔹 Create Report Popup
-const reportPopup = document.createElement("div");
-reportPopup.id = "reportPopup";
-Object.assign(reportPopup.style, {
-  display: "none",
-  position: "fixed",
-  top: "0",
-  left: "0",
-  width: "100%",
-  height: "100%",
-  background: "rgba(0,0,0,0.5)",
-  zIndex: "9999",
-  justifyContent: "center",
-  alignItems: "center",
-  display: "flex" // for centering
-});
+  popupContent.innerHTML = `
+    <h2>Report this Page</h2>
+    
+    <label style="display:block; margin:0.5rem 0;">Reason:</label>
+    <select id="reportReason" style="width:100%; padding:0.5rem; margin-bottom:1rem;">
+      <option value="">-- Select a reason --</option>
+      <option value="spam">Spam or misleading</option>
+      <option value="offensive">Offensive or harmful content</option>
+      <option value="copyright">Copyright violation</option>
+      <option value="inappropriate">Inappropriate material</option>
+      <option value="other">Other</option>
+    </select>
 
-const popupContent = document.createElement("div");
-Object.assign(popupContent.style, {
-  background: "#fff",
-  padding: "2rem",
-  borderRadius: "8px",
-  maxWidth: "500px",
-  width: "90%",
-  position: "relative"
-});
+    <label style="display:block; margin:0.5rem 0;">Additional Details:</label>
+    <textarea id="reportMessage" rows="4" style="width:100%;"></textarea>
+    
+    <div style="margin-top:1rem; display:flex; gap:1rem; justify-content:flex-end;">
+      <button id="submitReport">Submit</button>
+      <button id="closeReport" style="background:#eee;">Cancel</button>
+    </div>
+  `;
 
-popupContent.innerHTML = `
-  <h2>Report this Page</h2>
-  <label>Your Message:</label>
-  <textarea id="reportMessage" rows="4" style="width:100%; margin-top:0.5rem;"></textarea>
-  <div style="margin-top:1rem;">
-    <button id="submitReport">Submit</button>
-    <button id="closeReport">Cancel</button>
-  </div>
-`;
+  reportPopup.appendChild(popupContent);
+  document.body.appendChild(reportPopup);
 
-reportPopup.appendChild(popupContent);
-document.body.appendChild(reportPopup);
+  // 🔹 Show popup
+  document.getElementById("reportPageBtn").addEventListener("click", () => {
+    reportPopup.style.display = "flex";
+  });
 
-
-let reportBtn = document.getElementById("reportPageBtn")
-// 🔹 Show popup
-reportBtn.addEventListener("click", () => {
-  reportPopup.style.display = "flex";
-});
-
-// 🔹 Close popup
-popupContent.querySelector("#closeReport").addEventListener("click", () => {
-  reportPopup.style.display = "none";
-});
-
-// 🔹 Submit report
-popupContent.querySelector("#submitReport").addEventListener("click", async () => {
-  const message = popupContent.querySelector("#reportMessage").value.trim();
-  if (!message) return alert("Please enter a message.");
-
-  try {
-    // 🔹 Get user IP
-    const ipRes = await fetch("https://api.ipify.org?format=json");
-    const ipData = await ipRes.json();
-
-    // 🔹 Create report object
-    const report = {
-      pageId: pageData.id,
-      ownerId: pageData.ownerId,
-      slug: pageData.slug,
-      title: pageData.title,
-      url: pageData.url,
-      message,
-      reporterIP: ipData.ip,
-      createdAt: new Date().toISOString()
-    };
-
-    console.log("Report Submitted:", report);
-
-    // 🔹 TODO: send to Firestore or backend
-    // await addDoc(collection(db, "reports"), report);
-
-    alert("Report submitted successfully!");
-    popupContent.querySelector("#reportMessage").value = "";
+  // 🔹 Close popup
+  popupContent.querySelector("#closeReport").addEventListener("click", () => {
     reportPopup.style.display = "none";
-  } catch (err) {
-    console.error("Error submitting report:", err);
-    alert("Failed to submit report.");
-  }
-});
+  });
+
+  // 🔹 Submit report
+  popupContent.querySelector("#submitReport").addEventListener("click", async () => {
+    const reason = popupContent.querySelector("#reportReason").value;
+    const message = popupContent.querySelector("#reportMessage").value.trim();
+
+    if (!reason) return alert("Please select a reason.");
+    if (reason === "other" && !message) return alert("Please enter details for 'Other'.");
+
+    try {
+      // 🔹 Get user IP
+      const ipRes = await fetch("https://api.ipify.org?format=json");
+      const ipData = await ipRes.json();
+
+      // 🔹 Create report object
+      const report = {
+        pageId: pageData.id,
+        ownerId: pageData.ownerId,
+        slug: pageData.slug,
+        title: pageData.title,
+        url: pageData.url,
+        reason,
+        message: message || "",
+        reporterIP: ipData.ip,
+        createdAt: serverTimestamp()
+      };
+
+      // 🔹 Save to Firestore
+      await addDoc(collection(db, "reports"), report);
+
+      showToast("info", "Report submitted successfully!");
+      popupContent.querySelector("#reportMessage").value = "";
+      popupContent.querySelector("#reportReason").value = "";
+      reportPopup.style.display = "none";
+    } catch (err) {
+      console.error("Error submitting report:", err);
+      showToast("error", "Failed to submit report.");
+    }
+  });
