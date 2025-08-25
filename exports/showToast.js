@@ -16,7 +16,7 @@ export function showToast(type, message, duration = 3000) {
       display: "flex",
       flexDirection: "column",
       gap: "10px",
-      height: "fit-content",
+      height: "0",
     });
   }
 
@@ -36,7 +36,7 @@ export function showToast(type, message, duration = 3000) {
     opacity: "0",
     transform: "translateY(-10px)",
     transition: "all 0.3s ease",
-    height: "fit-content",
+
   });
 
   // Colors based on type
