@@ -2223,6 +2223,7 @@ const GITHUB_TOKEN = part_1 + part_2 + part_3 + part_4;
       body: JSON.stringify({ message: sha ? `Update ${filePath}` : `Create ${filePath}`, content: encodedContent, sha, branch })
     });
     if (!resp.ok) throw new Error((await resp.json()).message);
+    showToast("info", "Page updated successfully!");
     console.log("Page updated successfully!");
   } catch (err) {
     console.error(err.message);
