@@ -687,38 +687,8 @@ main article:hover {
 
 
 .flex {
-  display: flex;
-  gap: 0;           /* space between columns */
-  flex-wrap: wrap;        /* stack on smaller screens */
-}
 
-.flex > aside,
-.flex > section {
-  flex-grow: 0;           /* don’t grow beyond defined width */
-  flex-shrink: 0;         /* don’t shrink too much */
 }
-
-/* specific widths */
-#left-sidebar {
-  flex-basis: 25%;        /* 3 / 12 columns */
-}
-
-#in-article-blocks {
-  flex-basis: 50%;        /* 6 / 12 columns */
-}
-
-#right-sidebar {
-  flex-basis: 25%;        /* 3 / 12 columns */
-}
-
-/* Stack on smaller screens */
-@media (max-width: 1023px) {
-  .flex > aside,
-  .flex > section {
-    flex-basis: 100%;
-  }
-}
-
 
 
 /* Default: mobile first */
@@ -735,9 +705,11 @@ main article:hover {
 /* Larger screens (desktop/tablet) */
 @media (min-width: 1024px) {
   .flex {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr; /* left | content | right */
-    gap: 20px;
+  display: flex;
+  gap: 0;           /* space between columns */
+  flex-wrap: wrap;        /* stack on smaller screens */
+  
+  grid-template-columns: 1fr 2fr 1fr; /* left | content | right */
   }
 
   #left-sidebar {
