@@ -53,9 +53,10 @@ body {
    Paragraphs
 ========================= */
 .content-paragraph {
-  margin-bottom: 1.5rem;
-  font-size: 1rem;
-  color: #1f2937;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+    color: #1f2937;
+    padding: .5rem;
 }
 
 .content-paragraph p {
@@ -408,11 +409,6 @@ main article:hover {
 
 
 
-
-.flex {
-  display: flex;
-}
-
 /* Content blocks (cards inside sidebars or article body) */
 .content-blocks {
   display: grid;
@@ -477,7 +473,7 @@ main article:hover {
 
 .flex {
   display: flex;
-  gap: 1.5rem;           /* space between columns */
+  gap: 0;           /* space between columns */
   flex-wrap: wrap;        /* stack on smaller screens */
 }
 
