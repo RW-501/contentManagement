@@ -2106,25 +2106,25 @@ ${JSON.stringify(articleData.customCSS)}
       ${topBlocksHTML}
     </section>
 
- <div class='flex'>
-
 <!-- Left sidebar -->
-<aside id="left-sidebar" class="lg:col-span-3 space-y-6 order-4 lg:order-2">
+<aside id="left-sidebar" 
+       class="lg:col-span-3 space-y-6 order-4 lg:order-2">
   ${leftBlocksHTML}
 </aside>
 
-<!-- In-article blocks (main content FIRST on mobile) -->
-<section id="in-article-blocks" class="lg:col-span-6 space-y-6 order-3 lg:order-3">
+<!-- Main content -->
+<section id="in-article-blocks" 
+         class="lg:col-span-6 space-y-6 order-2 lg:order-3">
   ${articleData.body}
   ${inArticleBlocksHTML}
 </section>
 
 <!-- Right sidebar -->
-<aside id="right-sidebar" class="lg:col-span-3 space-y-6 order-5 lg:order-4">
+<aside id="right-sidebar" 
+       class="lg:col-span-3 space-y-6 order-5 lg:order-4">
   ${rightBlocksHTML}
 </aside>
 
-</div>
 
     <!-- Bottom banner -->
     <section id="bottom-banner-container" class="lg:col-span-12 order-6">

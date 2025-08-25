@@ -607,3 +607,35 @@ main article:hover {
     flex-basis: 100%;
   }
 }
+
+
+
+/* Default: mobile first */
+#in-article-blocks {
+  order: 1; /* main content first */
+}
+#left-sidebar {
+  order: 2; /* left sidebar after content */
+}
+#right-sidebar {
+  order: 3; /* right sidebar after left */
+}
+
+/* Larger screens (desktop/tablet) */
+@media (min-width: 1024px) {
+  .flex {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr; /* left | content | right */
+    gap: 20px;
+  }
+
+  #left-sidebar {
+    order: 0;
+  }
+  #in-article-blocks {
+    order: 0;
+  }
+  #right-sidebar {
+    order: 0;
+  }
+}
