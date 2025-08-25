@@ -2195,6 +2195,8 @@ ${JSON.stringify(articleData.customCSS)}
   text-align: center;
   border-bottom: 4px solid ${articleData.styles.headerBorder || "#e6e6ea"};
 }
+
+main {
 /* 🔹 CTA Button */
 .content-cta a {
   display: inline-block;
@@ -2214,8 +2216,7 @@ ${JSON.stringify(articleData.customCSS)}
   transform: translateY(-1px);
 }
 
-/* 🔹 Regular Button */
-button {
+ button {
   background-color: ${articleData.styles.btnBg || "#22c55e"};
   color: ${articleData.styles.btnText || "#ffffff"};
   border-radius: ${articleData.styles.btnNoBorderRadius ? 0 : (articleData.styles.btnRadius || 8)}px;
@@ -2235,6 +2236,7 @@ button:hover {
 hr {
   border: none;
   border-top: 1px solid ${articleData.styles.hrColor || "#d1d5db"};
+}
 }
 
 </style>
