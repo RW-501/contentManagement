@@ -529,6 +529,24 @@ if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
   </div>
 
   <div class="row">
+  <label>
+    <input type="checkbox" id="ctaNoBorderRadius"> Remove CTA Border Radius
+  </label>
+  <label>
+    <input type="checkbox" id="ctaNoBorder"> Remove CTA Outline
+  </label>
+</div>
+
+<div class="row">
+  <label>
+    <input type="checkbox" id="btnNoBorderRadius"> Remove Button Border Radius
+  </label>
+  <label>
+    <input type="checkbox" id="btnNoBorder"> Remove Button Border
+  </label>
+</div>
+
+  <div class="row">
     <label>Extra Custom CSS
       <textarea id="customCSS" placeholder="Enter any additional CSS"></textarea>
     </label>
@@ -868,7 +886,7 @@ $("#schemaType").addEventListener("change", e => {
 function applyPageStyles(styles) {
   if (!styles) return;
 
-  // 🔹 Header Preview
+  // Header
   const headerPreview = document.getElementById("previewHeader");
   if (headerPreview) {
     headerPreview.style.backgroundColor = styles.headerBg || "#ffffff";
@@ -876,30 +894,30 @@ function applyPageStyles(styles) {
     headerPreview.style.borderBottom = `1px solid ${styles.headerBorder || "#e6e6ea"}`;
   }
 
-  // 🔹 <hr> Preview
+  // HR
   document.querySelectorAll("hr").forEach(hr => {
     hr.style.borderColor = styles.hrColor || "#d1d5db";
   });
 
-  // 🔹 Preview buttons
+  // CTA Button
   const previewPrimary = document.getElementById("previewPrimary");
-  const previewSecondary = document.getElementById("previewSecondary");
-
   if (previewPrimary) {
     previewPrimary.style.backgroundColor = styles.ctaBg || "#4f46e5";
     previewPrimary.style.color = styles.ctaText || "#ffffff";
-    previewPrimary.style.borderRadius = (styles.ctaRadius || 8) + "px";
-    previewPrimary.style.border = `1px solid ${styles.ctaOutline || "#e6e6ea"}`;
+    previewPrimary.style.borderRadius = styles.ctaNoBorderRadius ? "0" : (styles.ctaRadius || 8) + "px";
+    previewPrimary.style.border = styles.ctaNoBorder ? "none" : `1px solid ${styles.ctaOutline || "#e6e6ea"}`;
   }
 
+  // Regular Button
+  const previewSecondary = document.getElementById("previewSecondary");
   if (previewSecondary) {
     previewSecondary.style.backgroundColor = styles.btnBg || "#22c55e";
     previewSecondary.style.color = styles.btnText || "#ffffff";
-    previewSecondary.style.borderRadius = (styles.radius || 8) + "px";
-    previewSecondary.style.border = `1px solid ${styles.btnHover || "#16a34a"}`;
+    previewSecondary.style.borderRadius = styles.btnNoBorderRadius ? "0" : (styles.radius || 8) + "px";
+    previewSecondary.style.border = styles.btnNoBorder ? "none" : `1px solid ${styles.btnHover || "#16a34a"}`;
   }
 
-  // 🔹 Hover styles via style tag
+  // Hover styles
   let hoverStyle = document.getElementById("dynamic-hover-styles");
   if (!hoverStyle) {
     hoverStyle = document.createElement("style");
@@ -911,7 +929,7 @@ function applyPageStyles(styles) {
     #previewSecondary:hover { background-color: ${styles.btnHover || "#16a34a"}; }
   `;
 
-  // 🔹 Extra custom CSS
+  // Extra custom CSS
   let styleEl = document.getElementById("dynamic-style");
   if (!styleEl) {
     styleEl = document.createElement("style");
@@ -920,6 +938,7 @@ function applyPageStyles(styles) {
   }
   styleEl.innerHTML = styles.extra || "";
 }
+
 
 function collectPageStyles() {
   return {
@@ -932,12 +951,17 @@ function collectPageStyles() {
     ctaHover: document.getElementById("ctaHover").value,
     ctaRadius: document.getElementById("ctaRadius").value,
     ctaOutline: document.getElementById("ctaOutline").value,
+    ctaNoBorderRadius: document.getElementById("ctaNoBorderRadius").checked,
+    ctaNoBorder: document.getElementById("ctaNoBorder").checked,
     btnBg: document.getElementById("btnBg").value,
     btnText: document.getElementById("btnText").value,
     btnHover: document.getElementById("btnHover").value,
+    btnNoBorderRadius: document.getElementById("btnNoBorderRadius").checked,
+    btnNoBorder: document.getElementById("btnNoBorder").checked,
     extra: document.getElementById("customCSS").value
   };
 }
+
 
 
   // Initial application
@@ -2157,6 +2181,7 @@ ${scriptTag}
 
 <!-- 🔹 Changeable Theme CSS -->
 <style id="dynamic-style">
+  <!-- styles -->
 ${JSON.stringify(articleData.styles)}
 
 <!-- customCSS -->
@@ -2170,7 +2195,6 @@ ${JSON.stringify(articleData.customCSS)}
   text-align: center;
   border-bottom: 4px solid ${articleData.styles.headerBorder || "#e6e6ea"};
 }
-
 /* 🔹 CTA Button */
 .content-cta a {
   display: inline-block;
@@ -2178,11 +2202,11 @@ ${JSON.stringify(articleData.customCSS)}
   background-color: ${articleData.styles.ctaBg || "#4f46e5"};
   color: ${articleData.styles.ctaText || "#ffffff"};
   font-weight: 600;
-  border-radius: ${articleData.styles.ctaRadius || 8}px;
+  border-radius: ${articleData.styles.ctaNoBorderRadius ? 0 : (articleData.styles.ctaRadius || 8)}px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   text-decoration: none;
   transition: background-color 0.2s, transform 0.1s;
-  ${articleData.styles.ctaOutline ? `border: solid ${articleData.styles.ctaOutline} 0.2rem;` : ""}
+  border: ${articleData.styles.ctaNoBorder ? "none" : `1px solid ${articleData.styles.ctaOutline || "#e6e6ea"}`};
 }
 
 .content-cta a:hover {
@@ -2194,8 +2218,8 @@ ${JSON.stringify(articleData.customCSS)}
 button {
   background-color: ${articleData.styles.btnBg || "#22c55e"};
   color: ${articleData.styles.btnText || "#ffffff"};
-  border-radius: ${articleData.styles.btnRadius || 8}px;
-  border: ${articleData.styles.btnOutline ? `1px solid ${articleData.styles.btnOutline}` : "none"};
+  border-radius: ${articleData.styles.btnNoBorderRadius ? 0 : (articleData.styles.btnRadius || 8)}px;
+  border: ${articleData.styles.btnNoBorder ? "none" : `1px solid ${articleData.styles.btnOutline || "#16a34a"}`};
   padding: 0.5rem 1rem;
   font-weight: 500;
   cursor: pointer;
