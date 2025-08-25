@@ -440,10 +440,12 @@ if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
         <div class="blocks-list" id="blocksList"></div>
         <textarea id="blocksJSON" class="hidden"></textarea>
       </div>
+      
+      <div id="bodyFeedback" class="body-feedback"></div>
     </section>
 
     <!-- Body Content -->
-    <section id="bodySection">
+    <section id="bodySection" hidden>
       <header>
         <h2>Body Content</h2>
 
@@ -455,7 +457,6 @@ if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
       <div id="bodyContentWrap">
         <div id="bodyEditor" class="te"></div>
       </div>
-      <div id="bodyFeedback" class="body-feedback"></div>
     </section>
 
 <!-- Page Styles -->
@@ -2298,17 +2299,48 @@ function keywordMatchSuggestion(matches, minRequired, fieldName) {
       .replace(/[^a-z0-9\-]/g, "")
       .slice(0, 100); // limit slug length
   }
+
+  function getTotalBlockContent() {
+  let total = 0;
+
+  document.querySelectorAll(".block-card").forEach(card => {
+    const type = card.querySelector(".block-type")?.value;
+
+    if (!type) return;
+
+    if (type === "paragraph" && card._te?.getHTML) {
+      const html = card._te.getHTML();
+      const text = html.replace(/<[^>]+>/g, ""); // strip HTML
+      total += text.length;
+    } else if (type === "heading") {
+      total += card.querySelector(".b-text")?.value.length || 0;
+    } else if (type === "faq") {
+      card.querySelectorAll(".faq-items .row").forEach(row => {
+        total += (row.querySelector(".q")?.value.length || 0);
+        total += (row.querySelector(".a")?._te?.getHTML()?.replace(/<[^>]+>/g, "").length || 0);
+      });
+    } else if (type === "howto") {
+      total += card.querySelector(".step-title")?.value.length || 0;
+      total += card.querySelector(".step-desc")?._te?.getHTML()?.replace(/<[^>]+>/g, "").length || 0;
+    }
+    // optionally include CTA, button, rawHtml, etc., if you want their text counted
+  });
+
+  return total;
+}
+
 function updateSEOIndicators() {
   const title = titleInput.value.trim();
   const description = descriptionInput.value.trim();
   const keywords = keywordsInput.value.trim();
-  const body = bodyEditor.innerText;
-  const slugVal = slugInput.value.trim();
+
+const bodyCount = getTotalBlockContent();
+
+const slugVal = slugInput.value.trim();
 
   const titleCount = title.length;
   const descCount = description.length;
   const keywordCount = keywords.split(/\s*,\s*/).filter(Boolean).length;
-  const bodyCount = body.length;
 
   const titleScore = evaluateSEOLength(titleCount, seoRubric.title.min, seoRubric.title.max);
   const descScore = evaluateSEOLength(descCount, seoRubric.description.min, seoRubric.description.max);
