@@ -2402,6 +2402,9 @@ function getAllBlockText() {
 // 🔹 Count keyword matches across all blocks
 function getTotalKeywordMatches(keywords) {
   const allText = getAllBlockText();
+    console.log("keywords:", keywords);
+  console.log("allText:", allText);
+
   return countKeywordMatches(allText, keywords);
 }
 
