@@ -391,7 +391,7 @@ onSnapshot(q, (snapshot) => {
   snapshot.forEach((docSnap) => {
     const entry = docSnap.data();
 
-    if (entry.private && (!auth.currentUser || auth.currentUser.uid !== entry.userId)) {
+    if (entry.private && (!auth.currentUser || auth.currentUser.uid !== entry.userId) || entry.status == "removed") {
       return; // hide private comments from others
     }
 
@@ -404,7 +404,7 @@ onSnapshot(q, (snapshot) => {
       <div class="comment-header">
         <strong itemprop="author">${entry.name}</strong>
         <time itemprop="dateCreated">${entry.createdAt?.toDate().toLocaleDateString() || ""}</time>
-        <span class="comment-status">[${entry.status || "active"}]</span>
+        <span  class="comment-status">[${entry.status || "active"}]</span>
       </div>
       <div class="comment-body" itemprop="text">${entry.message}</div>
     `;
