@@ -687,7 +687,7 @@ main article:hover {
 
   .flex {
   display: flex;
-  gap: 20 px;           /* space between columns */
+  gap: 20px;           /* space between columns */
   flex-wrap: wrap;        /* stack on smaller screens */
     }
 
@@ -707,6 +707,8 @@ main article:hover {
   .flex {
   display: flex;
   gap: 0;           /* space between columns */
+  flex-wrap: nowrap;        /* stack on smaller screens */
+
   }
 
   #left-sidebar {
