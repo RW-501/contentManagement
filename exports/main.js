@@ -453,3 +453,102 @@ onAuthStateChanged(auth, (user) => {
 
 
 
+// 🔹 Page data
+const pageData = {
+  id: document.getElementById("pageID").innerText,
+  ownerId: document.getElementById("pageOwnerUserID").innerText,
+  slug: document.getElementById("pageSlug").innerText,
+  title: document.getElementById("pageTitle").innerText,
+  description: document.getElementById("pageDescription").innerText,
+  url: document.getElementById("pageURL").innerText
+};
+
+
+
+// 🔹 Create Report Popup
+const reportPopup = document.createElement("div");
+reportPopup.id = "reportPopup";
+Object.assign(reportPopup.style, {
+  display: "none",
+  position: "fixed",
+  top: "0",
+  left: "0",
+  width: "100%",
+  height: "100%",
+  background: "rgba(0,0,0,0.5)",
+  zIndex: "9999",
+  justifyContent: "center",
+  alignItems: "center",
+  display: "flex" // for centering
+});
+
+const popupContent = document.createElement("div");
+Object.assign(popupContent.style, {
+  background: "#fff",
+  padding: "2rem",
+  borderRadius: "8px",
+  maxWidth: "500px",
+  width: "90%",
+  position: "relative"
+});
+
+popupContent.innerHTML = `
+  <h2>Report this Page</h2>
+  <label>Your Message:</label>
+  <textarea id="reportMessage" rows="4" style="width:100%; margin-top:0.5rem;"></textarea>
+  <div style="margin-top:1rem;">
+    <button id="submitReport">Submit</button>
+    <button id="closeReport">Cancel</button>
+  </div>
+`;
+
+reportPopup.appendChild(popupContent);
+document.body.appendChild(reportPopup);
+
+
+let reportBtn = document.getElementById("reportPageBtn")
+// 🔹 Show popup
+reportBtn.addEventListener("click", () => {
+  reportPopup.style.display = "flex";
+});
+
+// 🔹 Close popup
+popupContent.querySelector("#closeReport").addEventListener("click", () => {
+  reportPopup.style.display = "none";
+});
+
+// 🔹 Submit report
+popupContent.querySelector("#submitReport").addEventListener("click", async () => {
+  const message = popupContent.querySelector("#reportMessage").value.trim();
+  if (!message) return alert("Please enter a message.");
+
+  try {
+    // 🔹 Get user IP
+    const ipRes = await fetch("https://api.ipify.org?format=json");
+    const ipData = await ipRes.json();
+
+    // 🔹 Create report object
+    const report = {
+      pageId: pageData.id,
+      ownerId: pageData.ownerId,
+      slug: pageData.slug,
+      title: pageData.title,
+      url: pageData.url,
+      message,
+      reporterIP: ipData.ip,
+      createdAt: new Date().toISOString()
+    };
+
+    console.log("Report Submitted:", report);
+
+    // 🔹 TODO: send to Firestore or backend
+    // await addDoc(collection(db, "reports"), report);
+
+    alert("Report submitted successfully!");
+    popupContent.querySelector("#reportMessage").value = "";
+    reportPopup.style.display = "none";
+  } catch (err) {
+    console.error("Error submitting report:", err);
+    alert("Failed to submit report.");
+  }
+});
