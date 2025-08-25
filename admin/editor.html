@@ -2184,13 +2184,15 @@ const Content = `
 <script type="application/ld+json">${JSON.stringify(metadataJSON)}<\/script>
 ${scriptTag}
 
+<link rel="stylesheet" href="https://contenthub.guru/exports/default.css">
+
 <!-- 🔹 Changeable Theme CSS -->
 <style id="dynamic-style">
   <!-- styles -->
 ${JSON.stringify(articleData.styles)}
 
 <!-- customCSS -->
-${JSON.stringify(articleData.customCSS)}
+${articleData.customCSS}
 
 /* 🔹 Header */
 .site-header {
