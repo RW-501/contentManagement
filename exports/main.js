@@ -404,7 +404,7 @@ onSnapshot(q, (snapshot) => {
       <div class="comment-header">
         <strong itemprop="author">${entry.name}</strong>
         <time itemprop="dateCreated">${entry.createdAt?.toDate().toLocaleDateString() || ""}</time>
-        <span  class="comment-status">[${entry.status || "active"}]</span>
+        <span hidden class="comment-status">[${entry.status || "active"}]</span>
       </div>
       <div class="comment-body" itemprop="text">${entry.message}</div>
     `;
