@@ -438,7 +438,7 @@ onSnapshot(q, (snapshot) => {
         await updateDoc(doc(db, "pages", pageID, "comments", btn.dataset.id), { 
           status: "removed"
         });
-        showToast("info", "Comment Removed");
+        showToast("info", "Comment Removed", 900000);
       }
     });
   });
