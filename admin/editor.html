@@ -2045,7 +2045,6 @@ const Content = `
 ${scriptTag}
 
 <!-- 🔹 Changeable Theme CSS -->
-<link rel="stylesheet" href="https://contenthub.guru/exports/default.css" id="theme-css">
 <style id="dynamic-style">
 ${JSON.stringify(articleData.styles)}
 ${JSON.stringify(articleData.customCSS)}
@@ -2149,6 +2148,9 @@ ${JSON.stringify(articleData.customCSS)}
     <div id="pageID">${articleData.siteId}</div>
     <div id="pageOwnerUserID">${articleData.userID}</div>
     <div id="pageSlug">${articleData.slug}</div>
+    <div id="pageTitle">${articleData.title}</div>
+    <div id="pageDescription">${articleData.description}</div>
+    <div id="pageURL">https://contenthub.guru/site/${articleData.slug}</div>
   </div>
 </body>
 </html>
