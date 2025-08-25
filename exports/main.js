@@ -315,7 +315,7 @@ async function getVisitorLocation() {
   try {
     const res = await fetch("https://ipapi.co/json/");
     const data = await res.json();
-    console.log("Visitor info:", data);
+    //console.log("Visitor info:", data);
     await logVisitor(data);
   } catch (err) {
     console.error("Error fetching visitor info:", err);
