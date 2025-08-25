@@ -316,3 +316,110 @@ document.addEventListener("DOMContentLoaded", async () => {
   await getVisitorLocation();
 });
 
+
+
+
+
+
+// 🔹 DOM Elements
+const commentName = document.getElementById("commentName");
+const commentMessage = document.getElementById("commentMessage");
+const anonymousCheckbox = document.getElementById("anonymousCheckbox");
+const privateCheckbox = document.getElementById("privateCheckbox");
+const submitBtn = document.getElementById("comment-submit-btn");
+const commentsList = document.getElementById("commentsList");
+
+// 🔹 Submit Comment
+submitBtn.addEventListener("click", async () => {
+  const name = anonymousCheckbox.checked ? "Anonymous" : commentName.value.trim();
+  const message = commentMessage.value.trim();
+  const isPrivate = privateCheckbox.checked;
+
+  if (!message) return alert("Please enter a comment.");
+  if (!name && !anonymousCheckbox.checked) return alert("Please enter your name.");
+
+  try {
+    await addDoc(collection(db,  "pages", pageID, "comments"), {
+      name,
+      message,
+      anonymous: anonymousCheckbox.checked,
+      private: isPrivate,
+      createdAt: serverTimestamp(),
+      userId: auth.currentUser ? auth.currentUser.uid : null
+    });
+
+    // reset form
+    commentName.value = "";
+    commentMessage.value = "";
+    anonymousCheckbox.checked = false;
+    privateCheckbox.checked = false;
+  } catch (err) {
+    console.error("Error adding comment: ", err);
+  }
+});
+
+// 🔹 Load Comments
+const q = query(collection(db,  "pages", pageID, "comments"), orderBy("createdAt", "desc"));
+onSnapshot(q, (snapshot) => {
+  commentsList.innerHTML = "";
+  snapshot.forEach((docSnap) => {
+    const entry = docSnap.data();
+    if (entry.private && (!auth.currentUser || auth.currentUser.uid !== entry.userId)) {
+      return; // hide private comments from others
+    }
+
+    const div = document.createElement("div");
+    div.className = "comment entry";
+    div.setAttribute("itemscope", "");
+    div.setAttribute("itemtype", "https://schema.org/Comment");
+
+    div.innerHTML = `
+      <div class="comment-header">
+        <strong itemprop="author">${entry.name}</strong>
+        <time itemprop="dateCreated">${entry.createdAt?.toDate().toLocaleDateString() || ""}</time>
+      </div>
+      <div class="comment-body" itemprop="text">${entry.message}</div>
+    `;
+
+    // 🔹 Show controls if current user is admin or owner
+    if (auth.currentUser && (auth.currentUser.isAdmin || auth.currentUser.uid === entry.userId)) {
+      const controls = document.createElement("div");
+      controls.className = "comment-controls";
+      controls.innerHTML = `
+        <button data-id="${docSnap.id}" class="make-private">Make Private</button>
+        <button data-id="${docSnap.id}" class="delete-msg">Delete</button>
+      `;
+      div.appendChild(controls);
+    }
+
+    commentsList.appendChild(div);
+  });
+
+  // Attach button handlers AFTER rendering
+  document.querySelectorAll(".make-private").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      await updateDoc(doc(db, "comments", btn.dataset.id), { private: true });
+    });
+  });
+
+  document.querySelectorAll(".delete-msg").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (confirm("Delete this comment?")) {
+        await deleteDoc(doc(db, "comments", btn.dataset.id));
+      }
+    });
+  });
+});
+
+// 🔹 Watch Auth State (to show admin controls)
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    // Mark admins manually
+    if (user.uid === "CyfMntp5iucjYC94HQ1FNcOiDa23") {
+      user.isAdmin = true;
+    }
+  }
+});
+
+
+

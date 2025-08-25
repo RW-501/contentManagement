@@ -2132,6 +2132,40 @@ ${JSON.stringify(articleData.customCSS)}
     </section>
 
   </div>
+
+
+  <div class="comments form">
+  <h2 class="changeable-text">Comments</h2>
+  <div id="commentForm">
+    <div>
+      <input type="text" id="commentName" placeholder="Your Name" required>
+    </div>
+    
+    <div id="checkBoxArea">
+      <div class="anonymousCheckboxArea">
+        <input type="checkbox" id="anonymousCheckbox">
+        <label for="anonymousCheckbox">Post as Anonymous</label>
+      </div>
+      <div class="privateCheckboxArea">
+        <input type="checkbox" id="privateCheckbox">
+        <label for="privateCheckbox">Private Comment</label>
+      </div>
+    </div>
+
+    <div>
+      <textarea id="commentMessage" rows="4" placeholder="Write a comment..." required></textarea>
+    </div>
+    <div>
+      <button id="comment-submit-btn" class="changeable-text">Post Comment</button>
+    </div>
+  </div>
+
+  <!-- 🔹 Comments Display -->
+  <div class="comments-list" id="commentsList">
+    <!-- Comments will be rendered here dynamically -->
+  </div>
+</div>
+
 </main>
 
 
