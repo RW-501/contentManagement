@@ -35,10 +35,12 @@ export function showToast(type, message, duration = 3000) {
     opacity: "0",
     transform: "translateY(-10px)",
     transition: "all 0.3s ease",
+    height: "fit-content",
   });
 
   // Colors based on type
   if (type === "success") toast.style.background = "#4caf50";
+  else if (type === "info") toast.style.background = "#5f3fc7ff";
   else if (type === "error") toast.style.background = "#f44336";
   else if (type === "warning") toast.style.background = "#ff9800";
   else toast.style.background = "#2196f3"; // info
