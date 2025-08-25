@@ -467,47 +467,98 @@ if (toggleBtn) toggleBtn.addEventListener('click', toggleSticky);
       <button class="toggle-btn" data-toggle="#stylesWrap">Show/Hide</button>
     </div>
   </header>
-  <div id="stylesWrap">
-    <div class="row">
-      <label>Background Color 
-        <input type="color" id="styleBg" value="#f7f7f9" class="hidden">
-        <button class="color-btn" data-target="styleBg" style="background:#f7f7f9"></button>
-      </label>
-      <label>Font Color 
-        <input type="color" id="styleInk" value="#222222" class="hidden">
-        <button class="color-btn" data-target="styleInk" style="background:#222222"></button>
-      </label>
-    </div>
-    <div class="row">
-      <label>Primary Button 
-        <input type="color" id="stylePrimary" value="#4f46e5" class="hidden">
-        <button class="color-btn" data-target="stylePrimary" style="background:#4f46e5"></button>
-      </label>
-      <label>Secondary Button 
-        <input type="color" id="styleSecondary" value="#22c55e" class="hidden">
-        <button class="color-btn" data-target="styleSecondary" style="background:#22c55e"></button>
-      </label>
-    </div>
-    <div class="row">
-      <label>Border Radius <input type="range" id="styleRadius" min="0" max="30" value="8"></label>
-      <label>Outline Color 
-        <input type="color" id="styleOutline" value="#e6e6ea" class="hidden">
-        <button class="color-btn" data-target="styleOutline" style="background:#e6e6ea"></button>
-      </label>
-    </div>
+<div id="stylesWrap">
 
-          <!-- Custom CSS -->
-      <div class="group">
-        <label for="customCSS">Custom CSS</label>
-        <textarea id="customCSS" rows="6" placeholder="Write custom styles here..."></textarea>
-        <small>Tip: Optional styling for page customization.</small>
-      </div>
-    </div>
+  <div class="row">
+    <label>Header Background Color
+      <input type="color" id="headerBg" value="#ffffff" class="hidden">
+      <button class="color-btn" data-target="headerBg" style="background:#ffffff"></button>
+    </label>
+    <label>Header Text Color
+      <input type="color" id="headerText" value="#222222" class="hidden">
+      <button class="color-btn" data-target="headerText" style="background:#222222"></button>
+    </label>
+    <label>Header Border Color
+      <input type="color" id="headerBorder" value="#e6e6ea" class="hidden">
+      <button class="color-btn" data-target="headerBorder" style="background:#e6e6ea"></button>
+    </label>
+  </div>
+
+  <div class="row">
+    <label>&lt;hr&gt; Color
+      <input type="color" id="hrColor" value="#d1d5db" class="hidden">
+      <button class="color-btn" data-target="hrColor" style="background:#d1d5db"></button>
+    </label>
+  </div>
+
+  <div class="row">
+    <label>CTA Button Color
+      <input type="color" id="ctaBg" value="#4f46e5" class="hidden">
+      <button class="color-btn" data-target="ctaBg" style="background:#4f46e5"></button>
+    </label>
+    <label>CTA Text Color
+      <input type="color" id="ctaText" value="#ffffff" class="hidden">
+      <button class="color-btn" data-target="ctaText" style="background:#ffffff"></button>
+    </label>
+    <label>CTA Hover Color
+      <input type="color" id="ctaHover" value="#3730a3" class="hidden">
+      <button class="color-btn" data-target="ctaHover" style="background:#3730a3"></button>
+    </label>
+    <label>CTA Border Radius
+      <input type="range" id="ctaRadius" min="0" max="30" value="8">
+    </label>
+    <label>CTA Outline Color
+      <input type="color" id="ctaOutline" value="#e6e6ea" class="hidden">
+      <button class="color-btn" data-target="ctaOutline" style="background:#e6e6ea"></button>
+    </label>
+  </div>
+
+  <div class="row">
+    <label>Button Color
+      <input type="color" id="btnBg" value="#22c55e" class="hidden">
+      <button class="color-btn" data-target="btnBg" style="background:#22c55e"></button>
+    </label>
+    <label>Button Text Color
+      <input type="color" id="btnText" value="#ffffff" class="hidden">
+      <button class="color-btn" data-target="btnText" style="background:#ffffff"></button>
+    </label>
+    <label>Button Hover Color
+      <input type="color" id="btnHover" value="#16a34a" class="hidden">
+      <button class="color-btn" data-target="btnHover" style="background:#16a34a"></button>
+    </label>
+  </div>
+
+  <div class="row">
+    <label>Extra Custom CSS
+      <textarea id="customCSS" placeholder="Enter any additional CSS"></textarea>
+    </label>
+  </div>
+</div>
+
 
     <!-- Button Preview -->
     <div style="margin-top:1rem;">
-      <button id="previewPrimary" style="margin-right:1rem;">Primary</button>
-      <button id="previewSecondary">Secondary</button>
+      
+<!-- 🔹 Preview Area -->
+<div id="previewWrap" style="border:1px solid #ccc; padding:1rem; margin-top:1rem; border-radius:8px; background:#f9f9f9;">
+  
+  <!-- Header Preview -->
+  <header style="padding:1rem; margin-bottom:1rem; text-align:center;">
+    <h1>Header Preview</h1>
+    <p>Subheader text goes here</p>
+  </header>
+
+  <!-- Horizontal Rule Preview -->
+  <hr style="margin:1rem 0; border:1px solid #d1d5db;">
+
+  <!-- Button Preview -->
+  <div style="margin-top:1rem; display:flex; gap:1rem;">
+    <button id="previewPrimary" style="padding:0.5rem 1rem; cursor:pointer;">Primary CTA</button>
+    <button id="previewSecondary" style="padding:0.5rem 1rem; cursor:pointer;">Secondary Button</button>
+  </div>
+
+</div>
+
     </div>
 </section>
 
@@ -795,52 +846,80 @@ $("#schemaType").addEventListener("change", e => {
   });
 
   // Live preview buttons
-  function applyPageStyles(styles) {
-    if (!styles) return;
+function applyPageStyles(styles) {
+  if (!styles) return;
 
-    document.documentElement.style.setProperty("--bg", styles.bg || "#f7f7f9");
-    document.documentElement.style.setProperty("--ink", styles.ink || "#222");
-    document.documentElement.style.setProperty("--accent", styles.primary || "#4f46e5");
-    document.documentElement.style.setProperty("--card", "#fff");
-    document.documentElement.style.setProperty("--border", styles.outline || "#e6e6ea");
-
-    document.querySelectorAll("section, button, input, textarea").forEach(el => {
-      el.style.borderRadius = (styles.radius || 8) + "px";
-    });
-
-    // Preview buttons
-    const previewPrimary = document.getElementById("previewPrimary");
-    const previewSecondary = document.getElementById("previewSecondary");
-    if (previewPrimary) {
-      previewPrimary.style.background = styles.primary || "#4f46e5";
-      previewPrimary.style.color = styles.ink || "#222";
-    }
-    if (previewSecondary) {
-      previewSecondary.style.background = styles.secondary || "#22c55e";
-      previewSecondary.style.color = styles.ink || "#222";
-    }
-
-    // Extra CSS injection
-    let styleEl = document.getElementById("dynamicStyles");
-    if (!styleEl) {
-      styleEl = document.createElement("style");
-      styleEl.id = "dynamicStyles";
-      document.head.appendChild(styleEl);
-    }
-    styleEl.innerHTML = styles.extra || "";
+  // 🔹 Header Preview
+  const headerPreview = document.querySelector("header");
+  if (headerPreview) {
+    headerPreview.style.backgroundColor = styles.headerBg || "#ffffff";
+    headerPreview.style.color = styles.headerText || "#222222";
+    headerPreview.style.borderBottom = `1px solid ${styles.headerBorder || "#e6e6ea"}`;
   }
 
-  function collectPageStyles() {
-    return {
-      bg: document.getElementById("styleBg").value,
-      ink: document.getElementById("styleInk").value,
-      primary: document.getElementById("stylePrimary").value,
-      secondary: document.getElementById("styleSecondary").value,
-      radius: document.getElementById("styleRadius").value,
-      outline: document.getElementById("styleOutline").value,
-      extra: document.getElementById("customCSS").value
-    };
+  // 🔹 <hr> Preview
+  document.querySelectorAll("hr").forEach(hr => {
+    hr.style.borderColor = styles.hrColor || "#d1d5db";
+  });
+
+  // 🔹 Preview buttons
+  const previewPrimary = document.getElementById("previewPrimary");
+  const previewSecondary = document.getElementById("previewSecondary");
+
+  if (previewPrimary) {
+    previewPrimary.style.backgroundColor = styles.ctaBg || "#4f46e5";
+    previewPrimary.style.color = styles.ctaText || "#ffffff";
+    previewPrimary.style.borderRadius = (styles.ctaRadius || 8) + "px";
+    previewPrimary.style.border = `1px solid ${styles.ctaOutline || "#e6e6ea"}`;
   }
+
+  if (previewSecondary) {
+    previewSecondary.style.backgroundColor = styles.btnBg || "#22c55e";
+    previewSecondary.style.color = styles.btnText || "#ffffff";
+    previewSecondary.style.borderRadius = (styles.radius || 8) + "px";
+    previewSecondary.style.border = `1px solid ${styles.btnHover || "#16a34a"}`;
+  }
+
+  // 🔹 Hover styles via style tag
+  let hoverStyle = document.getElementById("dynamic-hover-styles");
+  if (!hoverStyle) {
+    hoverStyle = document.createElement("style");
+    hoverStyle.id = "dynamic-hover-styles";
+    document.head.appendChild(hoverStyle);
+  }
+  hoverStyle.innerHTML = `
+    #previewPrimary:hover { background-color: ${styles.ctaHover || "#3730a3"}; }
+    #previewSecondary:hover { background-color: ${styles.btnHover || "#16a34a"}; }
+  `;
+
+  // 🔹 Extra custom CSS
+  let styleEl = document.getElementById("dynamic-style");
+  if (!styleEl) {
+    styleEl = document.createElement("style");
+    styleEl.id = "dynamic-style";
+    document.head.appendChild(styleEl);
+  }
+  styleEl.innerHTML = styles.extra || "";
+}
+
+function collectPageStyles() {
+  return {
+    headerBg: document.getElementById("headerBg").value,
+    headerText: document.getElementById("headerText").value,
+    headerBorder: document.getElementById("headerBorder").value,
+    hrColor: document.getElementById("hrColor").value,
+    ctaBg: document.getElementById("ctaBg").value,
+    ctaText: document.getElementById("ctaText").value,
+    ctaHover: document.getElementById("ctaHover").value,
+    ctaRadius: document.getElementById("ctaRadius").value,
+    ctaOutline: document.getElementById("ctaOutline").value,
+    btnBg: document.getElementById("btnBg").value,
+    btnText: document.getElementById("btnText").value,
+    btnHover: document.getElementById("btnHover").value,
+    extra: document.getElementById("customCSS").value
+  };
+}
+
 
   // Initial application
   applyPageStyles(collectPageStyles());
@@ -2061,6 +2140,33 @@ ${scriptTag}
 <style id="dynamic-style">
 ${JSON.stringify(articleData.styles)}
 ${JSON.stringify(articleData.customCSS)}
+
+.site-header {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    padding: 3rem 0;
+    text-align: center;
+    border-bottom: 4px solid #1e40af;
+}
+
+.content-cta a {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-decoration: none;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.content-cta a:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+}
+
+
 </style>
 </head>
 <body>
