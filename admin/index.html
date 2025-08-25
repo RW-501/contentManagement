@@ -703,54 +703,68 @@ document.getElementById("showAnalytics").addEventListener("click", async () => {
 modalClose.onclick = () => modal.style.display = "none";
 window.onclick = (e) => { if(e.target === modal) modal.style.display = "none"; };
 
-// Load analytics from Firestore
+// 🔹 Load analytics from Firestore
 async function loadAnalytics() {
   const contentDiv = document.getElementById("analyticsContent");
   contentDiv.innerHTML = "Loading...";
 
   try {
-    const pagesSnap = await getDoc(doc(db, "users", currentUser.uid));
-    const pages = pagesSnap.exists() ? pagesSnap.data().createdPages || [] : [];
-    if (!pages.length) { contentDiv.innerHTML = "<p>No pages yet.</p>"; return; }
-
-    let html = "";
-    for (const p of pages) {
-      const pageRef = doc(db, "pages", p.id);
-      const pageSnap = await getDoc(pageRef);
-      const pageData = pageSnap.exists() ? pageSnap.data() : {};
-
-      const locationRef = doc(db, "page_locations", p.id);
-      const locSnap = await getDoc(locationRef);
-      const locData = locSnap.exists() ? locSnap.data() : {};
-
-      html += `<div class="analytics-card">
-        <h3>${p.domain}</h3>
-        <p>Total Views: ${pageData.views || 0}</p>
-        <p>Unique Visitors Today: ${Object.keys(locData.cities || {}).length || 0}</p>
-      </div>`;
-
-      // Location breakdown table
-      if(locData.countries) {
-        html += `<table class="analytics-table">
-          <thead><tr><th>Country</th><th>Region</th><th>City</th><th>Visitors</th></tr></thead>
-          <tbody>`;
-        for(const country in locData.countries) {
-          for(const region in locData.regions) {
-            for(const city in locData.cities) {
-              html += `<tr><td>${country}</td><td>${region}</td><td>${city}</td><td>${locData.cities[city]}</td></tr>`;
-            }
-          }
-        }
-        html += `</tbody></table>`;
-      }
+    const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+    const pages = userSnap.exists() ? userSnap.data().createdPages || [] : [];
+    if (!pages.length) { 
+      contentDiv.innerHTML = "<p>No pages yet.</p>"; 
+      return; 
     }
 
+    // 🔹 Fetch pages + locations in parallel
+    const results = await Promise.all(
+      pages.map(async (p) => {
+        const [pageSnap, locSnap] = await Promise.all([
+          getDoc(doc(db, "pages", p.id)),
+          getDoc(doc(db, "page_locations", p.id))
+        ]);
+        return { 
+          slug: p.slug, 
+          data: pageSnap.exists() ? pageSnap.data() : {}, 
+          loc: locSnap.exists() ? locSnap.data() : {} 
+        };
+      })
+    );
+
+    // 🔹 Build HTML
+    let html = results.map(({ slug, data, loc }) => {
+      let block = `
+        <div class="analytics-card">
+          <h3>${slug}</h3><br>
+          <p>Total Views: ${data.views || 0}</p>
+          <p>Unique Visitors Today: ${Object.keys(loc.cities || {}).length || 0}</p>
+        </div>
+      `;
+
+      if (loc.countries && loc.regions && loc.cities) {
+        block += `
+          <table class="analytics-table">
+            <thead><tr><th>Country</th><th>Region</th><th>City</th><th>Visitors</th></tr></thead>
+            <tbody>
+              ${Object.entries(loc.cities).map(([city, count]) => {
+                const region = Object.keys(loc.regions || {})[0] || "-";
+                const country = Object.keys(loc.countries || {})[0] || "-";
+                return `<tr><td>${country}</td><td>${region}</td><td>${city}</td><td>${count}</td></tr>`;
+              }).join("")}
+            </tbody>
+          </table>
+        `;
+      }
+      return block;
+    }).join("");
+
     contentDiv.innerHTML = html;
-  } catch(err) {
+  } catch (err) {
     contentDiv.innerHTML = `<p>Error loading analytics: ${err.message}</p>`;
     console.error(err);
   }
 }
+
 window.loadAnalytics = loadAnalytics;
 
 
@@ -770,52 +784,51 @@ const pageSize = 6;
 // Add "Remove" button to the dashboard table
 async function loadDashboard(autoPing = false) {
   const contentDiv = document.getElementById("dashboardContent");
-  const snapshot = await getDoc(doc(db, "users", currentUser.uid));
-  const pages = snapshot.exists() ? snapshot.data().createdPages || [] : [];
+  const userSnap = await getDoc(doc(db, "users", currentUser.uid));
+  const pages = userSnap.exists() ? userSnap.data().createdPages || [] : [];
 
-  if (pages.length === 0) {
+  if (!pages.length) {
     contentDiv.innerHTML = "<p>No pages yet.</p>";
     return;
   }
-
-
 
   let html = `<table>
     <thead>
       <tr><th>Preview</th><th>Domain</th><th>Status</th><th>Views</th><th>Actions</th></tr>
     </thead><tbody>`;
 
-pages.forEach(p => {
-  html += `<tr>
-    <td>
-      <p>
-        <a href="https://contenthub.guru/site/${p.slug}" target="_blank">
-          <img src="${p.image || ''}" alt="preview" width="300" height="200">
-        </a>
-      </p>
-    </td>
-    <td>
-      <a href="https://contenthub.guru/site/${p.slug}" target="_blank" style="
-    width: 50%; display: block;">${p.slug}</a>
-    </td>
-    <td id="status-${p.id}" class="status-offline">❌ Offline</td>
-    <td>${p.views || 0}</td>
-    <td>
-      <button onclick="window.location.href='https://contenthub.guru/admin/editor?id=${p.id}'">Edit</button>
-      <button onclick="removePage('${p.id}','${p.slug}')">Remove</button>
-    </td>
-  </tr>`;
+  for (const p of pages) {
+    // 🔹 Pull updated stats from pages/{id}
+    const pageRef = doc(db, "pages", p.id);
+    const pageSnap = await getDoc(pageRef);
+    const pageData = pageSnap.exists() ? pageSnap.data() : {};
 
-  console.log("image  ", p.image);
-  console.log("data   ", p);
-});
-
+    html += `<tr>
+      <td>
+        <p>
+          <a href="https://contenthub.guru/site/${p.slug}" target="_blank">
+            <img src="${p.image || ''}" alt="preview" width="300" height="200">
+          </a>
+        </p>
+      </td>
+      <td>
+        <a href="https://contenthub.guru/site/${p.slug}" target="_blank" style="width: 50%; display: block;">${p.slug}</a>
+      </td>
+      <td id="status-${p.id}" class="status-offline">❌ Offline</td>
+      <td>${pageData.views || 0}</td>
+      <td>
+        <button onclick="window.location.href='https://contenthub.guru/admin/editor?id=${p.id}'">Edit</button>
+        <button onclick="removePage('${p.id}','${p.slug}')">Remove</button>
+      </td>
+    </tr>`;
+  }
 
   html += "</tbody></table>";
   contentDiv.innerHTML = html;
 
   if (autoPing) pages.forEach(p => updateLiveStatus(p.id, p.domain));
 }
+
 
 // Remove page function
 async function removePage(pageId, domain) {

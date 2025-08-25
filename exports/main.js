@@ -247,53 +247,60 @@ async function updatePageViews(unique = false) {
 
 // 🔹 Log visitor info (unique per day)
 async function logVisitor(data) {
-  const visitorRef = doc(db, "page_visitors", `${pageID}_${data.ip}_${today}`);
+  const visitorId = `${pageID}_${data.ip}_${today}`;
+  const visitorRef = doc(db, "page_visitors", visitorId);
   const visitorSnap = await getDoc(visitorRef);
 
-  const pageTitle = document.title; // Get page title
-  const lastReferrer = document.referrer || "Direct"; // Get referral website
-  const userDevice = navigator.userAgent; // Get user device info
+  const pageTitle = document.title;
+  const referrer = document.referrer || "Direct";
+  const refDomain = referrer.includes("://") ? new URL(referrer).hostname : referrer;
+  const device = /Mobi|Android/i.test(navigator.userAgent) ? "Mobile" : "Desktop";
+  const browser = navigator.userAgent.match(/(Chrome|Firefox|Safari|Edge)/i)?.[0] || "Other";
 
-  const timestamp =  new Date();
-
+  const timestamp = new Date();
   let isUnique = false;
+
   if (!visitorSnap.exists()) {
-    isUnique = true; // first time today
+    isUnique = true;
     await setDoc(visitorRef, {
       pageID,
       ip: data.ip,
       city: data.city,
       region: data.region,
       country: data.country_name,
-
-      currentPath,
-      userDevice,
-      totalPageViews: increment(1), // Increment page views
-      lastPageViewed: timestamp, // Update last viewed date
-      pageViewed: arrayUnion({ title: pageTitle, time: timestamp }), // Add new page to array
-      [`pageViewCount.${pageTitle}`]: increment(1), // Increment specific page count
-      lastReferral: lastReferrer, // Update referral website
-
-      timestamp
+      device,
+      browser,
+      firstVisit: timestamp,
+      lastVisit: timestamp,
+      visits: 1,
+      referrers: { [refDomain]: 1 },
+      pagesViewed: [{ title: pageTitle, time: timestamp }]
     });
-
-    // Update analytics per location
-    const locationRef = doc(db, "page_locations", pageID);
-    const locationSnap = await getDoc(locationRef);
-    if (locationSnap.exists()) {
-      await updateDoc(locationRef, {
-        [`countries.${data.country_name}`]: increment(1),
-        [`regions.${data.region}`]: increment(1),
-        [`cities.${data.city}`]: increment(1)
-      });
-    } else {
-      await setDoc(locationRef, {
-        countries: { [data.country_name]: 1 },
-        regions: { [data.region]: 1 },
-        cities: { [data.city]: 1 }
-      });
-    }
+  } else {
+    await updateDoc(visitorRef, {
+      visits: increment(1),
+      lastVisit: timestamp,
+      [`referrers.${refDomain}`]: increment(1),
+      pagesViewed: arrayUnion({ title: pageTitle, time: timestamp })
+    });
   }
+
+  // 🔹 Update aggregate stats in pages/{id}
+  await updateDoc(doc(db, "pages", pageID), {
+    views: increment(1),
+    uniqueViews: isUnique ? increment(1) : increment(0),
+    [`devices.${device}`]: increment(1),
+    [`browsers.${browser}`]: increment(1)
+  });
+
+  // 🔹 Update per-location aggregation
+  const locationRef = doc(db, "page_locations", pageID);
+  await setDoc(locationRef, {
+    countries: { [data.country_name]: increment(1) },
+    regions: { [data.region]: increment(1) },
+    cities: { [data.city]: increment(1) }
+  }, { merge: true });
+
 
   // Always increment total views, only increment uniqueViews if first time
   await updatePageViews(isUnique);
