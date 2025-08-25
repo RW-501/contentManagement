@@ -346,17 +346,29 @@ submitBtn.addEventListener("click", async () => {
   const message = commentMessage.value.trim();
   const isPrivate = privateCheckbox.checked;
 
-  if (!message) return alert("Please enter a comment.");
-  if (!name && !anonymousCheckbox.checked) return alert("Please enter your name.");
+  // 🔹 Validations
+  if (!message || message.length < 5) return alert("Comment must be at least 5 characters.");
+  if (!anonymousCheckbox.checked && (!name || name.length < 2)) return alert("Please enter a valid name.");
+  if (isPrivate && !auth.currentUser) return alert("Only logged-in users can make private comments.");
+
+  // 🔹 Simple blacklist
+  const blacklist = ["spamword1", "spamword2"];
+  for (const word of blacklist) {
+    if (message.toLowerCase().includes(word)) return alert("Please avoid inappropriate language.");
+  }
+
+  // 🔹 Sanitize
+  const safeMessage = message.replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
   try {
-    await addDoc(collection(db,  "pages", pageID, "comments"), {
+    await addDoc(collection(db, "pages", pageID, "comments"), {
       name,
-      message,
+      message: safeMessage,
       anonymous: anonymousCheckbox.checked,
       private: isPrivate,
       createdAt: serverTimestamp(),
-      userId: auth.currentUser ? auth.currentUser.uid : null
+      userId: auth.currentUser ? auth.currentUser.uid : null,
+      status: "active" // 🔹 Set status to active
     });
 
     // reset form
@@ -364,17 +376,21 @@ submitBtn.addEventListener("click", async () => {
     commentMessage.value = "";
     anonymousCheckbox.checked = false;
     privateCheckbox.checked = false;
+
+    alert("Comment posted!");
   } catch (err) {
     console.error("Error adding comment: ", err);
+    alert("Failed to post comment.");
   }
 });
 
 // 🔹 Load Comments
-const q = query(collection(db,  "pages", pageID, "comments"), orderBy("createdAt", "desc"));
+const q = query(collection(db, "pages", pageID, "comments"), orderBy("createdAt", "desc"));
 onSnapshot(q, (snapshot) => {
   commentsList.innerHTML = "";
   snapshot.forEach((docSnap) => {
     const entry = docSnap.data();
+
     if (entry.private && (!auth.currentUser || auth.currentUser.uid !== entry.userId)) {
       return; // hide private comments from others
     }
@@ -388,17 +404,18 @@ onSnapshot(q, (snapshot) => {
       <div class="comment-header">
         <strong itemprop="author">${entry.name}</strong>
         <time itemprop="dateCreated">${entry.createdAt?.toDate().toLocaleDateString() || ""}</time>
+        <span class="comment-status">[${entry.status || "active"}]</span>
       </div>
       <div class="comment-body" itemprop="text">${entry.message}</div>
     `;
 
-    // 🔹 Show controls if current user is admin or owner
+    // 🔹 Admin / owner controls
     if (auth.currentUser && (auth.currentUser.isAdmin || auth.currentUser.uid === entry.userId)) {
       const controls = document.createElement("div");
       controls.className = "comment-controls";
       controls.innerHTML = `
         <button data-id="${docSnap.id}" class="make-private">Make Private</button>
-        <button data-id="${docSnap.id}" class="delete-msg">Delete</button>
+        <button data-id="${docSnap.id}" class="mark-removed">Mark Removed</button>
       `;
       div.appendChild(controls);
     }
@@ -406,17 +423,19 @@ onSnapshot(q, (snapshot) => {
     commentsList.appendChild(div);
   });
 
-  // Attach button handlers AFTER rendering
+  // 🔹 Button handlers
   document.querySelectorAll(".make-private").forEach(btn => {
     btn.addEventListener("click", async () => {
-      await updateDoc(doc(db, "comments", btn.dataset.id), { private: true });
+      await updateDoc(doc(db, "pages", pageID, "comments", btn.dataset.id), { private: true });
     });
   });
 
-  document.querySelectorAll(".delete-msg").forEach(btn => {
+  document.querySelectorAll(".mark-removed").forEach(btn => {
     btn.addEventListener("click", async () => {
-      if (confirm("Delete this comment?")) {
-        await deleteDoc(doc(db, "comments", btn.dataset.id));
+      if (confirm("Mark this comment as removed?")) {
+        await updateDoc(doc(db, "pages", pageID, "comments", btn.dataset.id), { 
+          status: "removed"
+        });
       }
     });
   });
