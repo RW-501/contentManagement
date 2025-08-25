@@ -2401,7 +2401,7 @@ const GITHUB_TOKEN = part_1 + part_2 + part_3 + part_4;
       body: JSON.stringify({ message: sha ? `Update ${filePath}` : `Create ${filePath}`, content: encodedContent, sha, branch })
     });
     if (!resp.ok) throw new Error((await resp.json()).message);
-    showToast("info", "Page updated successfully!");
+    showToast("info", "Page Updated successfully!");
     console.log("Page updated successfully!");
   } catch (err) {
     console.error(err.message);
@@ -2445,7 +2445,7 @@ async function savePage(pageId, currentUser) {
     data.createdAt = serverTimestamp();
     data.status = "draft";
     const ref = await addDoc(collection(db, "pages"), data);
-    showToast("success", "Page created!", 2500);
+    showToast("success", "Page Saved!", 2500);
     return ref.id;
   }
 }
@@ -2460,7 +2460,7 @@ $("#publishBtn").onclick = async () => {
   const id = getPageIdFromUrl();
   if (!id) return showToast("error", "Save before publishing!", 3000);
   await updateDoc(doc(db, "pages", id), { status: "published", publishedAt: serverTimestamp() });
-  showToast("success", "Page published!", 2500);
+  //showToast("success", "Page published!", 2500);
 };
 
 
