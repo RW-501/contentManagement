@@ -685,7 +685,11 @@ main article:hover {
   }
 }
 
-
+  .flex {
+  display: flex;
+  gap: 20 px;           /* space between columns */
+  flex-wrap: wrap;        /* stack on smaller screens */
+    }
 
 /* Default: mobile first */
 #in-article-blocks {
@@ -703,9 +707,6 @@ main article:hover {
   .flex {
   display: flex;
   gap: 0;           /* space between columns */
-  flex-wrap: wrap;        /* stack on smaller screens */
-  
-  grid-template-columns: 1fr 2fr 1fr; /* left | content | right */
   }
 
   #left-sidebar {
