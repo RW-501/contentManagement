@@ -2363,12 +2363,48 @@ function keywordMatchSuggestion(matches, minRequired, fieldName) {
     return 100;                     // good
   }
 
-  function countKeywordMatches(text, keywords) {
-    if (!text || !keywords) return 0;
-    const words = text.toLowerCase().split(/\s+/);
-    const keyList = keywords.toLowerCase().split(/\s*,\s*/);
-    return words.reduce((acc, word) => acc + (keyList.includes(word) ? 1 : 0), 0);
-  }
+// 🔹 Count keyword matches in a string
+function countKeywordMatches(text, keywords) {
+  if (!text || !keywords) return 0;
+  const words = text.toLowerCase().split(/\s+/);
+  const keyList = keywords.toLowerCase().split(/\s*,\s*/);
+  return words.reduce((acc, word) => acc + (keyList.includes(word) ? 1 : 0), 0);
+}
+
+// 🔹 Get all text content from blocks
+function getAllBlockText() {
+  let allText = "";
+
+  document.querySelectorAll(".block-card").forEach(card => {
+    const type = card.querySelector(".block-type")?.value;
+    if (!type) return;
+
+    if (type === "paragraph" && card._te?.getHTML) {
+      const html = card._te.getHTML();
+      allText += " " + html.replace(/<[^>]+>/g, "");
+    } else if (type === "heading") {
+      allText += " " + (card.querySelector(".b-text")?.value || "");
+    } else if (type === "faq") {
+      card.querySelectorAll(".faq-items .row").forEach(row => {
+        allText += " " + (row.querySelector(".q")?.value || "");
+        allText += " " + (row.querySelector(".a")?._te?.getHTML()?.replace(/<[^>]+>/g, "") || "");
+      });
+    } else if (type === "howto") {
+      allText += " " + (card.querySelector(".step-title")?.value || "");
+      allText += " " + (card.querySelector(".step-desc")?._te?.getHTML()?.replace(/<[^>]+>/g, "") || "");
+    }
+    // optionally include CTA, button, rawHtml, etc.
+  });
+
+  return allText.trim();
+}
+
+// 🔹 Count keyword matches across all blocks
+function getTotalKeywordMatches(keywords) {
+  const allText = getAllBlockText();
+  return countKeywordMatches(allText, keywords);
+}
+
 
   function generateKeywords(text) {
     return text
@@ -2425,6 +2461,8 @@ function updateSEOIndicators() {
 
 const bodyCount = getTotalBlockContent();
 
+
+
 const slugVal = slugInput.value.trim();
 
   const titleCount = title.length;
@@ -2456,7 +2494,10 @@ const slugVal = slugInput.value.trim();
   // Keyword match suggestions
   const titleMatches = countKeywordMatches(title, keywords);
   const descMatches = countKeywordMatches(description, keywords);
-  const bodyMatches = countKeywordMatches(body, keywords);
+
+  const bodyMatches = getTotalKeywordMatches(keywords);
+
+  console.log("Total keyword matches:", bodyMatches);
 
   const titleKeywordTip = keywordMatchSuggestion(titleMatches, 1, "title");
   const descKeywordTip = keywordMatchSuggestion(descMatches, 2, "description");
